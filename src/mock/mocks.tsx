@@ -29,3 +29,27 @@ export const mockedHomepageOverallStatistics = [
     value: "20",
   },
 ] as Statistic[];
+
+export const mockedNews = [
+  {
+    id: 1,
+    title: "What's new in v2",
+    author: "Admin",
+    creationDate: new Date(),
+    content: "Hello world",
+  },
+  {
+    id: 2,
+    title: "Happy new year",
+    author: "Admin",
+    creationDate: new Date(),
+    content: "Hello world",
+  },
+  {
+    id: 3,
+    title: "Recent changes",
+    author: "Admin",
+    creationDate: new Date(),
+    content: "Hello world",
+  },
+];

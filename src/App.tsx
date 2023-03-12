@@ -4,6 +4,8 @@ import { Route, Routes } from "react-router-dom";
 
 import { Home } from "./home/pages/Home";
 import { Navbar } from "./navbar/Navbar";
+import { News } from "./news/pages/News";
+import { Thread } from "./Thread/Thread";
 
 function App() {
   return (
@@ -11,6 +13,8 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/home" element={<Home />} />
+        <Route path="/news" element={<News />} />
+        <Route path="/news/:id" element={<Thread />} />
       </Routes>
     </>
   );
