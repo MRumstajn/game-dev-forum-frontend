@@ -1,20 +1,30 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
 
 import { ThemeProvider } from "@tiller-ds/theme";
+
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import {defaultComponentConfig, defaultIconConfig} from "./styles/tillerConfig";
+import {
+  defaultComponentConfig,
+  defaultIconConfig,
+} from "./styles/tillerConfig";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <ThemeProvider themeConfig={defaultComponentConfig} iconConfig={defaultIconConfig}>
-      <App />
+    <ThemeProvider
+      themeConfig={defaultComponentConfig}
+      iconConfig={defaultIconConfig}
+    >
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </ThemeProvider>
   </React.StrictMode>
 );
