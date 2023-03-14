@@ -3,7 +3,7 @@ import { Icon } from "@tiller-ds/icons";
 
 import { Link } from "react-router-dom";
 
-import { mockedNews } from "../../mock/mocks";
+import { mockedThreads, mockedUsers } from "../../mock/mocks";
 import { NewsCard } from "../components/NewsCard";
 
 export function News() {
@@ -28,14 +28,19 @@ export function News() {
                 </Button>
               </div>
               <div className="flex flex-col space-y-3">
-                {mockedNews.map((card: any) => (
-                  <NewsCard
-                    id={card.id}
-                    title={card.title}
-                    creationDate={card.creationDate}
-                    author={card.author}
-                  />
-                ))}
+                {mockedThreads
+                  .filter((th: any) => th.sectionId === 1)
+                  .map((card: any) => (
+                    <NewsCard
+                      id={card.id}
+                      title={card.title}
+                      creationDate={card.creationDate}
+                      author={
+                        mockedUsers.filter((usr) => usr.id === card.authorId)[0]
+                          .username
+                      }
+                    />
+                  ))}
               </div>
             </div>
           </div>

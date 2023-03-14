@@ -1,5 +1,7 @@
 import { Card, Link, Typography } from "@tiller-ds/core";
 
+import { formatDate } from "../../util/dateUtil";
+
 type NewsCardProps = {
   id: number;
 
@@ -11,14 +13,6 @@ type NewsCardProps = {
 };
 
 export function NewsCard({ id, title, creationDate, author }: NewsCardProps) {
-  const formatDate = (date: Date): string => {
-    return date.toLocaleString("local", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
   return (
     <Link to={`/news/${id}`}>
       <Card>

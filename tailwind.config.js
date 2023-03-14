@@ -4,6 +4,9 @@ module.exports = {
   presets: [preset],
   theme: {
     extend: {
+      screens: {
+        "-sm": { max: "639px" },
+      },
       colors: {
         // brand default primary value from preset
         primary: color(

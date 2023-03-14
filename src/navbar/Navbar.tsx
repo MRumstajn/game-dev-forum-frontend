@@ -3,7 +3,6 @@ import React from "react";
 import { ButtonGroups, Typography } from "@tiller-ds/core";
 import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
-import { IntlProvider } from "@tiller-ds/intl";
 import { TopNavigation } from "@tiller-ds/menu";
 
 import { Link } from "react-router-dom";
@@ -30,9 +29,7 @@ export function Navbar() {
               menuType="icon"
               iconColor="default"
             >
-              <IntlProvider lang="hr">
-                <Input name="search" placeholder="🔎 Search..." />
-              </IntlProvider>
+              <Input name="search" placeholder="🔎 Search..." />
               <Button variant="filled" className="w-full">
                 Search
               </Button>

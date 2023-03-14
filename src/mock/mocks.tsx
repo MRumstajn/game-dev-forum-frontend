@@ -30,26 +30,97 @@ export const mockedHomepageOverallStatistics = [
   },
 ] as Statistic[];
 
-export const mockedNews = [
+export const mockedThreads = [
   {
     id: 1,
-    title: "What's new in v2",
-    author: "Admin",
+    sectionId: 1,
+    title: "Hello world",
+    authorId: 1,
     creationDate: new Date(),
-    content: "Hello world",
   },
   {
     id: 2,
+    sectionId: 1,
     title: "Happy new year",
-    author: "Admin",
+    authorId: 1,
     creationDate: new Date(),
-    content: "Hello world",
   },
   {
     id: 3,
-    title: "Recent changes",
-    author: "Admin",
+    sectionId: 1,
+    title: "What's new in v2",
+    authorId: 1,
     creationDate: new Date(),
-    content: "Hello world",
   },
 ];
+
+export const mockedPosts = [
+  {
+    id: 1,
+    authorId: 1,
+    threadId: 1,
+    content: "Hello world",
+    creationDate: new Date(),
+    likes: 10,
+    dislikes: 3,
+  },
+  {
+    id: 2,
+    authorId: 1,
+    threadId: 2,
+    content: "Happy 2023!",
+    creationDate: new Date(),
+    likes: 10,
+    dislikes: 3,
+  },
+  {
+    id: 4,
+    authorId: 1,
+    threadId: 3,
+    content: "Changelog: added bio section!",
+    creationDate: new Date(),
+    likes: 10,
+    dislikes: 3,
+  },
+  {
+    id: 5,
+    authorId: 2,
+    threadId: 3,
+    content: "Awesome!",
+    creationDate: new Date(),
+    likes: 10,
+    dislikes: 3,
+  },
+  {
+    id: 6,
+    authorId: 3,
+    threadId: 3,
+    content: "Interesting idea",
+    creationDate: new Date(),
+    likes: 10,
+    dislikes: 3,
+  },
+];
+
+export const mockedUsers = [
+  {
+    id: 1,
+    username: "Admin",
+    joinDate: new Date(),
+    bio: "Bio: gamer, developer",
+  },
+  {
+    id: 2,
+    username: "Jack",
+    joinDate: new Date(),
+    bio: "Bio: graphics designer",
+  },
+  {
+    id: 3,
+    username: "Haisley",
+    joinDate: new Date(),
+    bio: "Bio: graphics designer",
+  },
+];
+
+export const mockedCurrentUser = mockedUsers[0];
