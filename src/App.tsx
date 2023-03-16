@@ -9,6 +9,7 @@ import { Forum } from "./forum/pages/Forum";
 import { Home } from "./home/pages/Home";
 import { Navbar } from "./navbar/Navbar";
 import { News } from "./news/pages/News";
+import { Rules } from "./Rules/Rules";
 import { Thread } from "./Thread/pages/Thread";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           <Route path="/forum" element={<Forum />} />
           <Route path="/forum/:categoryId" element={<Category />} />
           <Route path="/forum/:categoryId/:threadId" element={<Thread />} />
+          <Route path="/rules" element={<Rules />} />
         </Routes>
       </IntlProvider>
     </>
