@@ -8,6 +8,7 @@ import { Icon } from "@tiller-ds/icons";
 import { Link, useParams } from "react-router-dom";
 
 import {
+  mockedCategories,
   mockedCurrentUser,
   mockedPosts,
   mockedThreads,
@@ -20,14 +21,20 @@ export function Thread() {
 
   const [filterFormOpen, setFilterFormOpen] = useState<boolean>(false);
   let [posts, setPosts] = useState(
-    mockedPosts.filter((post) => post.threadId === Number(params.id))
+    mockedPosts.filter((post) => post.threadId === Number(params.threadId))
   );
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [inputContent, setInputContent] = useState<string>("");
 
+  let mockedCategory: any;
+  if (params.categoryId) {
+    mockedCategory = mockedCategories.filter(
+      (category) => category.id === Number(params.categoryId)
+    )[0];
+  }
   const mockedThread = mockedThreads.filter(
-    (thread) => thread.id === Number(params.id)
+    (thread) => thread.id === Number(params.threadId)
   )[0];
 
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -114,9 +121,22 @@ export function Thread() {
             <Breadcrumbs.Breadcrumb>
               <Link to="/home">Home</Link>
             </Breadcrumbs.Breadcrumb>
-            <Breadcrumbs.Breadcrumb>
-              <Link to="/news">News</Link>
-            </Breadcrumbs.Breadcrumb>
+            {mockedCategory ? (
+              <div>
+                <Breadcrumbs icon={<Icon type="caret-right" />}>
+                  <Breadcrumbs.Breadcrumb>
+                    <Link to="/forum">Forum</Link>
+                  </Breadcrumbs.Breadcrumb>
+                  <Breadcrumbs.Breadcrumb>
+                    {mockedCategory.title}
+                  </Breadcrumbs.Breadcrumb>
+                </Breadcrumbs>
+              </div>
+            ) : (
+              <Breadcrumbs.Breadcrumb>
+                <Link to="/news">News</Link>
+              </Breadcrumbs.Breadcrumb>
+            )}
             <Breadcrumbs.Breadcrumb>
               {mockedThread.title}
             </Breadcrumbs.Breadcrumb>

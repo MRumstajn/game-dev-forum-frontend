@@ -30,26 +30,46 @@ export const mockedHomepageOverallStatistics = [
   },
 ] as Statistic[];
 
+export const mockedCategories = [
+  {
+    id: 1,
+    title: "News",
+    sectionId: 1,
+  },
+  {
+    id: 2,
+    title: "Unity game engine",
+    sectionId: 2,
+  },
+];
+
 export const mockedThreads = [
   {
     id: 1,
-    sectionId: 1,
+    categoryId: 1,
     title: "Hello world",
     authorId: 1,
     creationDate: new Date(),
   },
   {
     id: 2,
-    sectionId: 1,
+    categoryId: 1,
     title: "Happy new year",
     authorId: 1,
     creationDate: new Date(),
   },
   {
     id: 3,
-    sectionId: 1,
+    categoryId: 1,
     title: "What's new in v2",
     authorId: 1,
+    creationDate: new Date(),
+  },
+  {
+    id: 4,
+    categoryId: 2,
+    title: "How to ray cast",
+    authorId: 3,
     creationDate: new Date(),
   },
 ];
@@ -96,6 +116,24 @@ export const mockedPosts = [
     authorId: 3,
     threadId: 3,
     content: "Interesting idea",
+    creationDate: new Date(),
+    likes: 10,
+    dislikes: 3,
+  },
+  {
+    id: 7,
+    authorId: 3,
+    threadId: 4,
+    content: "How to ray cast in unity?",
+    creationDate: new Date(),
+    likes: 10,
+    dislikes: 3,
+  },
+  {
+    id: 8,
+    authorId: 1,
+    threadId: 4,
+    content: "Is this for a 3D or 2D project?",
     creationDate: new Date(),
     likes: 10,
     dislikes: 3,

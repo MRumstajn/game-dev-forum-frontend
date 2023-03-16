@@ -3,10 +3,14 @@ import { Icon } from "@tiller-ds/icons";
 
 import { Link } from "react-router-dom";
 
-import { mockedThreads, mockedUsers } from "../../mock/mocks";
+import { mockedCategories, mockedThreads, mockedUsers } from "../../mock/mocks";
 import { NewsCard } from "../components/NewsCard";
 
 export function News() {
+  const newsCategoryId = mockedCategories.filter(
+    (category) => category.sectionId === 1
+  )[0].id;
+
   return (
     <>
       <div className="m-10">
@@ -29,7 +33,7 @@ export function News() {
               </div>
               <div className="flex flex-col space-y-3">
                 {mockedThreads
-                  .filter((th: any) => th.sectionId === 1)
+                  .filter((th: any) => th.categoryId === newsCategoryId)
                   .map((card: any) => (
                     <NewsCard
                       id={card.id}
