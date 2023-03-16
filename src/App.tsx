@@ -4,6 +4,7 @@ import { IntlProvider } from "@tiller-ds/intl";
 
 import { Route, Routes } from "react-router-dom";
 
+import { About } from "./about/About";
 import { Category } from "./forum/pages/Category";
 import { Forum } from "./forum/pages/Forum";
 import { Home } from "./home/pages/Home";
@@ -25,6 +26,7 @@ function App() {
           <Route path="/forum/:categoryId" element={<Category />} />
           <Route path="/forum/:categoryId/:threadId" element={<Thread />} />
           <Route path="/rules" element={<Rules />} />
+          <Route path="/about" element={<About />} />
         </Routes>
       </IntlProvider>
     </>
