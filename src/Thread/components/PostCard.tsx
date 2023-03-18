@@ -6,13 +6,13 @@ import { Icon } from "@tiller-ds/icons";
 
 import Avatar from "react-avatar";
 
-import { mockedPosts, mockedUsers } from "../../mock/mocks";
+import { UserResponse } from "../../common/api/UserResponse";
 import { formatDate } from "../../util/dateUtil";
 
 type PostCardProps = {
-  id: number;
+  postId: number;
   content: string;
-  authorId: number;
+  author: UserResponse;
   creationDate: Date;
   likes: number;
   dislikes: number;
@@ -20,9 +20,9 @@ type PostCardProps = {
 };
 
 export function PostCard({
-  id,
+  postId,
   content,
-  authorId,
+  author,
   creationDate,
   likes,
   dislikes,
@@ -34,19 +34,18 @@ export function PostCard({
   const [editing, setEditing] = useState<boolean>(false);
   const [editedContent, setEditedContent] = useState<string>(postContent);
 
-  const author = mockedUsers.filter((user) => user.id === authorId)[0];
-  let index = mockedPosts.findIndex((post) => post.id === id);
-
   function likeHandler() {
+    // tODO
     // api call placeholder
-    mockedPosts[index].likes += 1;
-    setLikeCount(mockedPosts[index].likes);
+    // mockedPosts[index].likes += 1;
+    //setLikeCount(mockedPosts[index].likes);
   }
 
   function dislikeHandler() {
+    // TODO
     // api call placeholder
-    mockedPosts[index].dislikes += 1;
-    setDislikeCount(mockedPosts[index].dislikes);
+    // mockedPosts[index].dislikes += 1;
+    //setDislikeCount(mockedPosts[index].dislikes);
   }
 
   function editHandler() {
@@ -57,7 +56,8 @@ export function PostCard({
     // api call placeholder
     setEditing(false);
     setPostContent(editedContent);
-    mockedPosts[index].content = editedContent;
+    // TODO
+    // mockedPosts[index].content = editedContent;
   }
 
   return (
@@ -118,7 +118,7 @@ export function PostCard({
           </div>
           <div className="p-3">
             <Typography variant="text" element="p">
-              {author.bio}
+              {"Bio placeholder"}
             </Typography>
           </div>
         </div>

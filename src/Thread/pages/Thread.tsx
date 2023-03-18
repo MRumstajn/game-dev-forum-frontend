@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
 import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
@@ -7,110 +7,78 @@ import { Icon } from "@tiller-ds/icons";
 
 import { Link, useParams } from "react-router-dom";
 
-import {
-  mockedCategories,
-  mockedCurrentUser,
-  mockedPosts,
-  mockedThreads,
-  mockedUsers,
-} from "../../mock/mocks";
+import { CategoryResponse } from "../../common/api/CategoryResponse";
+import { PostResponse } from "../../common/api/PostResponse";
+import { ThreadResponse } from "../../common/api/ThreadResponse";
+import { mockedCurrentUser } from "../../mock/mocks";
+import { getCategoryById } from "../api/getCategoryById";
+import { getThreadById } from "../api/getThreadById";
+import { postCreatePostRequest } from "../api/postCreatePostRequest";
+import { postPostSearchRequest } from "../api/postPostSearchRequest";
 import { PostCard } from "../components/PostCard";
 
 export function Thread() {
   const params = useParams();
 
   const [filterFormOpen, setFilterFormOpen] = useState<boolean>(false);
-  let [posts, setPosts] = useState(
-    mockedPosts.filter((post) => post.threadId === Number(params.threadId))
-  );
+  const [posts, setPosts] = useState<PostResponse[]>();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [inputContent, setInputContent] = useState<string>("");
+  const [parentCategory, setParentCategory] = useState<CategoryResponse>();
+  const [thread, setThread] = useState<ThreadResponse>();
 
-  let mockedCategory: any;
-  if (params.categoryId) {
-    mockedCategory = mockedCategories.filter(
-      (category) => category.id === Number(params.categoryId)
-    )[0];
-  }
-  const mockedThread = mockedThreads.filter(
-    (thread) => thread.id === Number(params.threadId)
-  )[0];
+  const threadId = Number(params.threadId);
+  const categoryId = params.categoryId ? Number(params.categoryId) : undefined;
+
+  const filterAndUpdateThreads = useCallback(() => {
+    postPostSearchRequest({
+      threadId: threadId,
+    }).then((matches) => {
+      setPosts(matches);
+    });
+  }, [threadId]);
+
+  useEffect(() => {
+    filterAndUpdateThreads();
+  }, [filterAndUpdateThreads, posts]);
+
+  useEffect(() => {
+    if (categoryId) {
+      getCategoryById(categoryId).then((category) =>
+        setParentCategory(category)
+      );
+    }
+
+    if (threadId) {
+      getThreadById(threadId).then((th) => setThread(th));
+    }
+  }, [categoryId, threadId]);
 
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    let filtered = mockedPosts;
-
-    const authorFilter = event.currentTarget.author.value;
-    if (authorFilter !== undefined) {
-      filtered = filtered.filter((post) => {
-        const author = mockedUsers.filter(
-          (user) => user.id === post.authorId
-        )[0];
-        return (
-          author.username.startsWith(authorFilter) &&
-          post.threadId === Number(params.id)
-        );
-      });
-    }
-
-    const startDateRaw = formatDateInputDate(
-      event.currentTarget.startDate.value
-    );
-    const endDateRaw = formatDateInputDate(event.currentTarget.endDate.value);
-    if (startDateRaw.length > 0 && endDateRaw.length > 0) {
-      filtered = filtered.filter((post) => {
-        let startDate = new Date();
-        const [startYear, startMonth, startDay] = startDateRaw
-          .split("-")
-          .map((part) => Number(part));
-        startDate.setFullYear(startYear);
-        startDate.setMonth(startMonth);
-        startDate.setDate(startDay);
-        let endDate = new Date();
-        const [endYear, endMonth, endDay] = startDateRaw
-          .split("-")
-          .map((part) => Number(part));
-        endDate.setFullYear(endYear);
-        endDate.setMonth(endMonth);
-        endDate.setDate(endDay);
-
-        return (
-          post.threadId === Number(params.id) &&
-          post.creationDate.getTime() >= startDate.getTime() &&
-          post.creationDate.getTime() <= endDate.getTime()
-        );
-      });
-    }
-
-    setPosts(filtered);
-  }
-
-  function formatDateInputDate(date: string): string {
-    if (date.length === 0) {
-      return "";
-    }
-    let parts = date.replace(" ", "").split(".");
-    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    filterAndUpdateThreads();
   }
 
   function postInputFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const newPost = {
-      id: mockedPosts.length + 1,
-      threadId: Number(params.id),
-      content: inputContent,
+    postCreatePostRequest({
+      threadId: threadId,
       authorId: mockedCurrentUser.id,
-      creationDate: new Date(),
-      likes: 0,
-      dislikes: 0,
-    };
-
-    mockedPosts.push(newPost);
-
-    setPosts((prevState) => [...prevState, newPost]);
+      content: inputContent,
+    }).then((createdPost) => {
+      if (posts !== undefined) {
+        setPosts((prevState) => {
+          if (prevState) {
+            prevState.push(createdPost);
+            return prevState;
+          }
+          return [createdPost];
+        });
+      }
+    });
   }
 
   return (
@@ -121,14 +89,14 @@ export function Thread() {
             <Breadcrumbs.Breadcrumb>
               <Link to="/home">Home</Link>
             </Breadcrumbs.Breadcrumb>
-            {mockedCategory ? (
+            {parentCategory ? (
               <div>
                 <Breadcrumbs icon={<Icon type="caret-right" />}>
                   <Breadcrumbs.Breadcrumb>
                     <Link to="/forum">Forum</Link>
                   </Breadcrumbs.Breadcrumb>
                   <Breadcrumbs.Breadcrumb>
-                    {mockedCategory.title}
+                    {parentCategory.title}
                   </Breadcrumbs.Breadcrumb>
                 </Breadcrumbs>
               </div>
@@ -137,15 +105,13 @@ export function Thread() {
                 <Link to="/news">News</Link>
               </Breadcrumbs.Breadcrumb>
             )}
-            <Breadcrumbs.Breadcrumb>
-              {mockedThread.title}
-            </Breadcrumbs.Breadcrumb>
+            <Breadcrumbs.Breadcrumb>{thread?.title}</Breadcrumbs.Breadcrumb>
           </Breadcrumbs>
           <div className="mt-20">
             <div className="flex flex-col space-y-20">
               <div className="flex flex-row justify-between">
                 <Typography variant="h1" element="h1">
-                  {mockedThread.title}
+                  {thread?.title}
                 </Typography>
                 <Button
                   variant="filled"
@@ -219,21 +185,27 @@ export function Thread() {
                 </Card>
               )}
               <div className="flex flex-col space-y-10">
-                {posts.map((post) => (
-                  <PostCard
-                    id={post.id}
-                    content={post.content}
-                    authorId={post.authorId}
-                    creationDate={post.creationDate}
-                    likes={post.likes}
-                    dislikes={post.dislikes}
-                    deleteHandler={() =>
-                      setPosts((prevState) =>
-                        prevState.filter((pst) => pst.id !== post.id)
-                      )
-                    }
-                  />
-                ))}
+                {posts &&
+                  posts.map((post) => (
+                    <PostCard
+                      postId={post.id}
+                      content={post.content}
+                      author={post.author}
+                      creationDate={post.creationDate}
+                      likes={0}
+                      dislikes={0}
+                      deleteHandler={() => {}}
+                    />
+                  ))}
+                {(posts === undefined || posts.length === 0) && (
+                  <Typography
+                    variant="subtext"
+                    element="p"
+                    className="text-center"
+                  >
+                    No posts at the moment
+                  </Typography>
+                )}
               </div>
               <form onSubmit={postInputFormSubmitHandler}>
                 <Textarea
