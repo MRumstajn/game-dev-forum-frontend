@@ -1,5 +1,6 @@
 import { Card, Link, Typography } from "@tiller-ds/core";
 
+import { UserResponse } from "../../common/api/UserResponse";
 import { formatDate } from "../../util/dateUtil";
 
 type NewsCardProps = {
@@ -9,7 +10,7 @@ type NewsCardProps = {
 
   creationDate: Date;
 
-  author: string;
+  author: UserResponse;
 };
 
 export function NewsCard({ id, title, creationDate, author }: NewsCardProps) {
@@ -25,7 +26,7 @@ export function NewsCard({ id, title, creationDate, author }: NewsCardProps) {
               {formatDate(creationDate)}
             </Typography>
             <Typography variant="text" element="p">
-              by {author}
+              by {author.username}
             </Typography>
           </div>
         </Card.Body>

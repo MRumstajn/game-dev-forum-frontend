@@ -1,15 +1,32 @@
+import { useEffect, useState } from "react";
+
 import { Breadcrumbs, Button, Typography } from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
 import { Link } from "react-router-dom";
 
-import { mockedCategories, mockedThreads, mockedUsers } from "../../mock/mocks";
+import { ThreadResponse } from "../../common/api/ThreadResponse";
+import { postSearchCategoryRequest } from "../api/postSearchCategoryRequest";
+import { postSearchThreadRequest } from "../api/postSearchThreadRequest";
 import { NewsCard } from "../components/NewsCard";
 
 export function News() {
-  const newsCategoryId = mockedCategories.filter(
-    (category) => category.sectionId === 1
-  )[0].id;
+  const [newsCategoryId, setNewsCategoryId] = useState<number>();
+  const [newsThreads, setNewsThreads] = useState<ThreadResponse[]>();
+
+  useEffect(() => {
+    postSearchCategoryRequest({
+      title: "News",
+    }).then((matches) => {
+      setNewsCategoryId(matches[0].id);
+    });
+  }, []);
+
+  useEffect(() => {
+    postSearchThreadRequest({
+      categoryId: newsCategoryId,
+    }).then((threads) => setNewsThreads(threads));
+  }, [newsCategoryId]);
 
   return (
     <>
@@ -32,19 +49,24 @@ export function News() {
                 </Button>
               </div>
               <div className="flex flex-col space-y-3">
-                {mockedThreads
-                  .filter((th: any) => th.categoryId === newsCategoryId)
-                  .map((card: any) => (
+                {newsThreads &&
+                  newsThreads.map((thread: any) => (
                     <NewsCard
-                      id={card.id}
-                      title={card.title}
-                      creationDate={card.creationDate}
-                      author={
-                        mockedUsers.filter((usr) => usr.id === card.authorId)[0]
-                          .username
-                      }
+                      id={thread.id}
+                      title={thread.title}
+                      creationDate={thread.creationDate}
+                      author={thread.author}
                     />
                   ))}
+                {(newsThreads === undefined || newsThreads.length === 0) && (
+                  <Typography
+                    variant="subtext"
+                    element="p"
+                    className="text-center"
+                  >
+                    No threads at the moment
+                  </Typography>
+                )}
               </div>
             </div>
           </div>
