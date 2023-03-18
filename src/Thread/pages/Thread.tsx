@@ -11,6 +11,7 @@ import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { PostResponse } from "../../common/api/PostResponse";
 import { ThreadResponse } from "../../common/api/ThreadResponse";
 import { mockedCurrentUser } from "../../mock/mocks";
+import { deletePost } from "../api/deletePost";
 import { getCategoryById } from "../api/getCategoryById";
 import { getThreadById } from "../api/getThreadById";
 import { postCreatePostRequest } from "../api/postCreatePostRequest";
@@ -31,7 +32,7 @@ export function Thread() {
   const threadId = Number(params.threadId);
   const categoryId = params.categoryId ? Number(params.categoryId) : undefined;
 
-  const filterAndUpdateThreads = useCallback(() => {
+  const updatePostList = useCallback(() => {
     postPostSearchRequest({
       threadId: threadId,
     }).then((matches) => {
@@ -40,8 +41,8 @@ export function Thread() {
   }, [threadId]);
 
   useEffect(() => {
-    filterAndUpdateThreads();
-  }, [filterAndUpdateThreads, posts]);
+    updatePostList();
+  }, [updatePostList]);
 
   useEffect(() => {
     if (categoryId) {
@@ -58,7 +59,7 @@ export function Thread() {
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    filterAndUpdateThreads();
+    updatePostList();
   }
 
   function postInputFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -77,8 +78,14 @@ export function Thread() {
           }
           return [createdPost];
         });
+
+        updatePostList();
       }
     });
+  }
+
+  function cardDeleteHandler(postId: number) {
+    deletePost(postId).then(() => updatePostList());
   }
 
   return (
@@ -194,7 +201,7 @@ export function Thread() {
                       creationDate={post.creationDate}
                       likes={0}
                       dislikes={0}
-                      deleteHandler={() => {}}
+                      deleteHandler={() => cardDeleteHandler(post.id)}
                     />
                   ))}
                 {(posts === undefined || posts.length === 0) && (

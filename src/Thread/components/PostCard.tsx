@@ -8,6 +8,7 @@ import Avatar from "react-avatar";
 
 import { UserResponse } from "../../common/api/UserResponse";
 import { formatDate } from "../../util/dateUtil";
+import { postEditPostRequest } from "../api/postEditPostRequest";
 
 type PostCardProps = {
   postId: number;
@@ -35,7 +36,7 @@ export function PostCard({
   const [editedContent, setEditedContent] = useState<string>(postContent);
 
   function likeHandler() {
-    // tODO
+    // TODO
     // api call placeholder
     // mockedPosts[index].likes += 1;
     //setLikeCount(mockedPosts[index].likes);
@@ -53,11 +54,13 @@ export function PostCard({
   }
 
   function saveConfirmHandler() {
-    // api call placeholder
     setEditing(false);
-    setPostContent(editedContent);
-    // TODO
-    // mockedPosts[index].content = editedContent;
+
+    postEditPostRequest(postId, {
+      content: editedContent,
+    }).then(() => {
+      setPostContent(editedContent);
+    });
   }
 
   return (
