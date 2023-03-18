@@ -1,13 +1,40 @@
+import { useEffect, useState } from "react";
+
 import { Breadcrumbs, Link, Typography } from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
-import {
-  mockedHomepageOverallStatistics,
-  mockedHomepageTopicStatistics,
-} from "../../mock/mocks";
+import { CategoryResponse } from "../../common/api/CategoryResponse";
+import { CategoryDetailsStatisticResponse } from "../api/CategoryDetailsStatisticResponse";
+import { getOverallStatistics } from "../api/getOverallStatistics";
+import { getTopCategories } from "../api/getTopCategories";
+import { OverallStatisticsResponse } from "../api/OverallStatisticsResponse";
+import { postCategoryDetailsStatisticRequest } from "../api/postCategoryDetailsStatisticRequest";
 import { StatisticCard } from "../components/StatisticTable/StatisticTable";
 
 export function Home() {
+  const [topCategories, setTopCategories] = useState<CategoryResponse[]>([]);
+  const [topCategoriesDetails, setTopCategoriesDetails] = useState<
+    CategoryDetailsStatisticResponse[]
+  >([]);
+  const [overallStatistics, setOverallStatistics] =
+    useState<OverallStatisticsResponse>();
+
+  useEffect(() => {
+    getTopCategories().then((categories) => {
+      setTopCategories(categories);
+
+      postCategoryDetailsStatisticRequest({
+        categoryIds: categories.map((category) => category.id),
+      }).then((categoriesStatistics) =>
+        setTopCategoriesDetails(categoriesStatistics)
+      );
+    });
+
+    getOverallStatistics().then((statistics) =>
+      setOverallStatistics(statistics)
+    );
+  }, []);
+
   return (
     <>
       <div className="m-10">
@@ -51,11 +78,48 @@ export function Home() {
             <div className="flex flex-col space-y-10 w-full md:w-1/3">
               <StatisticCard
                 statisticName="Popular topics"
-                statistics={mockedHomepageTopicStatistics}
+                statistics={topCategories.map((category) => {
+                  return {
+                    name: category.title,
+                    value:
+                      topCategoriesDetails.length > 0
+                        ? `${
+                            topCategoriesDetails.filter(
+                              (details) => details.categoryId === category.id
+                            )[0].threadCount
+                          } threads`
+                        : `0 threads`,
+                  };
+                })}
               />
               <StatisticCard
                 statisticName="Forum stats"
-                statistics={mockedHomepageOverallStatistics}
+                statistics={[
+                  {
+                    name: "Total categories",
+                    value: overallStatistics?.categoryCount
+                      ? overallStatistics.categoryCount.toString()
+                      : "0",
+                  },
+                  {
+                    name: "Total threads",
+                    value: overallStatistics?.threadCount
+                      ? overallStatistics.threadCount.toString()
+                      : "0",
+                  },
+                  {
+                    name: "Total posts",
+                    value: overallStatistics?.postCount
+                      ? overallStatistics.postCount.toString()
+                      : "0",
+                  },
+                  {
+                    name: "Total users",
+                    value: overallStatistics?.userCount
+                      ? overallStatistics.userCount.toString()
+                      : "0",
+                  },
+                ]}
               />
             </div>
           </div>

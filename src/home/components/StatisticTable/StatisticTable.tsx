@@ -32,6 +32,11 @@ export function StatisticCard({
             </Typography>
           </div>
         ))}
+        {statistics.length === 0 && (
+          <Typography variant="subtext" element="p">
+            No statistics
+          </Typography>
+        )}
       </Card.Body>
     </Card>
   );
