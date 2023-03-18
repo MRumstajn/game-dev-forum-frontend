@@ -8,6 +8,9 @@ import Avatar from "react-avatar";
 
 import { UserResponse } from "../../common/api/UserResponse";
 import { formatDate } from "../../util/dateUtil";
+import { dislikePost } from "../api/dislikePost";
+import { getPost } from "../api/getPost";
+import { likePost } from "../api/likePost";
 import { postEditPostRequest } from "../api/postEditPostRequest";
 
 type PostCardProps = {
@@ -36,17 +39,17 @@ export function PostCard({
   const [editedContent, setEditedContent] = useState<string>(postContent);
 
   function likeHandler() {
-    // TODO
-    // api call placeholder
-    // mockedPosts[index].likes += 1;
-    //setLikeCount(mockedPosts[index].likes);
+    getPost(postId).then((postObj) => {
+      const newLikeCount = postObj.likes + 1;
+      likePost(postId).then(() => setLikeCount(newLikeCount));
+    });
   }
 
   function dislikeHandler() {
-    // TODO
-    // api call placeholder
-    // mockedPosts[index].dislikes += 1;
-    //setDislikeCount(mockedPosts[index].dislikes);
+    getPost(postId).then((postObj) => {
+      const newDislikeCount = postObj.dislikes + 1;
+      dislikePost(postId).then(() => setDislikeCount(newDislikeCount));
+    });
   }
 
   function editHandler() {
