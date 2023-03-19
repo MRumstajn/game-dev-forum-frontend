@@ -5,6 +5,9 @@ import { IntlProvider } from "@tiller-ds/intl";
 import { Route, Routes } from "react-router-dom";
 
 import { About } from "./about/About";
+import { AccessDeniedErrorPage } from "./error-page/AccessDeniedErrorPage";
+import { InternalErrorPage } from "./error-page/InternalErrorPage";
+import { NotFoundErrorPage } from "./error-page/NotFoundErrorPage";
 import { Category } from "./forum/pages/Category";
 import { Forum } from "./forum/pages/Forum";
 import { Home } from "./home/pages/Home";
@@ -27,6 +30,9 @@ function App() {
           <Route path="/forum/:categoryId/:threadId" element={<Thread />} />
           <Route path="/rules" element={<Rules />} />
           <Route path="/about" element={<About />} />
+          <Route path="/404" element={<NotFoundErrorPage />} />
+          <Route path="/403" element={<AccessDeniedErrorPage />} />
+          <Route path="/500" element={<InternalErrorPage />} />
         </Routes>
       </IntlProvider>
     </>

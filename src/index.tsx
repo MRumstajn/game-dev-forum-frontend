@@ -7,6 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import "./index.css";
+import { ResponseInterceptor } from "./http-interceptor/ResponseInterceptor";
 import reportWebVitals from "./reportWebVitals";
 import {
   defaultComponentConfig,
@@ -16,6 +17,9 @@ import {
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
+
+ResponseInterceptor();
+
 root.render(
   <React.StrictMode>
     <ThemeProvider
