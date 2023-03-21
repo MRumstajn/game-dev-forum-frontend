@@ -6,7 +6,7 @@ import { Icon } from "@tiller-ds/icons";
 import { Link } from "react-router-dom";
 
 import { ThreadResponse } from "../../common/api/ThreadResponse";
-import { postSearchCategoryRequest } from "../api/postSearchCategoryRequest";
+import { postSearchCategoryRequest } from "../../forum/api/postSearchCategoryRequest";
 import { postSearchThreadRequest } from "../api/postSearchThreadRequest";
 import { NewsCard } from "../components/NewsCard";
 

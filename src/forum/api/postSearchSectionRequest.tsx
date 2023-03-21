@@ -1,10 +1,10 @@
-import { SearchCategoryRequest } from "./SearchCategoryRequest";
-import { CategoryResponse } from "../../common/api/CategoryResponse";
+import { SearchSectionRequest } from "./SearchSectionRequest";
+import { SectionResponse } from "../../common/api/SectionResponse";
 import { CATEGORY_SEARCH_URL } from "../../common/Routes";
 
-export async function postSearchCategoryRequest(
-  request: SearchCategoryRequest
-): Promise<CategoryResponse[]> {
+export async function postSearchSectionRequest(
+  request: SearchSectionRequest
+): Promise<SectionResponse> {
   const response = await fetch(CATEGORY_SEARCH_URL, {
     method: "POST",
     headers: {

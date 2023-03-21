@@ -4,17 +4,17 @@ import { Breadcrumbs, Link, Typography } from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
 import { CategoryResponse } from "../../common/api/CategoryResponse";
-import { CategoryDetailsStatisticResponse } from "../api/CategoryDetailsStatisticResponse";
+import { CategoryStatisticsResponse } from "../../common/api/CategoryStatisticsResponse";
+import { postCategoryStatisticsRequest } from "../../common/api/postCategoryStatisticsRequest";
 import { getOverallStatistics } from "../api/getOverallStatistics";
 import { getTopCategories } from "../api/getTopCategories";
 import { OverallStatisticsResponse } from "../api/OverallStatisticsResponse";
-import { postCategoryDetailsStatisticRequest } from "../api/postCategoryDetailsStatisticRequest";
 import { StatisticCard } from "../components/StatisticTable/StatisticTable";
 
 export function Home() {
   const [topCategories, setTopCategories] = useState<CategoryResponse[]>([]);
   const [topCategoriesDetails, setTopCategoriesDetails] = useState<
-    CategoryDetailsStatisticResponse[]
+    CategoryStatisticsResponse[]
   >([]);
   const [overallStatistics, setOverallStatistics] =
     useState<OverallStatisticsResponse>();
@@ -23,7 +23,7 @@ export function Home() {
     getTopCategories().then((categories) => {
       setTopCategories(categories);
 
-      postCategoryDetailsStatisticRequest({
+      postCategoryStatisticsRequest({
         categoryIds: categories.map((category) => category.id),
       }).then((categoriesStatistics) =>
         setTopCategoriesDetails(categoriesStatistics)

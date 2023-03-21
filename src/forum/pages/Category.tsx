@@ -51,7 +51,7 @@ export function Category() {
                         </Typography>
                         <div className="flex flex-col space-y-1">
                           <Typography variant="text" element="p">
-                            {formatDate(getLatestPost(thread.id).creationDate)}
+                            {formatDate(postSearchLatestActivityPostRequest(thread.id).creationDate)}
                           </Typography>
                           <div className="flex flex-row space-x-1">
                             <Typography variant="subtext" element="p">
@@ -62,7 +62,7 @@ export function Category() {
                                 mockedUsers.filter(
                                   (user) =>
                                     user.id ===
-                                    getLatestPost(thread.id).authorId
+                                    postSearchLatestActivityPostRequest(thread.id).authorId
                                 )[0].username
                               }
                             </Typography>

@@ -1,30 +1,88 @@
+import { useEffect, useState } from "react";
+
 import { Breadcrumbs, Button, Typography } from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
 import { Link } from "react-router-dom";
 
-import { mockedCategories, mockedThreads, mockedUsers } from "../../mock/mocks";
+import { CategoryResponse } from "../../common/api/CategoryResponse";
+import { CategoryStatisticsResponse } from "../../common/api/CategoryStatisticsResponse";
+import { postCategoryStatisticsRequest } from "../../common/api/postCategoryStatisticsRequest";
+import { SectionResponse } from "../../common/api/SectionResponse";
+import { postSearchCategoryRequest } from "../api/postSearchCategoryRequest";
+import { postSearchSectionRequest } from "../api/postSearchSectionRequest";
+import { postThreadStatisticsRequest } from "../api/postThreadStatisticsRequest";
+import { ThreadStatisticsResponse } from "../api/ThreadStatisticsResponse";
 import { ForumCategoryCard } from "../components/ForumCategoryCard";
 
 export function Forum() {
-  function getThreadWithLatestActivity(categoryId: number) {
-    return mockedThreads
-      .filter((thread) => thread.categoryId === categoryId)
-      .sort((thread, threadOther) => {
-        if (
-          thread.creationDate.getTime() < threadOther.creationDate.getTime()
-        ) {
-          return -1;
-        } else if (
-          thread.creationDate.getTime() === threadOther.creationDate.getTime()
-        ) {
-          return 0;
-        }
-        return 1;
-      })[0];
+  const [section, setSection] = useState<SectionResponse>();
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [categoryStatistics, setCategoryStatistics] = useState<
+    CategoryStatisticsResponse[]
+  >([]);
+  const [threadStatistics, setThreadStatistics] = useState<
+    ThreadStatisticsResponse[]
+  >([]);
+
+  // get forum section
+  useEffect(() => {
+    postSearchSectionRequest({
+      title: "Forum",
+    }).then((matchedSection) => setSection(matchedSection));
+  }, []);
+
+  // get categories
+  useEffect(() => {
+    if (section === undefined) {
+      return;
+    }
+
+    postSearchCategoryRequest({
+      sectionId: section.id,
+    }).then((matchedCategories) => setCategories(matchedCategories));
+  }, [section]);
+
+  // get details about each category
+  useEffect(() => {
+    if (categories.length === 0) {
+      return;
+    }
+
+    postCategoryStatisticsRequest({
+      categoryIds: categories.map((category) => category.id),
+    }).then((statistics) => setCategoryStatistics(statistics));
+  }, [categories]);
+
+  // get statistics for latest threads for all categories
+  useEffect(() => {
+    if (categoryStatistics.length === 0) {
+      return;
+    }
+
+    postThreadStatisticsRequest({
+      threadIds: categoryStatistics.map(
+        (statistic) => statistic.threadWithLatestActivity.id
+      ),
+    }).then((statistics) => setThreadStatistics(statistics));
+  }, [categoryStatistics]);
+
+  function getStatisticsForCategory(
+    categoryId: number
+  ): CategoryStatisticsResponse | undefined {
+    return categoryStatistics.find(
+      (category) => category.categoryId === categoryId
+    );
   }
 
-  console.log(getThreadWithLatestActivity(2));
+  function getStatisticsForThread(threadId: number | undefined) {
+    if (threadId === undefined) {
+      return undefined;
+    }
+
+    return threadStatistics.find((thread) => thread.threadId === threadId);
+  }
+
   return (
     <>
       <div className="m-10">
@@ -56,33 +114,33 @@ export function Forum() {
                   Latest activity
                 </Typography>
               </div>
-              {mockedCategories
-                .filter((ct: any) => ct.sectionId === 2)
-                .map((ct: any) => (
-                  <ForumCategoryCard
-                    categoryId={ct.id}
-                    title={ct.title}
-                    threadCount={
-                      mockedThreads.filter(
-                        (thread) => thread.categoryId === ct.id
-                      ).length
-                    }
-                    latestThreadPost={getThreadWithLatestActivity(ct.id).title}
-                    latestThreadPostBy={
-                      mockedUsers.filter(
-                        (user) =>
-                          user.id ===
-                          getThreadWithLatestActivity(ct.id).authorId
-                      )[0].username
-                    }
-                    latestThreadPostDate={
-                      getThreadWithLatestActivity(ct.id).creationDate
-                    }
-                    threadWithLatestActivityId={
-                      getThreadWithLatestActivity(ct.id).id
-                    }
-                  />
-                ))}
+              {categories.map((ct) => (
+                <ForumCategoryCard
+                  categoryId={ct.id}
+                  title={ct.title}
+                  key={ct.id}
+                  threadCount={getStatisticsForCategory(ct.id)?.threadCount}
+                  threadWithLatestActivityId={
+                    getStatisticsForCategory(ct.id)?.threadWithLatestActivity.id
+                  }
+                  threadWithLatestPostTitle={
+                    getStatisticsForCategory(ct.id)?.threadWithLatestActivity
+                      .title
+                  }
+                  latestThreadPostDate={
+                    getStatisticsForThread(
+                      getStatisticsForCategory(ct.id)?.threadWithLatestActivity
+                        .id
+                    )?.latestPost.creationDate
+                  }
+                  latestThreadPostAuthorUsername={
+                    getStatisticsForThread(
+                      getStatisticsForCategory(ct.id)?.threadWithLatestActivity
+                        .id
+                    )?.latestPost.author.username
+                  }
+                />
+              ))}
             </div>
           </div>
         </div>

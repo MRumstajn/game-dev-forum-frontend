@@ -8,23 +8,23 @@ type ForumCategoryCardProps = {
 
   title: string;
 
-  threadCount: number;
+  threadCount?: number;
 
-  latestThreadPostBy: string;
+  latestThreadPostAuthorUsername?: string;
 
-  latestThreadPost: string;
+  threadWithLatestPostTitle?: string;
 
-  latestThreadPostDate: Date;
+  threadWithLatestActivityId?: number;
 
-  threadWithLatestActivityId: number;
+  latestThreadPostDate?: Date;
 };
 
 export function ForumCategoryCard({
   categoryId,
   title,
   threadCount,
-  latestThreadPostBy,
-  latestThreadPost,
+  latestThreadPostAuthorUsername,
+  threadWithLatestPostTitle,
   latestThreadPostDate,
   threadWithLatestActivityId,
 }: ForumCategoryCardProps) {
@@ -32,6 +32,8 @@ export function ForumCategoryCard({
     return `/forum/${categoryId}/${threadId}`;
   }
 
+  console.log(latestThreadPostAuthorUsername);
+  console.log(latestThreadPostDate);
   return (
     <Link to={`/forum/${categoryId}`}>
       <Card>
@@ -44,24 +46,32 @@ export function ForumCategoryCard({
               {threadCount}
             </Typography>
             <div className="flex flex-col space-y-1">
-              <Link to={getURLForThread(threadWithLatestActivityId)}>
-                <Typography variant="text" element="p">
-                  {latestThreadPost} on {formatDate(latestThreadPostDate)}
-                </Typography>
-              </Link>
-              <div className="flex flex-row justify-between">
-                <div className="flex flex-row space-x-1">
-                  <Typography variant="subtext" element="p">
-                    by
-                  </Typography>
-                  <Typography variant="text" element="p">
-                    {latestThreadPostBy}
-                  </Typography>
-                </div>
-                <Link to={getURLForThread(threadWithLatestActivityId)}>
-                  <Icon type="arrow-right" />
-                </Link>
-              </div>
+              {threadWithLatestActivityId &&
+                latestThreadPostAuthorUsername &&
+                threadWithLatestPostTitle &&
+                latestThreadPostDate && (
+                  <div>
+                    <Link to={getURLForThread(threadWithLatestActivityId)}>
+                      <Typography variant="text" element="p">
+                        {threadWithLatestPostTitle} on
+                        {formatDate(latestThreadPostDate)}
+                      </Typography>
+                    </Link>
+                    <div className="flex flex-row justify-between">
+                      <div className="flex flex-row space-x-1">
+                        <Typography variant="subtext" element="p">
+                          by
+                        </Typography>
+                        <Typography variant="text" element="p">
+                          {latestThreadPostAuthorUsername}
+                        </Typography>
+                      </div>
+                      <Link to={getURLForThread(threadWithLatestActivityId)}>
+                        <Icon type="arrow-right" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
         </Card.Body>
