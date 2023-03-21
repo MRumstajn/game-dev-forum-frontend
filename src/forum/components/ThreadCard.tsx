@@ -9,11 +9,11 @@ type ThreadCardProps = {
 
   title: string;
 
-  postCount: number;
+  postCount?: number;
 
-  latestPostDate: Date;
+  latestPostDate?: Date;
 
-  latestPostAuthor: string;
+  latestPostAuthor?: string;
 };
 
 export function ThreadCard({
@@ -38,19 +38,21 @@ export function ThreadCard({
             <Typography variant="text" element="p">
               {postCount}
             </Typography>
-            <div className="flex flex-col space-y-3">
-              <Typography variant="text" element="p">
-                {formatDate(latestPostDate)}
-              </Typography>
-              <div className="flex flex-row space-x-1">
-                <Typography variant="subtext" element="p">
-                  by
-                </Typography>
+            {latestPostDate && latestPostAuthor && (
+              <div className="flex flex-col space-y-3">
                 <Typography variant="text" element="p">
-                  {latestPostAuthor}
+                  {formatDate(latestPostDate)}
                 </Typography>
+                <div className="flex flex-row space-x-1">
+                  <Typography variant="subtext" element="p">
+                    by
+                  </Typography>
+                  <Typography variant="text" element="p">
+                    {latestPostAuthor}
+                  </Typography>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </Card.Body>
       </Card>

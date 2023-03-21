@@ -1,82 +1,68 @@
+import { useEffect, useState } from "react";
+
 import { Breadcrumbs, Button, Typography } from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
 import { Link, useParams } from "react-router-dom";
 
-import {
-  mockedCategories,
-  mockedPosts,
-  mockedThreads,
-  mockedUsers,
-} from "../../mock/mocks";
+import { CategoryResponse } from "../../common/api/CategoryResponse";
+import { ThreadResponse } from "../../common/api/ThreadResponse";
+import { postSearchThreadRequest } from "../../news/api/postSearchThreadRequest";
+import { getCategoryById } from "../../Thread/api/getCategoryById";
+import { postThreadStatisticsRequest } from "../api/postThreadStatisticsRequest";
+import { ThreadStatisticsResponse } from "../api/ThreadStatisticsResponse";
 import { ThreadCard } from "../components/ThreadCard";
 
 export function Category() {
+  const [threads, setThreads] = useState<ThreadResponse[]>([]);
+  const [parentCategory, setParentCategory] = useState<CategoryResponse>();
+  const [threadStatistics, setThreadStatistics] = useState<
+    ThreadStatisticsResponse[]
+  >([]);
+
   const params = useParams();
 
-  const mockedCategory = mockedCategories.filter(
-    (category) => category.id === Number(params.categoryId)
-  )[0];
+  // get parent category
+  useEffect(() => {
+    getCategoryById(Number(params.categoryId)).then((category) =>
+      setParentCategory(category)
+    );
+  }, [params.categoryId]);
 
-  function getLatestPost(threadId: number) {
-    return mockedPosts
-      .filter((post) => post.threadId === threadId)
-      .sort((post, postOther) => {
-        if (post.creationDate.getTime() < postOther.creationDate.getTime()) {
-          return -1;
-        } else if (
-          post.creationDate.getTime() === postOther.creationDate.getTime()
-        ) {
-          return 0;
-        }
-        return 1;
-      })[0];
+  // get threads
+  useEffect(() => {
+    if (parentCategory === undefined) {
+      return;
+    }
+
+    postSearchThreadRequest({
+      categoryId: parentCategory.id,
+    }).then((matchedThreads) => setThreads(matchedThreads));
+  }, [parentCategory]);
+
+  // get details for all threads
+  useEffect(() => {
+    if (threads.length === 0) {
+      return;
+    }
+
+    postThreadStatisticsRequest({
+      threadIds: threads.map((thread) => thread.id),
+    }).then((statistics) => setThreadStatistics(statistics));
+  }, [threads]);
+
+  function getStatisticForThread(
+    threadId: number
+  ): ThreadStatisticsResponse | undefined {
+    if (threadId === undefined) {
+      return undefined;
+    }
+
+    return threadStatistics.find(
+      (statistic) => statistic.threadId === threadId
+    );
   }
 
-  /*
-  *
-  *
-  * <Card>
-                    <Card.Body>
-                      <div className="grid grid-cols-4">
-                        <Typography variant="text" element="p">
-                          {thread.title}
-                        </Typography>
-                        <Typography variant="text" element="p">
-                          {
-                            mockedPosts.filter(
-                              (post) => post.threadId === thread.id
-                            ).length
-                          }
-                        </Typography>
-                        <div className="flex flex-col space-y-1">
-                          <Typography variant="text" element="p">
-                            {formatDate(postSearchLatestActivityPostRequest(thread.id).creationDate)}
-                          </Typography>
-                          <div className="flex flex-row space-x-1">
-                            <Typography variant="subtext" element="p">
-                              by
-                            </Typography>
-                            <Typography variant="text" element="p">
-                              {
-                                mockedUsers.filter(
-                                  (user) =>
-                                    user.id ===
-                                    postSearchLatestActivityPostRequest(thread.id).authorId
-                                )[0].username
-                              }
-                            </Typography>
-                          </div>
-                        </div>
-
-                        <Typography variant="text" element="p">
-                          col4
-                        </Typography>
-                      </div>
-                    </Card.Body>
-                  </Card>
-  *
-  * */
   return (
     <>
       <div className="mt-10">
@@ -89,7 +75,7 @@ export function Category() {
               <Link to="/forum">Forum</Link>
             </Breadcrumbs.Breadcrumb>
             <Breadcrumbs.Breadcrumb>
-              {mockedCategory.title}
+              {parentCategory?.title}
             </Breadcrumbs.Breadcrumb>
           </Breadcrumbs>
           <div className="mt-20 flex flex-col space-y-20">
@@ -114,26 +100,19 @@ export function Category() {
                 </Typography>
               </div>
               <div className="border-b-2" />
-              {mockedThreads
-                .filter(
-                  (thread) => thread.categoryId === Number(params.categoryId)
-                )
-                .map((thread) => (
-                  <ThreadCard
-                    threadId={thread.id}
-                    title={thread.title}
-                    postCount={
-                      mockedPosts.filter((post) => post.threadId === thread.id)
-                        .length
-                    }
-                    latestPostDate={getLatestPost(thread.id).creationDate}
-                    latestPostAuthor={
-                      mockedUsers.filter(
-                        (user) => user.id === getLatestPost(thread.id).authorId
-                      )[0].username
-                    }
-                  />
-                ))}
+              {threads.map((thread) => (
+                <ThreadCard
+                  threadId={thread.id}
+                  title={thread.title}
+                  postCount={getStatisticForThread(thread.id)?.postCount}
+                  latestPostDate={
+                    getStatisticForThread(thread.id)?.latestPost.creationDate
+                  }
+                  latestPostAuthor={
+                    getStatisticForThread(thread.id)?.latestPost.author.username
+                  }
+                />
+              ))}
             </div>
           </div>
         </div>
