@@ -7,7 +7,7 @@ export type ThreadResponse = {
 
   author: UserResponse;
 
-  creationDate: Date;
+  creationDateTime: Date;
 
   title: string;
 };

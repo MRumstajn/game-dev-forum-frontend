@@ -106,7 +106,8 @@ export function Category() {
                   title={thread.title}
                   postCount={getStatisticForThread(thread.id)?.postCount}
                   latestPostDate={
-                    getStatisticForThread(thread.id)?.latestPost.creationDate
+                    getStatisticForThread(thread.id)?.latestPost
+                      .creationDateTime
                   }
                   latestPostAuthor={
                     getStatisticForThread(thread.id)?.latestPost.author.username

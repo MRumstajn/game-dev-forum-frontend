@@ -131,7 +131,7 @@ export function Forum() {
                     getStatisticsForThread(
                       getStatisticsForCategory(ct.id)?.threadWithLatestActivity
                         .id
-                    )?.latestPost.creationDate
+                    )?.latestPost.creationDateTime
                   }
                   latestThreadPostAuthorUsername={
                     getStatisticsForThread(

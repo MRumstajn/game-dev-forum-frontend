@@ -7,7 +7,7 @@ export type PostResponse = {
 
   content: string;
 
-  creationDate: Date;
+  creationDateTime: Date;
 
   threadId: number;
 

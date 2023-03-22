@@ -198,7 +198,7 @@ export function Thread() {
                       postId={post.id}
                       content={post.content}
                       author={post.author}
-                      creationDate={post.creationDate}
+                      creationDate={post.creationDateTime}
                       likes={post.likes}
                       dislikes={post.dislikes}
                       deleteHandler={() => cardDeleteHandler(post.id)}

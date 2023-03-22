@@ -32,8 +32,6 @@ export function ForumCategoryCard({
     return `/forum/${categoryId}/${threadId}`;
   }
 
-  console.log(latestThreadPostAuthorUsername);
-  console.log(latestThreadPostDate);
   return (
     <Link to={`/forum/${categoryId}`}>
       <Card>
@@ -53,7 +51,7 @@ export function ForumCategoryCard({
                   <div>
                     <Link to={getURLForThread(threadWithLatestActivityId)}>
                       <Typography variant="text" element="p">
-                        {threadWithLatestPostTitle} on
+                        {threadWithLatestPostTitle} on{" "}
                         {formatDate(latestThreadPostDate)}
                       </Typography>
                     </Link>
