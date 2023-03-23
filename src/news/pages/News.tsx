@@ -1,18 +1,26 @@
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
-import { Breadcrumbs, Button, Typography } from "@tiller-ds/core";
+import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
+import { DateInput } from "@tiller-ds/date";
+import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 
+import moment from "moment";
 import { Link } from "react-router-dom";
 
 import { ThreadResponse } from "../../common/api/ThreadResponse";
 import { postSearchCategoryRequest } from "../../forum/api/postSearchCategoryRequest";
 import { postSearchThreadRequest } from "../api/postSearchThreadRequest";
+import { SearchThreadRequest } from "../api/SearchThreadRequest";
 import { NewsCard } from "../components/NewsCard";
 
 export function News() {
   const [newsCategoryId, setNewsCategoryId] = useState<number>();
   const [newsThreads, setNewsThreads] = useState<ThreadResponse[]>();
+  const [filterFormOpen, setFilterFormOpen] = useState<boolean>(false);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [usernameFilter, setUsernameFilter] = useState<string>();
 
   useEffect(() => {
     postSearchCategoryRequest({
@@ -23,10 +31,37 @@ export function News() {
   }, []);
 
   useEffect(() => {
-    postSearchThreadRequest({
+    updateThreadList({
       categoryId: newsCategoryId,
-    }).then((threads) => setNewsThreads(threads));
+      authorUsername: usernameFilter,
+    });
   }, [newsCategoryId]);
+
+  function updateThreadList(request: SearchThreadRequest) {
+    postSearchThreadRequest(request).then((threads) => setNewsThreads(threads));
+  }
+
+  function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    let request = {
+      categoryId: newsCategoryId,
+      authorUsername: usernameFilter,
+    } as SearchThreadRequest;
+
+    if (startDate !== null) {
+      request.creationDateTimeFromIncluding = moment(startDate)
+        .add(1, "day")
+        .toDate();
+    }
+    if (endDate !== null) {
+      request.creationDateTimeToIncluding = moment(endDate)
+        .add(1, "day")
+        .toDate();
+    }
+
+    updateThreadList(request);
+  }
 
   return (
     <>
@@ -44,10 +79,82 @@ export function News() {
                 <Typography variant="h1" element="h1">
                   News
                 </Typography>
-                <Button variant="filled" color="primary">
+                <Button
+                  variant="filled"
+                  color="primary"
+                  onClick={() => setFilterFormOpen((prevState) => !prevState)}
+                >
                   <span className="text-white">Filter</span>
                 </Button>
               </div>
+              {filterFormOpen && (
+                <Card className="flex flex-col space-y-10">
+                  <Card.Body className="bg-gray-200">
+                    <form onSubmit={filterFormSubmitHandler}>
+                      <div className="flex flex-col space-y-5 lg:space-y-0 lg:flex-row lg:space-x-10">
+                        <div className="flex flex-row space-x-3 items-center">
+                          <Typography variant="text" element="p">
+                            By
+                          </Typography>
+                          <Input
+                            name="author"
+                            placeholder="Author"
+                            onChange={(event) =>
+                              setUsernameFilter(event.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="flex flex-col space-y-5 md:space-y-0 md:flex-row md:space-x-10">
+                          <div className="flex flex-row space-x-3 items-center">
+                            <Typography variant="text" element="p">
+                              Start date
+                            </Typography>
+                            <DateInput
+                              name="startDate"
+                              onChange={setStartDate}
+                              value={startDate}
+                              maxDate={endDate === null ? new Date() : endDate}
+                              onReset={() => setStartDate(null)}
+                            />
+                          </div>
+                          <div className="flex flex-row space-x-3 items-center">
+                            <Typography variant="text" element="p">
+                              End date
+                            </Typography>
+                            <DateInput
+                              name="endDate"
+                              onChange={setEndDate}
+                              value={endDate}
+                              minDate={
+                                startDate === null ? new Date() : startDate
+                              }
+                              onReset={() => setEndDate(null)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 justify-end mt-10">
+                        <Button
+                          variant="filled"
+                          color="danger"
+                          className="w-full sm:w-fit"
+                          onClick={() => setFilterFormOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="filled"
+                          color="primary"
+                          className="w-full sm:w-fit"
+                          type="submit"
+                        >
+                          Apply
+                        </Button>
+                      </div>
+                    </form>
+                  </Card.Body>
+                </Card>
+              )}
               <div className="flex flex-col space-y-3">
                 {newsThreads &&
                   newsThreads.map((thread: any) => (
