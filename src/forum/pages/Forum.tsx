@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
-import { Breadcrumbs, Button, Typography } from "@tiller-ds/core";
+import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
+import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 
 import { Link } from "react-router-dom";
@@ -9,6 +10,7 @@ import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { CategoryStatisticsResponse } from "../../common/api/CategoryStatisticsResponse";
 import { postCategoryStatisticsRequest } from "../../common/api/postCategoryStatisticsRequest";
 import { SectionResponse } from "../../common/api/SectionResponse";
+import { SearchCategoryRequest } from "../../news/api/SearchCategoryRequest";
 import { postSearchCategoryRequest } from "../api/postSearchCategoryRequest";
 import { postSearchSectionRequest } from "../api/postSearchSectionRequest";
 import { postThreadStatisticsRequest } from "../api/postThreadStatisticsRequest";
@@ -24,6 +26,8 @@ export function Forum() {
   const [threadStatistics, setThreadStatistics] = useState<
     ThreadStatisticsResponse[]
   >([]);
+  const [filterFormOpen, setFilterFormOpen] = useState<boolean>(false);
+  const [titleFilter, setTitleFilter] = useState<string>();
 
   // get forum section
   useEffect(() => {
@@ -83,6 +87,27 @@ export function Forum() {
     return threadStatistics.find((thread) => thread.threadId === threadId);
   }
 
+  function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (section === undefined) {
+      return;
+    }
+
+    let request = {
+      sectionId: section.id,
+      title: titleFilter,
+    } as SearchCategoryRequest;
+
+    updateCategoryList(request);
+  }
+
+  function updateCategoryList(request: SearchCategoryRequest) {
+    postSearchCategoryRequest(request).then((matchedCategories) =>
+      setCategories(matchedCategories)
+    );
+  }
+
   return (
     <>
       <div className="m-10">
@@ -98,10 +123,54 @@ export function Forum() {
               <Typography variant="h1" element="h1">
                 Forum
               </Typography>
-              <Button variant="filled" color="primary">
+              <Button
+                variant="filled"
+                color="primary"
+                onClick={() => setFilterFormOpen((prevState) => !prevState)}
+              >
                 <span className="text-white">Filter</span>
               </Button>
             </div>
+            {filterFormOpen && (
+              <Card className="flex flex-col space-y-10">
+                <Card.Body className="bg-gray-200">
+                  <form onSubmit={filterFormSubmitHandler}>
+                    <div className="flex flex-col space-y-5 lg:space-y-0 lg:flex-row lg:space-x-10">
+                      <div className="flex flex-row space-x-3 items-center">
+                        <Typography variant="text" element="p">
+                          By
+                        </Typography>
+                        <Input
+                          name="title"
+                          placeholder="Title"
+                          onChange={(event) =>
+                            setTitleFilter(event.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 justify-end mt-10">
+                      <Button
+                        variant="filled"
+                        color="danger"
+                        className="w-full sm:w-fit"
+                        onClick={() => setFilterFormOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="filled"
+                        color="primary"
+                        className="w-full sm:w-fit"
+                        type="submit"
+                      >
+                        Apply
+                      </Button>
+                    </div>
+                  </form>
+                </Card.Body>
+              </Card>
+            )}
             <div className="flex flex-col space-y-3">
               <div className="grid grid-cols-3">
                 <Typography variant="text" element="p">
