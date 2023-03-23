@@ -3,5 +3,7 @@ export type SearchPostsRequest = {
 
   authorId?: number;
 
-  creationDate?: Date;
+  creationDateTimeFromIncluding?: Date;
+
+  creationDateTimeToIncluding?: Date;
 };

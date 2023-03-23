@@ -5,6 +5,7 @@ import { DateInput } from "@tiller-ds/date";
 import { Input, Textarea } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 
+import moment from "moment/moment";
 import { Link, useParams } from "react-router-dom";
 
 import { CategoryResponse } from "../../common/api/CategoryResponse";
@@ -16,6 +17,7 @@ import { getCategoryById } from "../api/getCategoryById";
 import { getThreadById } from "../api/getThreadById";
 import { postCreatePostRequest } from "../api/postCreatePostRequest";
 import { postPostSearchRequest } from "../api/postPostSearchRequest";
+import { SearchPostsRequest } from "../api/SearchPostsRequest";
 import { PostCard } from "../components/PostCard";
 
 export function Thread() {
@@ -25,23 +27,28 @@ export function Thread() {
   const [posts, setPosts] = useState<PostResponse[]>();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [usernameFilter, setUsernameFilter] = useState<string>();
   const [inputContent, setInputContent] = useState<string>("");
   const [parentCategory, setParentCategory] = useState<CategoryResponse>();
   const [thread, setThread] = useState<ThreadResponse>();
 
   const threadId = Number(params.threadId);
   const categoryId = params.categoryId ? Number(params.categoryId) : undefined;
+  const defaultSearchPostRequest = {
+    threadId: threadId,
+  } as SearchPostsRequest;
 
-  const updatePostList = useCallback(() => {
-    postPostSearchRequest({
-      threadId: threadId,
-    }).then((matches) => {
-      setPosts(matches);
-    });
-  }, [threadId]);
+  const updatePostList = useCallback(
+    (request: SearchPostsRequest) => {
+      postPostSearchRequest(request).then((matches) => {
+        setPosts(matches);
+      });
+    },
+    [threadId]
+  );
 
   useEffect(() => {
-    updatePostList();
+    updatePostList(defaultSearchPostRequest);
   }, [updatePostList]);
 
   useEffect(() => {
@@ -59,7 +66,23 @@ export function Thread() {
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    updatePostList();
+    let request = {
+      threadId: threadId,
+      authorUsername: usernameFilter,
+    } as SearchPostsRequest;
+
+    if (startDate !== null) {
+      request.creationDateTimeFromIncluding = moment(startDate)
+        .add(1, "day")
+        .toDate();
+    }
+    if (endDate !== null) {
+      request.creationDateTimeToIncluding = moment(endDate)
+        .add(1, "day")
+        .toDate();
+    }
+
+    updatePostList(request);
   }
 
   function postInputFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -79,13 +102,13 @@ export function Thread() {
           return [createdPost];
         });
 
-        updatePostList();
+        updatePostList(defaultSearchPostRequest);
       }
     });
   }
 
   function cardDeleteHandler(postId: number) {
-    deletePost(postId).then(() => updatePostList());
+    deletePost(postId).then(() => updatePostList(defaultSearchPostRequest));
   }
 
   return (
@@ -139,7 +162,13 @@ export function Thread() {
                           <Typography variant="text" element="p">
                             By
                           </Typography>
-                          <Input name="author" placeholder="Author" />
+                          <Input
+                            name="author"
+                            placeholder="Author"
+                            onChange={(event) =>
+                              setUsernameFilter(event.target.value)
+                            }
+                          />
                         </div>
                         <div className="flex flex-col space-y-5 md:space-y-0 md:flex-row md:space-x-10">
                           <div className="flex flex-row space-x-3 items-center">
@@ -175,6 +204,7 @@ export function Thread() {
                           variant="filled"
                           color="danger"
                           className="w-full sm:w-fit"
+                          onClick={() => setFilterFormOpen(false)}
                         >
                           Cancel
                         </Button>
