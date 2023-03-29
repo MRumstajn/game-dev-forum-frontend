@@ -1,6 +1,8 @@
 import { Card, Link, Typography } from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
+import { PostResponse } from "../../common/api/PostResponse";
+import { ThreadResponse } from "../../common/api/ThreadResponse";
 import { formatDate } from "../../util/dateUtil";
 
 type ForumCategoryCardProps = {
@@ -10,23 +12,17 @@ type ForumCategoryCardProps = {
 
   threadCount?: number;
 
-  latestThreadPostAuthorUsername?: string;
+  threadWithLatestActivity?: ThreadResponse;
 
-  threadWithLatestPostTitle?: string;
-
-  threadWithLatestActivityId?: number;
-
-  latestThreadPostDate?: Date;
+  latestPost?: PostResponse;
 };
 
 export function ForumCategoryCard({
   categoryId,
   title,
   threadCount,
-  latestThreadPostAuthorUsername,
-  threadWithLatestPostTitle,
-  latestThreadPostDate,
-  threadWithLatestActivityId,
+  threadWithLatestActivity,
+  latestPost,
 }: ForumCategoryCardProps) {
   function getURLForThread(threadId: number): string {
     return `/forum/${categoryId}/${threadId}`;
@@ -44,32 +40,29 @@ export function ForumCategoryCard({
               {threadCount}
             </Typography>
             <div className="flex flex-col space-y-1">
-              {threadWithLatestActivityId &&
-                latestThreadPostAuthorUsername &&
-                threadWithLatestPostTitle &&
-                latestThreadPostDate && (
-                  <div>
-                    <Link to={getURLForThread(threadWithLatestActivityId)}>
-                      <Typography variant="text" element="p">
-                        {threadWithLatestPostTitle} on{" "}
-                        {formatDate(latestThreadPostDate)}
+              {threadWithLatestActivity && latestPost && (
+                <div>
+                  <Link to={getURLForThread(threadWithLatestActivity.id)}>
+                    <Typography variant="text" element="p">
+                      {threadWithLatestActivity.title} on{" "}
+                      {formatDate(latestPost.creationDateTime)}
+                    </Typography>
+                  </Link>
+                  <div className="flex flex-row justify-between">
+                    <div className="flex flex-row space-x-1">
+                      <Typography variant="subtext" element="p">
+                        by
                       </Typography>
-                    </Link>
-                    <div className="flex flex-row justify-between">
-                      <div className="flex flex-row space-x-1">
-                        <Typography variant="subtext" element="p">
-                          by
-                        </Typography>
-                        <Typography variant="text" element="p">
-                          {latestThreadPostAuthorUsername}
-                        </Typography>
-                      </div>
-                      <Link to={getURLForThread(threadWithLatestActivityId)}>
-                        <Icon type="arrow-right" />
-                      </Link>
+                      <Typography variant="text" element="p">
+                        {latestPost.author.username}
+                      </Typography>
                     </div>
+                    <Link to={getURLForThread(threadWithLatestActivity.id)}>
+                      <Icon type="arrow-right" />
+                    </Link>
                   </div>
-                )}
+                </div>
+              )}
             </div>
           </div>
         </Card.Body>

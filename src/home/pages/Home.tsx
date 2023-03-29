@@ -23,11 +23,13 @@ export function Home() {
     getTopCategories().then((categories) => {
       setTopCategories(categories);
 
-      postCategoryStatisticsRequest({
-        categoryIds: categories.map((category) => category.id),
-      }).then((categoriesStatistics) =>
-        setTopCategoriesDetails(categoriesStatistics)
-      );
+      if (categories.length > 0) {
+        postCategoryStatisticsRequest({
+          categoryIds: categories.map((category) => category.id),
+        }).then((categoriesStatistics) =>
+          setTopCategoriesDetails(categoriesStatistics)
+        );
+      }
     });
 
     getOverallStatistics().then((statistics) =>

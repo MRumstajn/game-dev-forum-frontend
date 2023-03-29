@@ -64,11 +64,17 @@ export function Forum() {
       return;
     }
 
-    postThreadStatisticsRequest({
-      threadIds: categoryStatistics.map(
-        (statistic) => statistic.threadWithLatestActivity.id
-      ),
-    }).then((statistics) => setThreadStatistics(statistics));
+    if (
+      categoryStatistics.filter(
+        (statistic) => statistic.threadWithLatestActivity !== null
+      ).length > 0
+    ) {
+      postThreadStatisticsRequest({
+        threadIds: categoryStatistics
+          .filter((statistic) => statistic.threadWithLatestActivity !== null)
+          .map((statistic) => statistic.threadWithLatestActivity.id),
+      }).then((statistics) => setThreadStatistics(statistics));
+    }
   }, [categoryStatistics]);
 
   function getStatisticsForCategory(
@@ -85,6 +91,17 @@ export function Forum() {
     }
 
     return threadStatistics.find((thread) => thread.threadId === threadId);
+  }
+
+  function getLatestPostInCategory(categoryID: number) {
+    const threadWithLatestActivity =
+      getStatisticsForCategory(categoryID)?.threadWithLatestActivity;
+
+    if (threadWithLatestActivity) {
+      return getStatisticsForThread(threadWithLatestActivity.id)?.latestPost;
+    }
+
+    return undefined;
   }
 
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -189,25 +206,10 @@ export function Forum() {
                   title={ct.title}
                   key={ct.id}
                   threadCount={getStatisticsForCategory(ct.id)?.threadCount}
-                  threadWithLatestActivityId={
-                    getStatisticsForCategory(ct.id)?.threadWithLatestActivity.id
-                  }
-                  threadWithLatestPostTitle={
+                  threadWithLatestActivity={
                     getStatisticsForCategory(ct.id)?.threadWithLatestActivity
-                      .title
                   }
-                  latestThreadPostDate={
-                    getStatisticsForThread(
-                      getStatisticsForCategory(ct.id)?.threadWithLatestActivity
-                        .id
-                    )?.latestPost.creationDateTime
-                  }
-                  latestThreadPostAuthorUsername={
-                    getStatisticsForThread(
-                      getStatisticsForCategory(ct.id)?.threadWithLatestActivity
-                        .id
-                    )?.latestPost.author.username
-                  }
+                  latestPost={getLatestPostInCategory(ct.id)}
                 />
               ))}
             </div>

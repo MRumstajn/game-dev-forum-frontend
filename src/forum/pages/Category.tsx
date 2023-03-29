@@ -53,7 +53,9 @@ export function Category() {
     }
 
     postThreadStatisticsRequest({
-      threadIds: threads.map((thread) => thread.id),
+      threadIds: threads
+        .filter((thread) => thread !== null)
+        .map((thread) => thread.id),
     }).then((statistics) => setThreadStatistics(statistics));
   }, [threads]);
 
