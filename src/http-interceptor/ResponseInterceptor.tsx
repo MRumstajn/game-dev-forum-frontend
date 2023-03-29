@@ -11,7 +11,9 @@ export function ResponseInterceptor() {
           window.location.replace("/404");
           break;
         case 403:
-          window.location.replace("/403");
+          if (!window.location.href.includes("/login")) {
+            window.location.replace("/403");
+          }
           break;
       }
       return response;

@@ -1,15 +1,24 @@
-import React from "react";
+import React, { useContext } from "react";
 
-import { ButtonGroups, Typography } from "@tiller-ds/core";
+import { Button, Typography } from "@tiller-ds/core";
 import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
-import { TopNavigation } from "@tiller-ds/menu";
+import { DropdownMenu, TopNavigation } from "@tiller-ds/menu";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-import Button = ButtonGroups.Button;
+import { AuthContext } from "../common/components/AuthProvider";
 
 export function Navbar() {
+  const navigate = useNavigate();
+  const authContext = useContext(AuthContext);
+
+  function logOut() {
+    authContext.setLoggedInUser(undefined);
+    window.localStorage.removeItem("access_token");
+    navigate("/login");
+  }
+
   return (
     <>
       <TopNavigation
@@ -34,9 +43,35 @@ export function Navbar() {
                 Search
               </Button>
             </TopNavigation.Dropdown>
-            <Button variant="filled" color="primary">
-              Login
-            </Button>
+            {authContext.loggedInUser ? (
+              <DropdownMenu
+                title={
+                  <Typography variant="text" element="p">
+                    <p className="text-white">
+                      {authContext.loggedInUser.username}
+                    </p>
+                  </Typography>
+                }
+                iconPlacement="leading"
+                openExpanderIcon={<Icon type="user" variant="light" />}
+                iconColor="light"
+              >
+                <DropdownMenu.Item onSelect={() => {}}>
+                  View profile
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onSelect={() => logOut()}>
+                  Sign out
+                </DropdownMenu.Item>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="filled"
+                color="primary"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </Button>
+            )}
           </div>
         }
       >

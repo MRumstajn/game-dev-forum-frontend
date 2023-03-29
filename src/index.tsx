@@ -7,6 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import "./index.css";
+import { RequestInterceptor } from "./http-interceptor/RequestInterceptor";
 import { ResponseInterceptor } from "./http-interceptor/ResponseInterceptor";
 import reportWebVitals from "./reportWebVitals";
 import {
@@ -19,6 +20,7 @@ const root = ReactDOM.createRoot(
 );
 
 ResponseInterceptor();
+RequestInterceptor();
 
 root.render(
   <React.StrictMode>

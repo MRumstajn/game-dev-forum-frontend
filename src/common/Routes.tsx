@@ -21,3 +21,7 @@ export const POST_URL = "/posts";
 export const POST_SEARCH_URL = "/posts/search";
 
 export const POST_WITH_LATEST_ACTIVITY_URL = "/posts/search/latest-activity";
+
+export const LOGIN_URL = "/auth/login";
+
+export const HOME_URL = "/home";
