@@ -8,6 +8,7 @@ import { DropdownMenu, TopNavigation } from "@tiller-ds/menu";
 import { Link, useNavigate } from "react-router-dom";
 
 import { AuthContext } from "../common/components/AuthProvider";
+import { clearToken } from "../util/jwtTokenUtils";
 
 export function Navbar() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export function Navbar() {
 
   function logOut() {
     authContext.setLoggedInUser(undefined);
-    window.localStorage.removeItem("access_token");
+    clearToken();
     navigate("/login");
   }
 

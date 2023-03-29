@@ -14,6 +14,7 @@ import {
   INPUT_TOO_LONG_MESSAGE,
   LOGIN_FIELD_MAX_LEN,
 } from "../../common/constants";
+import { saveToken } from "../../util/jwtTokenUtils";
 import { postLoginRequest } from "../api/postLoginRequest";
 
 type LoginForm = {
@@ -54,7 +55,7 @@ export function LoginPage() {
 
   function logIn(user: UserResponse, accessToken: string) {
     authContext.setLoggedInUser(user);
-    window.localStorage.setItem("access_token", accessToken);
+    saveToken(accessToken);
     navigate("/home");
   }
 
