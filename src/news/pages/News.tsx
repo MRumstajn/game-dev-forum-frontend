@@ -1,5 +1,6 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useContext, useEffect, useState } from "react";
 
+import { useModal } from "@tiller-ds/alert";
 import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
 import { Input } from "@tiller-ds/form-elements";
@@ -9,6 +10,9 @@ import moment from "moment";
 import { Link } from "react-router-dom";
 
 import { ThreadResponse } from "../../common/api/ThreadResponse";
+import { UserRole } from "../../common/api/UserRole";
+import { AuthContext } from "../../common/components/AuthProvider";
+import { CreateThreadModal } from "../../common/pages/CreateThreadModal";
 import { postSearchCategoryRequest } from "../../forum/api/postSearchCategoryRequest";
 import { postSearchThreadRequest } from "../api/postSearchThreadRequest";
 import { SearchThreadRequest } from "../api/SearchThreadRequest";
@@ -21,6 +25,9 @@ export function News() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [usernameFilter, setUsernameFilter] = useState<string>();
+
+  const authContext = useContext(AuthContext);
+  const createThreadModal = useModal();
 
   useEffect(() => {
     postSearchCategoryRequest({
@@ -63,6 +70,8 @@ export function News() {
     updateThreadList(request);
   }
 
+  console.log(newsCategoryId);
+
   return (
     <>
       <div className="m-10">
@@ -79,13 +88,24 @@ export function News() {
                 <Typography variant="h1" element="h1">
                   News
                 </Typography>
-                <Button
-                  variant="filled"
-                  color="primary"
-                  onClick={() => setFilterFormOpen((prevState) => !prevState)}
-                >
-                  <span className="text-white">Filter</span>
-                </Button>
+                <div className="flex flex-row gap-x-3">
+                  <Button
+                    variant="filled"
+                    color="primary"
+                    onClick={() => setFilterFormOpen((prevState) => !prevState)}
+                  >
+                    <span className="text-white">Filter</span>
+                  </Button>
+                  {authContext.loggedInUser?.role === UserRole.ADMIN && (
+                    <Button
+                      variant="filled"
+                      color="primary"
+                      onClick={createThreadModal.onOpen}
+                    >
+                      <span className="text-white">New thread</span>
+                    </Button>
+                  )}
+                </div>
               </div>
               {filterFormOpen && (
                 <Card className="flex flex-col space-y-10">
@@ -179,6 +199,15 @@ export function News() {
           </div>
         </div>
       </div>
+      <CreateThreadModal
+        modal={createThreadModal}
+        categoryId={newsCategoryId}
+        onThreadCreatedCallback={(thread) =>
+          setNewsThreads((prevState) =>
+            prevState ? [...prevState, thread] : prevState
+          )
+        }
+      />
     </>
   );
 }

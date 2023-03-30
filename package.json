@@ -16,6 +16,7 @@
     "@tiller-ds/menu": "^1.4.0",
     "@tiller-ds/theme": "^1.4.0",
     "@tiller-ds/formik-elements": "^1.4.0",
+    "@tiller-ds/alert": "^1.4.0",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.7.13",
     "@types/react": "^18.0.0",
