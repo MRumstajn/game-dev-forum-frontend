@@ -27,3 +27,5 @@ export const LOGIN_URL = "/auth/login";
 export const HOME_URL = "/home";
 
 export const SECTION_SEARCH_URL = "/sections/search";
+
+export const CURRENT_USER_URL = "/auth/current-user";

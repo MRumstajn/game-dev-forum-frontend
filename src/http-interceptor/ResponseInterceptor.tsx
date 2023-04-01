@@ -13,10 +13,13 @@ export function ResponseInterceptor() {
           window.location.replace("/404");
           break;
         case 403:
+          if (response.request.url.endsWith("/auth/current-user")) {
+            break;
+          }
+
           if (!window.location.href.includes("/login")) {
             window.location.replace("/403");
-          }
-          if (response.request.headers.get("Authorization") !== null) {
+          } else if (response.request.headers.get("Authorization") !== null) {
             clearToken();
             window.location.replace("/login");
           }
