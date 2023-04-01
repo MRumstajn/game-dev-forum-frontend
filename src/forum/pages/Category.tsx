@@ -1,5 +1,6 @@
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useContext, useEffect, useState } from "react";
 
+import { useModal } from "@tiller-ds/alert";
 import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
 import { Input } from "@tiller-ds/form-elements";
@@ -10,6 +11,9 @@ import { Link, useParams } from "react-router-dom";
 
 import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { ThreadResponse } from "../../common/api/ThreadResponse";
+import { UserRole } from "../../common/api/UserRole";
+import { AuthContext } from "../../common/components/AuthProvider";
+import { CreateThreadModal } from "../../common/pages/CreateThreadModal";
 import { postSearchThreadRequest } from "../../news/api/postSearchThreadRequest";
 import { SearchThreadRequest } from "../../news/api/SearchThreadRequest";
 import { getCategoryById } from "../../Thread/api/getCategoryById";
@@ -29,6 +33,8 @@ export function Category() {
   const [usernameFilter, setUsernameFilter] = useState<string>();
 
   const params = useParams();
+  const authContext = useContext(AuthContext);
+  const newThreadModal = useModal();
 
   const updateThreadList = useCallback(
     (request: SearchThreadRequest) => {
@@ -124,13 +130,25 @@ export function Category() {
               <Typography variant="h1" element="h1">
                 {category?.title}
               </Typography>
-              <Button
-                variant="filled"
-                color="primary"
-                onClick={() => setFilterFormOpen((prevState) => !prevState)}
-              >
-                <span className="text-white">Filter</span>
-              </Button>
+              <div className="flex flex-row gap-x-3 justify-end">
+                <Button
+                  variant="filled"
+                  color="primary"
+                  onClick={() => setFilterFormOpen((prevState) => !prevState)}
+                >
+                  <span className="text-white">Filter</span>
+                </Button>
+                {(authContext.loggedInUser?.role === UserRole.USER ||
+                  authContext.loggedInUser?.role === UserRole.ADMIN) && (
+                  <Button
+                    variant="filled"
+                    color="primary"
+                    onClick={newThreadModal.onOpen}
+                  >
+                    New thread
+                  </Button>
+                )}
+              </div>
             </div>
             {filterFormOpen && (
               <Card className="flex flex-col space-y-10">
@@ -231,6 +249,13 @@ export function Category() {
           </div>
         </div>
       </div>
+      <CreateThreadModal
+        modal={newThreadModal}
+        onThreadCreatedCallback={(thread) =>
+          setThreads((prevState) => [...prevState, thread])
+        }
+        categoryId={category?.id}
+      />
     </>
   );
 }
