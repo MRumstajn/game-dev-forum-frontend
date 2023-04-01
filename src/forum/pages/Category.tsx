@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
 import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
@@ -19,7 +19,7 @@ import { ThreadCard } from "../components/ThreadCard";
 
 export function Category() {
   const [threads, setThreads] = useState<ThreadResponse[]>([]);
-  const [parentCategory, setParentCategory] = useState<CategoryResponse>();
+  const [category, setCategory] = useState<CategoryResponse>();
   const [threadStatistics, setThreadStatistics] = useState<
     ThreadStatisticsResponse[]
   >([]);
@@ -30,44 +30,18 @@ export function Category() {
 
   const params = useParams();
 
-  // get parent category
-  useEffect(() => {
-    getCategoryById(Number(params.categoryId)).then((category) =>
-      setParentCategory(category)
-    );
-  }, [params.categoryId]);
+  const updateThreadList = useCallback(
+    (request: SearchThreadRequest) => {
+      if (category === undefined) {
+        return;
+      }
 
-  // get threads
-  useEffect(
-    () =>
-      updateThreadList({
-        categoryId: parentCategory?.id,
-      }),
-    [parentCategory]
+      postSearchThreadRequest(request).then((matchedThreads) =>
+        setThreads(matchedThreads)
+      );
+    },
+    [category]
   );
-
-  // get details for all threads
-  useEffect(() => {
-    if (threads.length === 0) {
-      return;
-    }
-
-    postThreadStatisticsRequest({
-      threadIds: threads
-        .filter((thread) => thread !== null)
-        .map((thread) => thread.id),
-    }).then((statistics) => setThreadStatistics(statistics));
-  }, [threads]);
-
-  function updateThreadList(request: SearchThreadRequest) {
-    if (parentCategory === undefined) {
-      return;
-    }
-
-    postSearchThreadRequest(request).then((matchedThreads) =>
-      setThreads(matchedThreads)
-    );
-  }
 
   function getStatisticForThread(
     threadId: number
@@ -85,7 +59,7 @@ export function Category() {
     event.preventDefault();
 
     let request = {
-      categoryId: parentCategory?.id,
+      categoryId: category?.id,
       authorUsername: usernameFilter,
     } as SearchThreadRequest;
 
@@ -103,6 +77,35 @@ export function Category() {
     updateThreadList(request);
   }
 
+  // get parent category
+  useEffect(() => {
+    getCategoryById(Number(params.categoryId)).then((category) => {
+      setCategory(category);
+    });
+  }, [params.categoryId]);
+
+  // get threads
+  useEffect(
+    () =>
+      updateThreadList({
+        categoryId: category?.id,
+      }),
+    [category, updateThreadList]
+  );
+
+  // get details for all threads
+  useEffect(() => {
+    if (threads.length === 0) {
+      return;
+    }
+
+    postThreadStatisticsRequest({
+      threadIds: threads
+        .filter((thread) => thread !== null)
+        .map((thread) => thread.id),
+    }).then((statistics) => setThreadStatistics(statistics));
+  }, [threads]);
+
   return (
     <>
       <div className="mt-10">
@@ -114,14 +117,12 @@ export function Category() {
             <Breadcrumbs.Breadcrumb>
               <Link to="/forum">Forum</Link>
             </Breadcrumbs.Breadcrumb>
-            <Breadcrumbs.Breadcrumb>
-              {parentCategory?.title}
-            </Breadcrumbs.Breadcrumb>
+            <Breadcrumbs.Breadcrumb>{category?.title}</Breadcrumbs.Breadcrumb>
           </Breadcrumbs>
           <div className="mt-20 flex flex-col space-y-20">
             <div className="flex flex-row justify-between">
               <Typography variant="h1" element="h1">
-                Forum
+                {category?.title}
               </Typography>
               <Button
                 variant="filled"

@@ -8,6 +8,10 @@ export function RequestInterceptor() {
       const localToken = getToken();
 
       if (localToken !== null) {
+        if (config.headers === undefined) {
+          config.headers = {};
+        }
+
         config.headers["Authorization"] = `Bearer ${localToken}`;
       }
 

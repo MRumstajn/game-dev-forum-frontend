@@ -1,5 +1,6 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useContext, useEffect, useState } from "react";
 
+import { useModal } from "@tiller-ds/alert";
 import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
 import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
@@ -10,6 +11,9 @@ import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { CategoryStatisticsResponse } from "../../common/api/CategoryStatisticsResponse";
 import { postCategoryStatisticsRequest } from "../../common/api/postCategoryStatisticsRequest";
 import { SectionResponse } from "../../common/api/SectionResponse";
+import { UserRole } from "../../common/api/UserRole";
+import { AuthContext } from "../../common/components/AuthProvider";
+import { CreateCategoryModal } from "../../common/pages/CreateCategoryModal";
 import { SearchCategoryRequest } from "../../news/api/SearchCategoryRequest";
 import { postSearchCategoryRequest } from "../api/postSearchCategoryRequest";
 import { postSearchSectionRequest } from "../api/postSearchSectionRequest";
@@ -29,11 +33,14 @@ export function Forum() {
   const [filterFormOpen, setFilterFormOpen] = useState<boolean>(false);
   const [titleFilter, setTitleFilter] = useState<string>();
 
+  const authContext = useContext(AuthContext);
+  const newCategoryModal = useModal();
+
   // get forum section
   useEffect(() => {
     postSearchSectionRequest({
       title: "Forum",
-    }).then((matchedSection) => setSection(matchedSection));
+    }).then((matches) => setSection(matches[0]));
   }, []);
 
   // get categories
@@ -140,13 +147,24 @@ export function Forum() {
               <Typography variant="h1" element="h1">
                 Forum
               </Typography>
-              <Button
-                variant="filled"
-                color="primary"
-                onClick={() => setFilterFormOpen((prevState) => !prevState)}
-              >
-                <span className="text-white">Filter</span>
-              </Button>
+              <div className="flex flex-row gap-x-3">
+                <Button
+                  variant="filled"
+                  color="primary"
+                  onClick={() => setFilterFormOpen((prevState) => !prevState)}
+                >
+                  <span className="text-white">Filter</span>
+                </Button>
+                {authContext.loggedInUser?.role === UserRole.ADMIN && (
+                  <Button
+                    variant="filled"
+                    color="primary"
+                    onClick={newCategoryModal.onOpen}
+                  >
+                    <span className="text-white">New category</span>
+                  </Button>
+                )}
+              </div>
             </div>
             {filterFormOpen && (
               <Card className="flex flex-col space-y-10">
@@ -216,6 +234,13 @@ export function Forum() {
           </div>
         </div>
       </div>
+      <CreateCategoryModal
+        modal={newCategoryModal}
+        onCreateCategoryCallback={(category) => {
+          setCategories((prevState) => [...prevState, category]);
+        }}
+        sectionId={section?.id}
+      />
     </>
   );
 }

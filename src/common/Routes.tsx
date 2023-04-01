@@ -1,6 +1,6 @@
 export const TOP_CATEGORIES_STATISTIC_URL = "/statistics/popular-categories";
 
-export const CATEGORY_URL = "/categories/";
+export const CATEGORY_URL = "/categories";
 
 export const CATEGORY_STATISTICS_URL = "/statistics/category-statistics";
 export const OVERALL_STATISTICS_URL = "/statistics/overall-statistics";
@@ -25,3 +25,5 @@ export const POST_WITH_LATEST_ACTIVITY_URL = "/posts/search/latest-activity";
 export const LOGIN_URL = "/auth/login";
 
 export const HOME_URL = "/home";
+
+export const SECTION_SEARCH_URL = "/sections/search";

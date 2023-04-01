@@ -42,6 +42,7 @@ export function News() {
       categoryId: newsCategoryId,
       authorUsername: usernameFilter,
     });
+    // eslint-disable-next-line
   }, [newsCategoryId]);
 
   function updateThreadList(request: SearchThreadRequest) {
@@ -69,8 +70,6 @@ export function News() {
 
     updateThreadList(request);
   }
-
-  console.log(newsCategoryId);
 
   return (
     <>
