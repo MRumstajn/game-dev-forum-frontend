@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useContext, useEffect, useState } from "react";
 
 import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
@@ -11,13 +11,19 @@ import { Link, useParams } from "react-router-dom";
 import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { PostResponse } from "../../common/api/PostResponse";
 import { ThreadResponse } from "../../common/api/ThreadResponse";
+import { AuthContext } from "../../common/components/AuthProvider";
+import { PostReactionType } from "../../common/constants";
 import { mockedCurrentUser } from "../../mock/mocks";
 import { deletePost } from "../api/deletePost";
 import { getCategoryById } from "../api/getCategoryById";
 import { getThreadById } from "../api/getThreadById";
 import { postCreatePostRequest } from "../api/postCreatePostRequest";
 import { postPostSearchRequest } from "../api/postPostSearchRequest";
+import { PostReactionCountResponse } from "../api/PostReactionCountResponse";
+import { postSearchPostReactionCountRequest } from "../api/postSearchPostReactionCountRequest";
+import { postSearchUserPostReactionRequest } from "../api/postSearchUserPostReactionRequest";
 import { SearchPostsRequest } from "../api/SearchPostsRequest";
+import { UserPostReactionResponse } from "../api/UserPostReactionResponse";
 import { PostCard } from "../components/PostCard";
 
 export function Thread() {
@@ -25,6 +31,12 @@ export function Thread() {
 
   const [filterFormOpen, setFilterFormOpen] = useState<boolean>(false);
   const [posts, setPosts] = useState<PostResponse[]>();
+  const [postReactionsCounts, setPostReactionsCounts] = useState<
+    PostReactionCountResponse[]
+  >([]);
+  const [currentUserPostReactions, setCurrentUserPostReactions] = useState<
+    UserPostReactionResponse[]
+  >([]);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [usernameFilter, setUsernameFilter] = useState<string>();
@@ -37,15 +49,13 @@ export function Thread() {
   const defaultSearchPostRequest = {
     threadId: threadId,
   } as SearchPostsRequest;
+  const authContext = useContext(AuthContext);
 
-  const updatePostList = useCallback(
-    (request: SearchPostsRequest) => {
-      postPostSearchRequest(request).then((matches) => {
-        setPosts(matches);
-      });
-    },
-    [threadId]
-  );
+  const updatePostList = useCallback((request: SearchPostsRequest) => {
+    postPostSearchRequest(request).then((matches) => {
+      setPosts(matches);
+    });
+  }, []);
 
   useEffect(() => {
     updatePostList(defaultSearchPostRequest);
@@ -62,6 +72,27 @@ export function Thread() {
       getThreadById(threadId).then((th) => setThread(th));
     }
   }, [categoryId, threadId]);
+
+  useEffect(() => {
+    if (posts === undefined) {
+      return;
+    }
+
+    postSearchPostReactionCountRequest({
+      postIds: posts.map((post) => post.id),
+    }).then((reactions) => setPostReactionsCounts(reactions));
+  }, [posts]);
+
+  useEffect(() => {
+    if (authContext.loggedInUser === undefined || posts === undefined) {
+      return;
+    }
+
+    postSearchUserPostReactionRequest({
+      postIds: posts.map((post) => post.id),
+      userId: authContext.loggedInUser.id,
+    }).then((response) => setCurrentUserPostReactions(response));
+  }, [posts]);
 
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -109,6 +140,24 @@ export function Thread() {
 
   function cardDeleteHandler(postId: number) {
     deletePost(postId).then(() => updatePostList(defaultSearchPostRequest));
+  }
+
+  function getReactionCountForPost(
+    reactionType: PostReactionType,
+    postId: number
+  ): PostReactionCountResponse | undefined {
+    return postReactionsCounts.find(
+      (reaction) =>
+        reaction.postId === postId && reaction.postReactionType === reactionType
+    );
+  }
+
+  function getCurrentUserReactionForPost(
+    postId: number
+  ): UserPostReactionResponse | undefined {
+    return currentUserPostReactions.find(
+      (postReaction) => postReaction.postId === postId
+    );
   }
 
   return (
@@ -229,9 +278,20 @@ export function Thread() {
                       content={post.content}
                       author={post.author}
                       creationDate={post.creationDateTime}
-                      likes={post.likes}
-                      dislikes={post.dislikes}
+                      likes={
+                        getReactionCountForPost(PostReactionType.LIKE, post.id)
+                          ?.count
+                      }
+                      dislikes={
+                        getReactionCountForPost(
+                          PostReactionType.DISLIKE,
+                          post.id
+                        )?.count
+                      }
                       deleteHandler={() => cardDeleteHandler(post.id)}
+                      currentUserPostReaction={getCurrentUserReactionForPost(
+                        post.id
+                      )}
                     />
                   ))}
                 {(posts === undefined || posts.length === 0) && (

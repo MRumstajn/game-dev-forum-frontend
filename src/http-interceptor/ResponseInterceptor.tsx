@@ -19,7 +19,8 @@ export function ResponseInterceptor() {
 
           if (!window.location.href.includes("/login")) {
             window.location.replace("/403");
-          } else if (response.request.headers.get("Authorization") !== null) {
+          }
+          if (response.request.headers.get("Authorization") !== null) {
             clearToken();
             window.location.replace("/login");
           }

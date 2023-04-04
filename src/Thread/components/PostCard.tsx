@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { Button, Card, IconButton, Typography } from "@tiller-ds/core";
 import { Textarea } from "@tiller-ds/form-elements";
@@ -7,20 +7,24 @@ import { Icon } from "@tiller-ds/icons";
 import Avatar from "react-avatar";
 
 import { UserResponse } from "../../common/api/UserResponse";
+import { AuthContext } from "../../common/components/AuthProvider";
+import { PostReactionType } from "../../common/constants";
 import { formatDate } from "../../util/dateUtil";
-import { dislikePost } from "../api/dislikePost";
-import { getPost } from "../api/getPost";
-import { likePost } from "../api/likePost";
+import { deleteUserPostReaction } from "../api/deleteUserPostReaction";
+import { postCreateUserPostReactionRequest } from "../api/postCreateUserPostReactionRequest";
 import { postEditPostRequest } from "../api/postEditPostRequest";
+import { PostReactionCountResponse } from "../api/PostReactionCountResponse";
+import { UserPostReactionResponse } from "../api/UserPostReactionResponse";
 
 type PostCardProps = {
   postId: number;
   content: string;
   author: UserResponse;
   creationDate: Date;
-  likes: number;
-  dislikes: number;
+  likes: number | undefined;
+  dislikes: number | undefined;
   deleteHandler: () => void;
+  currentUserPostReaction: UserPostReactionResponse | undefined;
 };
 
 export function PostCard({
@@ -31,25 +35,82 @@ export function PostCard({
   likes,
   dislikes,
   deleteHandler,
+  currentUserPostReaction,
 }: PostCardProps) {
-  const [likeCount, setLikeCount] = useState<number>(likes);
-  const [dislikeCount, setDislikeCount] = useState<number>(dislikes);
+  const [likeCount, setLikeCount] = useState<number>(likes ? likes : 0);
+  const [dislikeCount, setDislikeCount] = useState<number>(
+    dislikes ? dislikes : 0
+  );
   const [postContent, setPostContent] = useState<string>(content);
   const [editing, setEditing] = useState<boolean>(false);
   const [editedContent, setEditedContent] = useState<string>(postContent);
+  const [userPostReaction, setUserPostReaction] = useState<
+    UserPostReactionResponse | undefined
+  >(currentUserPostReaction);
+  const [userLatestReactionType, setUserLatestReactionType] = useState<
+    PostReactionType | undefined
+  >();
 
-  function likeHandler() {
-    getPost(postId).then((postObj) => {
-      const newLikeCount = postObj.likes + 1;
-      likePost(postId).then(() => setLikeCount(newLikeCount));
-    });
+  const authContext = useContext(AuthContext);
+
+  useEffect(() => setLikeCount(likes ? likes : 0), [likes]);
+
+  useEffect(() => setDislikeCount(dislikes ? dislikes : 0), [dislikes]);
+
+  useEffect(() => {
+    if (currentUserPostReaction === undefined) {
+      return;
+    }
+
+    setUserPostReaction(currentUserPostReaction);
+    setUserLatestReactionType(currentUserPostReaction?.postReactionType);
+  }, [currentUserPostReaction]);
+
+  function reactToPost(reactionType: PostReactionType) {
+    if (reactionType !== userLatestReactionType) {
+      postCreateUserPostReactionRequest({
+        postId: postId,
+        postReactionType: reactionType,
+      }).then((response) => {
+        setLikeAndDislikeCountFromResponse(response);
+        setUserPostReaction(response);
+        setUserLatestReactionType(reactionType);
+      });
+    } else {
+      if (userPostReaction !== undefined) {
+        deleteUserPostReaction(userPostReaction.id).then((response) => {
+          setLikeAndDislikeCountFromResponse(response);
+          setUserPostReaction(undefined);
+          setUserLatestReactionType(undefined);
+        });
+      }
+    }
   }
 
-  function dislikeHandler() {
-    getPost(postId).then((postObj) => {
-      const newDislikeCount = postObj.dislikes + 1;
-      dislikePost(postId).then(() => setDislikeCount(newDislikeCount));
-    });
+  function setLikeAndDislikeCountFromResponse(
+    response: UserPostReactionResponse | PostReactionCountResponse[]
+  ) {
+    let source;
+    if (!Array.isArray(response)) {
+      source = (response as UserPostReactionResponse).reactionTypesCount;
+    } else {
+      source = response as PostReactionCountResponse[];
+    }
+
+    const postLikeCountInfo = source.find(
+      (reactionTypeCount) =>
+        reactionTypeCount.postReactionType === PostReactionType.LIKE
+    );
+    const postDislikeCountInfo = source.find(
+      (reactionTypeCount) =>
+        reactionTypeCount.postReactionType === PostReactionType.DISLIKE
+    );
+    if (postLikeCountInfo) {
+      setLikeCount(postLikeCountInfo.count);
+    }
+    if (postDislikeCountInfo) {
+      setDislikeCount(postDislikeCountInfo.count);
+    }
   }
 
   function editHandler() {
@@ -137,7 +198,8 @@ export function PostCard({
                 icon={<Icon type="arrow-up" />}
                 title="like"
                 showTooltip={false}
-                onClick={likeHandler}
+                onClick={() => reactToPost(PostReactionType.LIKE)}
+                disabled={authContext.loggedInUser === undefined}
               />
               <Typography variant="text" element="p">
                 {likeCount}
@@ -148,7 +210,8 @@ export function PostCard({
                 icon={<Icon type="arrow-down" />}
                 title="dislike"
                 showTooltip={false}
-                onClick={dislikeHandler}
+                onClick={() => reactToPost(PostReactionType.DISLIKE)}
+                disabled={authContext.loggedInUser === undefined}
               />
               <Typography variant="text" element="p">
                 {dislikeCount}

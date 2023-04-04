@@ -10,8 +10,4 @@ export type PostResponse = {
   creationDateTime: Date;
 
   threadId: number;
-
-  likes: number;
-
-  dislikes: number;
 };

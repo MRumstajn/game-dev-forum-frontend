@@ -29,3 +29,9 @@ export const HOME_URL = "/home";
 export const SECTION_SEARCH_URL = "/sections/search";
 
 export const CURRENT_USER_URL = "/auth/current-user";
+
+export const POST_REACTION_COUNT_URL = "/post-reactions/counts";
+
+export const POST_REACTION_URL = "/post-reactions";
+
+export const POST_REACTION_SEARCH_URL = "/post-reactions/search";
