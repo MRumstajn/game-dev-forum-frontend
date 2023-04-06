@@ -35,3 +35,7 @@ export const POST_REACTION_COUNT_URL = "/post-reactions/counts";
 export const POST_REACTION_URL = "/post-reactions";
 
 export const POST_REACTION_SEARCH_URL = "/post-reactions/search";
+
+export const USER_URL = "/users";
+
+export const USER_CHANGE_PASSWORD_URL = "/auth/change-password";

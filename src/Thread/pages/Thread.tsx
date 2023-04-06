@@ -74,7 +74,7 @@ export function Thread() {
   }, [categoryId, threadId]);
 
   useEffect(() => {
-    if (posts === undefined) {
+    if (posts === undefined || posts.length === 0) {
       return;
     }
 
