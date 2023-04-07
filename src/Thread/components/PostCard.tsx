@@ -185,8 +185,8 @@ export function PostCard({
             )}
           </div>
           <div className="p-3">
-            <Typography variant="text" element="p">
-              {"Bio placeholder"}
+            <Typography variant="subtext" element="p">
+              {author.bio ? author.bio : "No bio yet"}
             </Typography>
           </div>
         </div>

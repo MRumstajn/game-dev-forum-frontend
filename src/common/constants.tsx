@@ -17,3 +17,5 @@ export const INPUT_REQUIRED_MESSAGE = "Input is required";
 
 export const SAME_PASSWORD_MESSAGE =
   "New password must be different from current password";
+
+export const BIO_TOO_LONG_MESSAGE = "Max bio length is 100 characters";

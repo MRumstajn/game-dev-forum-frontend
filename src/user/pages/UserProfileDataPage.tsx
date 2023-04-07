@@ -80,6 +80,14 @@ export function UserProfileDataPage() {
                           {authContext.loggedInUser?.role}
                         </Typography>
                       </div>
+                      <div>
+                        <Typography variant="title" element="h4">
+                          Bio:
+                        </Typography>
+                        <Typography variant="text" element="p">
+                          {authContext.loggedInUser?.bio}
+                        </Typography>
+                      </div>
                     </div>
                   </div>
                 </Card.Body>

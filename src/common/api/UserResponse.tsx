@@ -8,4 +8,6 @@ export type UserResponse = {
   joinDate: Date;
 
   role: UserRole;
+
+  bio: string;
 };

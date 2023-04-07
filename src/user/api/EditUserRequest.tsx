@@ -1,3 +1,5 @@
 export type EditUserRequest = {
-  username: string;
+  username?: string;
+
+  bio?: string;
 };
