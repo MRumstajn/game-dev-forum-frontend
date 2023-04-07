@@ -1,4 +1,11 @@
-import { FormEvent, useCallback, useContext, useEffect, useState } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
@@ -26,6 +33,12 @@ import { SearchPostsRequest } from "../api/SearchPostsRequest";
 import { UserPostReactionResponse } from "../api/UserPostReactionResponse";
 import { PostCard } from "../components/PostCard";
 
+type PostScore = {
+  post: PostResponse;
+
+  score: number;
+};
+
 export function Thread() {
   const params = useParams();
 
@@ -43,6 +56,7 @@ export function Thread() {
   const [inputContent, setInputContent] = useState<string>("");
   const [parentCategory, setParentCategory] = useState<CategoryResponse>();
   const [thread, setThread] = useState<ThreadResponse>();
+  const [topPost, setTopPost] = useState<PostResponse>();
 
   const threadId = Number(params.threadId);
   const categoryId = params.categoryId ? Number(params.categoryId) : undefined;
@@ -50,12 +64,65 @@ export function Thread() {
     threadId: threadId,
   } as SearchPostsRequest;
   const authContext = useContext(AuthContext);
+  const topPostRef = useRef<HTMLDivElement>(null);
 
   const updatePostList = useCallback((request: SearchPostsRequest) => {
     postPostSearchRequest(request).then((matches) => {
       setPosts(matches);
     });
   }, []);
+
+  const findTopPost = useCallback(() => {
+    if (postReactionsCounts.length > 0 && posts) {
+      // for each post, get score which is likes - dislikes
+      const postScores = posts.map((post) => {
+        const postReactions = postReactionsCounts.filter(
+          (reaction) => reaction.postId === post.id
+        );
+        const postLikes = postReactions
+          .filter(
+            (reaction) => reaction.postReactionType === PostReactionType.LIKE
+          )
+          .reduce((acc, reaction) => acc + reaction.count, 0);
+        const postDislikes = postReactions
+          .filter(
+            (reaction) => reaction.postReactionType === PostReactionType.DISLIKE
+          )
+          .reduce((acc, reaction) => acc + reaction.count, 0);
+
+        return { post: post, score: postLikes - postDislikes } as PostScore;
+      });
+
+      // get post with max score
+      let top = [postScores[0]];
+      postScores.forEach((postScore) => {
+        if (postScore.score > top[0].score) {
+          top = [postScore];
+        } else if (postScore.score === top[0].score) {
+          top.push(postScore);
+        }
+      });
+
+      // if two posts have the max score, set uop post to undefined, otherwise set to post with max score
+      if (top.length === 1) {
+        setTopPost(top[0].post);
+      } else {
+        setTopPost(undefined);
+      }
+    }
+  }, [postReactionsCounts, posts]);
+
+  const fetchPostReactionCounts = useCallback(() => {
+    if (posts === undefined || posts.length === 0) {
+      return;
+    }
+
+    postSearchPostReactionCountRequest({
+      postIds: posts.map((post) => post.id),
+    }).then((reactions) => {
+      setPostReactionsCounts(reactions);
+    });
+  }, [posts]);
 
   useEffect(() => {
     updatePostList(defaultSearchPostRequest);
@@ -74,14 +141,10 @@ export function Thread() {
   }, [categoryId, threadId]);
 
   useEffect(() => {
-    if (posts === undefined || posts.length === 0) {
-      return;
-    }
+    fetchPostReactionCounts();
+  }, [fetchPostReactionCounts]);
 
-    postSearchPostReactionCountRequest({
-      postIds: posts.map((post) => post.id),
-    }).then((reactions) => setPostReactionsCounts(reactions));
-  }, [posts]);
+  useEffect(() => findTopPost(), [postReactionsCounts]);
 
   useEffect(() => {
     if (authContext.loggedInUser === undefined || posts === undefined) {
@@ -189,18 +252,49 @@ export function Thread() {
           <div className="mt-20">
             <div className="flex flex-col space-y-20">
               <div className="flex flex-row justify-between">
-                <Typography variant="h1" element="h1">
-                  {thread?.title}
-                </Typography>
-                <Button
-                  variant="filled"
-                  color="primary"
-                  onClick={() => {
-                    setFilterFormOpen(!filterFormOpen);
-                  }}
-                >
-                  <span className="text-white">Filter</span>
-                </Button>
+                <div className="flex flex-col gap-y-3">
+                  <Typography variant="h1" element="h1">
+                    {thread?.title}
+                  </Typography>
+                  {topPost && (
+                    <div
+                      className="flex flex-row gap-x-3"
+                      onClick={() =>
+                        topPostRef.current &&
+                        topPostRef.current.scrollIntoView()
+                      }
+                    >
+                      <Button
+                        variant="text"
+                        color="primary"
+                        trailingIcon={
+                          <Icon type="arrow-right" variant="fill" />
+                        }
+                        onClick={() =>
+                          topPostRef.current &&
+                          topPostRef.current.scrollIntoView({
+                            behavior: "smooth",
+                          })
+                        }
+                      >
+                        <Typography variant="subtext" element="p">
+                          Go to top post
+                        </Typography>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Button
+                    variant="filled"
+                    color="primary"
+                    onClick={() => {
+                      setFilterFormOpen(!filterFormOpen);
+                    }}
+                  >
+                    <span className="text-white">Filter</span>
+                  </Button>
+                </div>
               </div>
               {filterFormOpen && (
                 <Card className="flex flex-col space-y-10">
@@ -278,6 +372,12 @@ export function Thread() {
                       content={post.content}
                       author={post.author}
                       creationDate={post.creationDateTime}
+                      isTopPost={topPost?.id === post.id}
+                      topPostRef={topPostRef}
+                      onReactionsChanged={() => {
+                        fetchPostReactionCounts();
+                        findTopPost();
+                      }}
                       likes={
                         getReactionCountForPost(PostReactionType.LIKE, post.id)
                           ?.count
