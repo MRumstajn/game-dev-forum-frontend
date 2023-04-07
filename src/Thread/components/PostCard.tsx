@@ -7,6 +7,7 @@ import { Icon } from "@tiller-ds/icons";
 import Avatar from "react-avatar";
 
 import { UserResponse } from "../../common/api/UserResponse";
+import { UserRole } from "../../common/api/UserRole";
 import { AuthContext } from "../../common/components/AuthProvider";
 import { PostReactionType } from "../../common/constants";
 import { formatDate } from "../../util/dateUtil";
@@ -237,20 +238,24 @@ export function PostCard({
                 </Button>
               </div>
             ) : (
-              <div className="flex flex-row space-x-3">
-                <IconButton
-                  icon={<Icon type="pencil" />}
-                  title="edit"
-                  showTooltip={false}
-                  onClick={editHandler}
-                />
-                <IconButton
-                  icon={<Icon type="trash" />}
-                  title="delete"
-                  showTooltip={false}
-                  onClick={deleteHandler}
-                />
-              </div>
+              (authContext.loggedInUser?.role === UserRole.ADMIN ||
+                authContext.loggedInUser?.id === author.id) && (
+                <div className="flex flex-row space-x-3">
+                  <IconButton
+                    icon={<Icon type="pencil" />}
+                    title="edit"
+                    showTooltip={false}
+                    onClick={editHandler}
+                  />
+
+                  <IconButton
+                    icon={<Icon type="trash" />}
+                    title="delete"
+                    showTooltip={false}
+                    onClick={deleteHandler}
+                  />
+                </div>
+              )
             )}
           </div>
         </div>
