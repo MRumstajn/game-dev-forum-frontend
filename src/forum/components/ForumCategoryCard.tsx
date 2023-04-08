@@ -53,9 +53,11 @@ export function ForumCategoryCard({
                       <Typography variant="subtext" element="p">
                         by
                       </Typography>
-                      <Typography variant="text" element="p">
-                        {latestPost.author.username}
-                      </Typography>
+                      <Link to={`/profile/${latestPost.author.id}`}>
+                        <Typography variant="text" element="p">
+                          {latestPost.author.username}
+                        </Typography>
+                      </Link>
                     </div>
                     <Link to={getURLForThread(threadWithLatestActivity.id)}>
                       <Icon type="arrow-right" />

@@ -57,7 +57,11 @@ export function Navbar() {
                 openExpanderIcon={<Icon type="user" variant="light" />}
                 iconColor="light"
               >
-                <DropdownMenu.Item onSelect={() => navigate("/profile")}>
+                <DropdownMenu.Item
+                  onSelect={() =>
+                    navigate(`/profile/${authContext.loggedInUser?.id}`)
+                  }
+                >
                   View profile
                 </DropdownMenu.Item>
                 <DropdownMenu.Item onSelect={() => logOut()}>

@@ -18,7 +18,7 @@ import { News } from "./news/pages/News";
 import { Rules } from "./Rules/Rules";
 import { Thread } from "./Thread/pages/Thread";
 import { EditUserProfilePage } from "./user/pages/EditUserProfilePage";
-import { UserProfile } from "./user/pages/UserProfile";
+import { UserProfilePage } from "./user/pages/UserProfilePage";
 
 function App() {
   return (
@@ -39,7 +39,7 @@ function App() {
             <Route path="/403" element={<AccessDeniedErrorPage />} />
             <Route path="/500" element={<InternalErrorPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/profile/:id" element={<UserProfilePage />} />
             <Route path="/profile/edit" element={<EditUserProfilePage />} />
           </Routes>
         </AuthProvider>

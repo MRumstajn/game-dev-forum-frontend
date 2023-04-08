@@ -25,9 +25,11 @@ export function NewsCard({ id, title, creationDate, author }: NewsCardProps) {
             <Typography variant="text" element="p">
               {formatDate(creationDate)}
             </Typography>
-            <Typography variant="text" element="p">
-              by {author.username}
-            </Typography>
+            <Link to={`/profile/${author.id}`}>
+              <Typography variant="text" element="p">
+                by {author.username}
+              </Typography>
+            </Link>
           </div>
         </Card.Body>
       </Card>

@@ -2,6 +2,7 @@ import { Card, Link, Typography } from "@tiller-ds/core";
 
 import { useParams } from "react-router-dom";
 
+import { UserResponse } from "../../common/api/UserResponse";
 import { formatDate } from "../../util/dateUtil";
 
 type ThreadCardProps = {
@@ -13,7 +14,7 @@ type ThreadCardProps = {
 
   latestPostDate?: Date;
 
-  latestPostAuthor?: string;
+  latestPostAuthor?: UserResponse;
 };
 
 export function ThreadCard({
@@ -47,9 +48,11 @@ export function ThreadCard({
                   <Typography variant="subtext" element="p">
                     by
                   </Typography>
-                  <Typography variant="text" element="p">
-                    {latestPostAuthor}
-                  </Typography>
+                  <Link to={`/profile/${latestPostAuthor.id}`}>
+                    <Typography variant="text" element="p">
+                      {latestPostAuthor.username}
+                    </Typography>
+                  </Link>
                 </div>
               </div>
             )}

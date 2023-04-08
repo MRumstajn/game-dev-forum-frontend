@@ -5,6 +5,7 @@ import { Textarea } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 
 import Avatar from "react-avatar";
+import { Link } from "react-router-dom";
 
 import { UserResponse } from "../../common/api/UserResponse";
 import { UserRole } from "../../common/api/UserRole";
@@ -155,26 +156,28 @@ export function PostCard({
         <div className="flex flex-col sm:flex-row">
           <div className="w-full border-b-2 sm:w-1/4 sm:border-b-0 sm:border-r-2 pt-3 pb-3 overflow-hidden">
             <div className="flex flex-row space-x-3 sm:space-x-0 sm:flex-col sm:space-y-3 -sm:justify-between">
-              <div className="sm:hidden ml-3">
-                <Avatar name={author.username} size="50" round={true} />
-              </div>
-              <div className="-sm:hidden text-center">
-                <Avatar
-                  name={author.username}
-                  size="80"
-                  round={true}
-                  className="sm:mx-auto"
-                />
-              </div>
-              <div className="items-center flex flex-row sm:w-3/2 sm:mx-auto">
-                <Typography
-                  variant="h5"
-                  element="h5"
-                  className="w-full text-center truncate "
-                >
-                  {author.username}
-                </Typography>
-              </div>
+              <Link to={`/profile/${author.id}`}>
+                <div className="sm:hidden ml-3">
+                  <Avatar name={author.username} size="50" round={true} />
+                </div>
+                <div className="-sm:hidden text-center">
+                  <Avatar
+                    name={author.username}
+                    size="80"
+                    round={true}
+                    className="sm:mx-auto"
+                  />
+                </div>
+                <div className="items-center flex flex-row sm:w-3/2 sm:mx-auto">
+                  <Typography
+                    variant="h5"
+                    element="h5"
+                    className="w-full text-center truncate "
+                  >
+                    {author.username}
+                  </Typography>
+                </div>
+              </Link>
               <div className="-sm:justify-end -sm:pr-3 text-center">
                 <Typography variant="subtitle" element="p">
                   Joined

@@ -241,7 +241,7 @@ export function Category() {
                       .creationDateTime
                   }
                   latestPostAuthor={
-                    getStatisticForThread(thread.id)?.latestPost.author.username
+                    getStatisticForThread(thread.id)?.latestPost.author
                   }
                 />
               ))}
