@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 
 import { useModal } from "@tiller-ds/alert";
 import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
@@ -10,21 +10,80 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ChangePasswordModal } from "./changePasswordModal";
 import { UserResponse } from "../../common/api/UserResponse";
 import { AuthContext } from "../../common/components/AuthProvider";
+import { followUser } from "../api/followUser";
+import { getFollowers } from "../api/getFollowers";
+import { getIsFollowing } from "../api/getIsFollowing";
 import { getUserById } from "../api/getUserById";
+import { unfollowUser } from "../api/unfollowUser";
 
 export function UserProfilePage() {
   const [user, setUser] = useState<UserResponse>();
+  const [isCurrentUserFollowingUser, setIsCurrentUsrFollowingUser] =
+    useState<boolean>(false);
+  const [followers, setFollowers] = useState<UserResponse[]>([]);
 
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const changePasswordModal = useModal();
   const params = useParams();
 
+  const isCurrentUserProfile = authContext.loggedInUser?.id === user?.id;
+
+  function followHandler() {
+    if (user) {
+      followUser(user.id).then((response) => {
+        if (response.isOk) {
+          setIsCurrentUsrFollowingUser(true);
+          setFollowers((prevState) =>
+            authContext.loggedInUser
+              ? [...prevState, authContext.loggedInUser]
+              : prevState
+          );
+        }
+      });
+    }
+  }
+
+  function unfollowHandler() {
+    if (user) {
+      unfollowUser(user.id).then((response) => {
+        if (response.ok) {
+          setIsCurrentUsrFollowingUser(false);
+          setFollowers((prevState) =>
+            prevState.filter(
+              (follower) => follower.id !== authContext.loggedInUser?.id
+            )
+          );
+        }
+      });
+    }
+  }
+
+  const updateFollowerList = useCallback(() => {
+    if (user) {
+      getFollowers(user.id).then((response) => setFollowers(response));
+    }
+  }, [user]);
+
   useEffect(() => {
     if (params.hasOwnProperty("id")) {
       getUserById(Number(params.id)).then((response) => setUser(response));
     }
   }, [params]);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    if (authContext.loggedInUser) {
+      getIsFollowing(user.id).then((response) =>
+        setIsCurrentUsrFollowingUser(response.isFollowing)
+      );
+
+      updateFollowerList();
+    }
+  }, [authContext.loggedInUser, updateFollowerList, user]);
 
   return (
     <>
@@ -38,8 +97,8 @@ export function UserProfilePage() {
               {user?.username}'s profile
             </Breadcrumbs.Breadcrumb>
           </Breadcrumbs>
-          <div className="mt-20">
-            <div className="flex flex-col space-y-20">
+          <div className="mt-20 flex flex-col gap-y-20">
+            <div className="flex flex-col gap-y-5">
               <div className="flex flex-row justify-between">
                 <Typography variant="h3" element="h3">
                   User information
@@ -62,6 +121,32 @@ export function UserProfilePage() {
                     </Button>
                   </div>
                 )}
+                {authContext.loggedInUser &&
+                  !isCurrentUserProfile &&
+                  !isCurrentUserFollowingUser && (
+                    <div className="flex flex-row gap-x-3">
+                      <Button
+                        variant="filled"
+                        color="primary"
+                        onClick={() => followHandler()}
+                      >
+                        Follow
+                      </Button>
+                    </div>
+                  )}
+                {authContext.loggedInUser &&
+                  !isCurrentUserProfile &&
+                  isCurrentUserFollowingUser && (
+                    <div className="flex flex-row gap-x-3">
+                      <Button
+                        variant="filled"
+                        color="primary"
+                        onClick={() => unfollowHandler()}
+                      >
+                        Unfollow
+                      </Button>
+                    </div>
+                  )}
               </div>
               <Card>
                 <Card.Body>
@@ -98,6 +183,40 @@ export function UserProfilePage() {
                         </Typography>
                       </div>
                     </div>
+                  </div>
+                </Card.Body>
+              </Card>
+            </div>
+            <div className="flex flex-col gap-y-5">
+              <Typography variant="h3" element="h3">
+                {followers.length > 0
+                  ? `Followers (${followers.length})`
+                  : "Followers"}
+              </Typography>
+              <Card>
+                <Card.Body>
+                  <div className="flex flex-row flex-wrap gap-x-5 gap-y-3 justify-start items-center">
+                    {followers.map((follower) => (
+                      <div className="flex flex-col gap-x-1 items-center">
+                        <Avatar
+                          name={follower.username}
+                          size="50"
+                          round={true}
+                        />
+                        <Typography variant="text" element="p">
+                          <strong>{follower.username}</strong>
+                        </Typography>
+                      </div>
+                    ))}
+                    {followers.length === 0 && (
+                      <Typography
+                        variant="subtext"
+                        element="p"
+                        className="text-center"
+                      >
+                        No followers yet
+                      </Typography>
+                    )}
                   </div>
                 </Card.Body>
               </Card>
