@@ -13,7 +13,7 @@ import { Category } from "./forum/pages/Category";
 import { Forum } from "./forum/pages/Forum";
 import { Home } from "./home/pages/Home";
 import { LoginPage } from "./login/pages/LoginPage";
-import { Navbar } from "./navbar/Navbar";
+import { Navbar } from "./navbar/components/Navbar";
 import { News } from "./news/pages/News";
 import { Rules } from "./Rules/Rules";
 import { Thread } from "./Thread/pages/Thread";

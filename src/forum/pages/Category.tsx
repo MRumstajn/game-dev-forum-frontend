@@ -10,6 +10,7 @@ import moment from "moment/moment";
 import { Link, useParams } from "react-router-dom";
 
 import { CategoryResponse } from "../../common/api/CategoryResponse";
+import { PostResponse } from "../../common/api/PostResponse";
 import { ThreadResponse } from "../../common/api/ThreadResponse";
 import { UserRole } from "../../common/api/UserRole";
 import { AuthContext } from "../../common/components/AuthProvider";
@@ -59,6 +60,12 @@ export function Category() {
     return threadStatistics.find(
       (statistic) => statistic.threadId === threadId
     );
+  }
+
+  function getLatestPost(threadId: number): PostResponse | undefined {
+    const statistics = getStatisticForThread(threadId);
+
+    return statistics ? statistics.latestPost : undefined;
   }
 
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -237,11 +244,14 @@ export function Category() {
                   title={thread.title}
                   postCount={getStatisticForThread(thread.id)?.postCount}
                   latestPostDate={
-                    getStatisticForThread(thread.id)?.latestPost
-                      .creationDateTime
+                    getLatestPost(thread.id)
+                      ? getLatestPost(thread.id)?.creationDateTime
+                      : undefined
                   }
                   latestPostAuthor={
-                    getStatisticForThread(thread.id)?.latestPost.author
+                    getLatestPost(thread.id)
+                      ? getLatestPost(thread.id)?.author
+                      : undefined
                   }
                 />
               ))}

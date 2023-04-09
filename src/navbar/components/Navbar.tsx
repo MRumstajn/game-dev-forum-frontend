@@ -7,8 +7,9 @@ import { DropdownMenu, TopNavigation } from "@tiller-ds/menu";
 
 import { Link, useNavigate } from "react-router-dom";
 
-import { AuthContext } from "../common/components/AuthProvider";
-import { clearToken } from "../util/jwtTokenUtils";
+import { NotificationBellMenu } from "./NotificationBellMenu";
+import { AuthContext } from "../../common/components/AuthProvider";
+import { clearToken } from "../../util/jwtTokenUtils";
 
 export function Navbar() {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ export function Navbar() {
         }
         topRightAction={
           <div className="flex flex-row space-x-3">
+            <NotificationBellMenu />
             <TopNavigation.Dropdown
               title="search"
               buttonVariant="text"

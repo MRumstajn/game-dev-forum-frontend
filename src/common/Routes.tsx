@@ -39,3 +39,7 @@ export const POST_REACTION_SEARCH_URL = "/post-reactions/search";
 export const USER_URL = "/users";
 
 export const USER_CHANGE_PASSWORD_URL = "/auth/change-password";
+
+export const NOTIFICATION_SEARCH_URL = "/notifications/search";
+
+export const NOTIFICATION_MARK_AS_READ_URL = "/notifications/mark-as-read";
