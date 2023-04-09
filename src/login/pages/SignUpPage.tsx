@@ -5,29 +5,36 @@ import { InputField, PasswordInputField } from "@tiller-ds/formik-elements";
 import { Icon } from "@tiller-ds/icons";
 
 import { Formik } from "formik";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
 
+import { ErrorCode } from "../../common/api/ErrorCode";
 import { UserResponse } from "../../common/api/UserResponse";
 import { AuthContext } from "../../common/components/AuthProvider";
 import {
   INPUT_TOO_LONG_MESSAGE,
   LOGIN_FIELD_MAX_LEN,
+  PASSWORD_DOES_NOT_MATCH_MESSAGE,
 } from "../../common/constants";
 import { saveToken } from "../../util/jwtTokenUtils";
+import { postCreateUserRequest } from "../api/postCreateUserRequest";
 import { postLoginRequest } from "../api/postLoginRequest";
 
-type LoginForm = {
+type SignUpForm = {
   username: string;
 
   password: string;
+
+  repeatPassword: string;
 };
 
 const initialFormValues = {
   username: "",
 
   password: "",
-} as LoginForm;
+
+  repeatPassword: "",
+} as SignUpForm;
 
 const formValidationSchema = yup.object().shape({
   username: yup
@@ -45,11 +52,20 @@ const formValidationSchema = yup.object().shape({
       LOGIN_FIELD_MAX_LEN,
       `${INPUT_TOO_LONG_MESSAGE}, max length is ${LOGIN_FIELD_MAX_LEN}.`
     ),
+  repeatPassword: yup
+    .string()
+    .required()
+    .max(LOGIN_FIELD_MAX_LEN)
+    .max(
+      LOGIN_FIELD_MAX_LEN,
+      `${INPUT_TOO_LONG_MESSAGE}, max length is ${LOGIN_FIELD_MAX_LEN}.`
+    )
+    .oneOf([yup.ref("password")], PASSWORD_DOES_NOT_MATCH_MESSAGE),
 });
 
-export function LoginPage() {
-  const [showInvalidCredentialsMsg, setShowInvalidCredentialsMsg] =
-    useState<boolean>(false);
+export function SignUpPage() {
+  const [errorMsg, setErrorMsg] = useState<string>("");
+
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -59,15 +75,31 @@ export function LoginPage() {
     navigate("/home");
   }
 
-  function onFormSubmit(form: LoginForm) {
-    postLoginRequest({
+  function onFormSubmit(form: SignUpForm) {
+    setErrorMsg("");
+
+    postCreateUserRequest({
       username: form.username,
       password: form.password,
     }).then((response) => {
       if (response.isOk) {
-        logIn(response.data.user, response.data.accessToken);
+        postLoginRequest({
+          username: form.username,
+          password: form.password,
+        }).then((loginResponse) => {
+          if (loginResponse.isOk) {
+            logIn(loginResponse.data.user, loginResponse.data.accessToken);
+          } else {
+            setErrorMsg("Account created, but failed to log in");
+          }
+        });
+      } else {
+        if (response.errorCode === ErrorCode.DUPLICATE_RESOURCE) {
+          setErrorMsg("That username is taken");
+        } else {
+          setErrorMsg("Error creating account.\nCode: " + response.errorCode);
+        }
       }
-      setShowInvalidCredentialsMsg(response.status === 403);
     });
   }
 
@@ -76,7 +108,7 @@ export function LoginPage() {
       <div className="flex h-screen">
         <div className="m-auto">
           <Typography variant="h3" element="h3" className="text-center">
-            Login
+            Sign up
           </Typography>
           <div className="mt-10">
             <Formik
@@ -91,31 +123,28 @@ export function LoginPage() {
                 >
                   <InputField name="username" label="Username" />
                   <PasswordInputField name="password" label="Password" />
+                  <PasswordInputField
+                    name="repeatPassword"
+                    label="Repeat password"
+                  />
                   <Button
                     variant="filled"
                     color="primary"
                     type="submit"
                     className="w-full"
                   >
-                    Login
+                    Sign up
                   </Button>
                 </form>
               )}
             </Formik>
           </div>
-          <div className="mt-10">
-            <Link to="/signup" className="text-center">
-              <Typography variant="text" element="p">
-                <strong className="text-gray-500">Sign up</strong>
-              </Typography>
-            </Link>
-          </div>
-          {showInvalidCredentialsMsg && (
-            <div className="w-full bg-red-600 p-3 rounded-md mt-5">
+          {errorMsg.length > 0 && (
+            <div className="w-full bg-red-600 p-3 rounded-md mt-10">
               <Typography variant="text" element="h4">
                 <div className="flex flex-row space-x-3">
                   <Icon type="x-circle" className="text-white" />
-                  <p className="text-white">Invalid credentials</p>
+                  <p className="text-white">{errorMsg}</p>
                 </div>
               </Typography>
             </div>

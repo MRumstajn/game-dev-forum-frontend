@@ -13,6 +13,7 @@ import { Category } from "./forum/pages/Category";
 import { Forum } from "./forum/pages/Forum";
 import { Home } from "./home/pages/Home";
 import { LoginPage } from "./login/pages/LoginPage";
+import { SignUpPage } from "./login/pages/SignUpPage";
 import { Navbar } from "./navbar/components/Navbar";
 import { News } from "./news/pages/News";
 import { Rules } from "./Rules/Rules";
@@ -39,6 +40,7 @@ function App() {
             <Route path="/403" element={<AccessDeniedErrorPage />} />
             <Route path="/500" element={<InternalErrorPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
             <Route path="/profile/:id" element={<UserProfilePage />} />
             <Route path="/profile/edit" element={<EditUserProfilePage />} />
           </Routes>
