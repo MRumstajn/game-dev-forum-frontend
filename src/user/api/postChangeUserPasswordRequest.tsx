@@ -1,10 +1,11 @@
 import { ChangeUserPasswordRequest } from "./ChangeUserPasswordRequest";
 import { EdituserResponse } from "./EdituserResponse";
+import { BaseResponseWrapper } from "../../common/api/BaseResponseWrapper";
 import { USER_CHANGE_PASSWORD_URL } from "../../common/Routes";
 
 export async function postChangeUserPasswordRequest(
   request: ChangeUserPasswordRequest
-): Promise<EdituserResponse> {
+): Promise<BaseResponseWrapper<EdituserResponse>> {
   const response = await fetch(`${USER_CHANGE_PASSWORD_URL}`, {
     method: "POST",
     headers: {
@@ -13,5 +14,9 @@ export async function postChangeUserPasswordRequest(
     body: JSON.stringify(request),
   });
 
-  return await response.json();
+  return {
+    ...(await response.json()),
+    status: response.status,
+    isOk: response.ok,
+  } as BaseResponseWrapper<EdituserResponse>;
 }

@@ -43,8 +43,8 @@ export function Category() {
         return;
       }
 
-      postSearchThreadRequest(request).then((matchedThreads) =>
-        setThreads(matchedThreads)
+      postSearchThreadRequest(request).then((response) =>
+        setThreads(response.data)
       );
     },
     [category]
@@ -92,8 +92,8 @@ export function Category() {
 
   // get parent category
   useEffect(() => {
-    getCategoryById(Number(params.categoryId)).then((category) => {
-      setCategory(category);
+    getCategoryById(Number(params.categoryId)).then((response) => {
+      setCategory(response.data);
     });
   }, [params.categoryId]);
 
@@ -116,7 +116,7 @@ export function Category() {
       threadIds: threads
         .filter((thread) => thread !== null)
         .map((thread) => thread.id),
-    }).then((statistics) => setThreadStatistics(statistics));
+    }).then((response) => setThreadStatistics(response.data));
   }, [threads]);
 
   return (

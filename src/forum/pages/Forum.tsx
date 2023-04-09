@@ -40,7 +40,7 @@ export function Forum() {
   useEffect(() => {
     postSearchSectionRequest({
       title: "Forum",
-    }).then((matches) => setSection(matches[0]));
+    }).then((response) => setSection(response.data[0]));
   }, []);
 
   // get categories
@@ -51,7 +51,7 @@ export function Forum() {
 
     postSearchCategoryRequest({
       sectionId: section.id,
-    }).then((matchedCategories) => setCategories(matchedCategories));
+    }).then((response) => setCategories(response.data));
   }, [section]);
 
   // get details about each category
@@ -62,7 +62,7 @@ export function Forum() {
 
     postCategoryStatisticsRequest({
       categoryIds: categories.map((category) => category.id),
-    }).then((statistics) => setCategoryStatistics(statistics));
+    }).then((response) => setCategoryStatistics(response.data));
   }, [categories]);
 
   // get statistics for latest threads for all categories
@@ -80,7 +80,7 @@ export function Forum() {
         threadIds: categoryStatistics
           .filter((statistic) => statistic.threadWithLatestActivity !== null)
           .map((statistic) => statistic.threadWithLatestActivity.id),
-      }).then((statistics) => setThreadStatistics(statistics));
+      }).then((response) => setThreadStatistics(response.data));
     }
   }, [categoryStatistics]);
 
@@ -127,8 +127,8 @@ export function Forum() {
   }
 
   function updateCategoryList(request: SearchCategoryRequest) {
-    postSearchCategoryRequest(request).then((matchedCategories) =>
-      setCategories(matchedCategories)
+    postSearchCategoryRequest(request).then((response) =>
+      setCategories(response.data)
     );
   }
 

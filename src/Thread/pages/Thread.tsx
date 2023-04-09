@@ -20,7 +20,6 @@ import { PostResponse } from "../../common/api/PostResponse";
 import { ThreadResponse } from "../../common/api/ThreadResponse";
 import { AuthContext } from "../../common/components/AuthProvider";
 import { PostReactionType } from "../../common/constants";
-import { mockedCurrentUser } from "../../mock/mocks";
 import { deletePost } from "../api/deletePost";
 import { getCategoryById } from "../api/getCategoryById";
 import { getThreadById } from "../api/getThreadById";
@@ -67,8 +66,8 @@ export function Thread() {
   const topPostRef = useRef<HTMLDivElement>(null);
 
   const updatePostList = useCallback((request: SearchPostsRequest) => {
-    postPostSearchRequest(request).then((matches) => {
-      setPosts(matches);
+    postPostSearchRequest(request).then((response) => {
+      setPosts(response.data);
     });
   }, []);
 
@@ -119,8 +118,8 @@ export function Thread() {
 
     postSearchPostReactionCountRequest({
       postIds: posts.map((post) => post.id),
-    }).then((reactions) => {
-      setPostReactionsCounts(reactions);
+    }).then((response) => {
+      setPostReactionsCounts(response.data);
     });
   }, [posts]);
 
@@ -130,13 +129,13 @@ export function Thread() {
 
   useEffect(() => {
     if (categoryId) {
-      getCategoryById(categoryId).then((category) =>
-        setParentCategory(category)
+      getCategoryById(categoryId).then((response) =>
+        setParentCategory(response.data)
       );
     }
 
     if (threadId) {
-      getThreadById(threadId).then((th) => setThread(th));
+      getThreadById(threadId).then((response) => setThread(response.data));
     }
   }, [categoryId, threadId]);
 
@@ -154,7 +153,7 @@ export function Thread() {
     postSearchUserPostReactionRequest({
       postIds: posts.map((post) => post.id),
       userId: authContext.loggedInUser.id,
-    }).then((response) => setCurrentUserPostReactions(response));
+    }).then((response) => setCurrentUserPostReactions(response.data));
   }, [posts]);
 
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -184,16 +183,15 @@ export function Thread() {
 
     postCreatePostRequest({
       threadId: threadId,
-      authorId: mockedCurrentUser.id,
       content: inputContent,
-    }).then((createdPost) => {
+    }).then((response) => {
       if (posts !== undefined) {
         setPosts((prevState) => {
           if (prevState) {
-            prevState.push(createdPost);
+            prevState.push(response.data);
             return prevState;
           }
-          return [createdPost];
+          return [response.data];
         });
 
         updatePostList(defaultSearchPostRequest);

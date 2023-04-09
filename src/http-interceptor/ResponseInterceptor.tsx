@@ -26,6 +26,7 @@ export function ResponseInterceptor() {
           }
           break;
       }
+
       return response;
     },
   });

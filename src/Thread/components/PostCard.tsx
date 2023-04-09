@@ -80,8 +80,8 @@ export function PostCard({
         postId: postId,
         postReactionType: reactionType,
       }).then((response) => {
-        setLikeAndDislikeCountFromResponse(response);
-        setUserPostReaction(response);
+        setLikeAndDislikeCountFromResponse(response.data);
+        setUserPostReaction(response.data);
         setUserLatestReactionType(reactionType);
 
         onReactionsChanged();
@@ -89,7 +89,7 @@ export function PostCard({
     } else {
       if (userPostReaction !== undefined) {
         deleteUserPostReaction(userPostReaction.id).then((response) => {
-          setLikeAndDislikeCountFromResponse(response);
+          setLikeAndDislikeCountFromResponse(response.data);
           setUserPostReaction(undefined);
           setUserLatestReactionType(undefined);
 

@@ -1,10 +1,11 @@
+import { BaseResponseWrapper } from "../../common/api/BaseResponseWrapper";
 import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { CATEGORY_SEARCH_URL } from "../../common/Routes";
 import { SearchCategoryRequest } from "../../news/api/SearchCategoryRequest";
 
 export async function postSearchCategoryRequest(
   request: SearchCategoryRequest
-): Promise<CategoryResponse[]> {
+): Promise<BaseResponseWrapper<CategoryResponse[]>> {
   const response = await fetch(CATEGORY_SEARCH_URL, {
     method: "POST",
     headers: {
@@ -13,5 +14,9 @@ export async function postSearchCategoryRequest(
     body: JSON.stringify(request),
   });
 
-  return await response.json();
+  return {
+    ...(await response.json()),
+    status: response.status,
+    isOk: response.ok,
+  } as BaseResponseWrapper<CategoryResponse[]>;
 }

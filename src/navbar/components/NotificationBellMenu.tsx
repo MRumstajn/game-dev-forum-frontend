@@ -27,7 +27,7 @@ export function NotificationBellMenu() {
     postSearchNotificationRequest({
       recipientId: authContext.loggedInUser.id,
       sortPropertyList: [{ property: "isRead", direction: "DESC" }],
-    }).then((response) => setNotifications(response));
+    }).then((response) => setNotifications(response.data));
   }, [authContext.loggedInUser]);
 
   useEffect(() => {

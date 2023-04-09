@@ -1,10 +1,11 @@
 import { NotificationResponse } from "./NotificationResponse";
 import { SearchNotificationRequest } from "./SearchNotificationRequest";
+import { BaseResponseWrapper } from "../../common/api/BaseResponseWrapper";
 import { NOTIFICATION_SEARCH_URL } from "../../common/Routes";
 
 export async function postSearchNotificationRequest(
   request: SearchNotificationRequest
-): Promise<NotificationResponse[]> {
+): Promise<BaseResponseWrapper<NotificationResponse[]>> {
   const response = await fetch(NOTIFICATION_SEARCH_URL, {
     method: "POST",
     headers: {
@@ -13,5 +14,9 @@ export async function postSearchNotificationRequest(
     body: JSON.stringify(request),
   });
 
-  return await response.json();
+  return {
+    ...(await response.json()),
+    status: response.status,
+    isOk: response.ok,
+  } as BaseResponseWrapper<NotificationResponse[]>;
 }

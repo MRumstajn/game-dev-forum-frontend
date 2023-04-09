@@ -32,8 +32,8 @@ export function News() {
   useEffect(() => {
     postSearchCategoryRequest({
       title: "News",
-    }).then((matches) => {
-      setNewsCategoryId(matches[0].id);
+    }).then((response) => {
+      setNewsCategoryId(response.data[0].id);
     });
   }, []);
 
@@ -46,7 +46,9 @@ export function News() {
   }, [newsCategoryId]);
 
   function updateThreadList(request: SearchThreadRequest) {
-    postSearchThreadRequest(request).then((threads) => setNewsThreads(threads));
+    postSearchThreadRequest(request).then((response) =>
+      setNewsThreads(response.data)
+    );
   }
 
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {

@@ -1,17 +1,17 @@
 import { UserFollowerResponse } from "./UserFollowerResponse";
-import { StatusWrappedResponse } from "../../common/api/StatusWrappedResponse";
+import { BaseResponseWrapper } from "../../common/api/BaseResponseWrapper";
 import { USER_URL } from "../../common/Routes";
 
 export async function followUser(
   userId: number
-): Promise<StatusWrappedResponse<UserFollowerResponse>> {
+): Promise<BaseResponseWrapper<UserFollowerResponse>> {
   const response = await fetch(`${USER_URL}/${userId}/follow`, {
     method: "POST",
   });
 
   return {
-    isOk: response.ok,
+    ...(await response.json()),
     status: response.status,
-    data: await response.json(),
-  };
+    isOk: response.ok,
+  } as BaseResponseWrapper<UserFollowerResponse>;
 }

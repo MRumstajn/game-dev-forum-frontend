@@ -54,7 +54,7 @@ export function CreateThreadModal({
       firstPostContent: form.firstPostContent,
       categoryId: categoryId,
       authorId: authContext.loggedInUser?.id,
-    }).then((thread) => onThreadCreatedCallback(thread));
+    }).then((response) => onThreadCreatedCallback(response.data));
 
     modal.onClose();
   }

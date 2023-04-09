@@ -20,20 +20,22 @@ export function Home() {
     useState<OverallStatisticsResponse>();
 
   useEffect(() => {
-    getTopCategories().then((categories) => {
+    getTopCategories().then((response) => {
+      const categories = response.data;
+
       setTopCategories(categories);
 
       if (categories.length > 0) {
         postCategoryStatisticsRequest({
           categoryIds: categories.map((category) => category.id),
-        }).then((categoriesStatistics) =>
-          setTopCategoriesDetails(categoriesStatistics)
+        }).then((statisticResponse) =>
+          setTopCategoriesDetails(statisticResponse.data)
         );
       }
     });
 
-    getOverallStatistics().then((statistics) =>
-      setOverallStatistics(statistics)
+    getOverallStatistics().then((statisticResponse) =>
+      setOverallStatistics(statisticResponse.data)
     );
   }, []);
 

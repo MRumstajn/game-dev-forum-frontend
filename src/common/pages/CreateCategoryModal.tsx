@@ -41,7 +41,7 @@ export function CreateCategoryModal({
     postCreateCategoryRequest({
       title: form.title,
       sectionId: sectionId,
-    }).then((category) => onCreateCategoryCallback(category));
+    }).then((response) => onCreateCategoryCallback(response.data));
 
     modal.onClose();
   }

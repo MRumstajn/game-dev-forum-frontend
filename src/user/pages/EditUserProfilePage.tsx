@@ -60,8 +60,8 @@ export function EditUserProfilePage() {
             : undefined
           : undefined,
       }).then((response) => {
-        authContext.setLoggedInUser(response.user);
-        saveToken(response.newAccessToken);
+        authContext.setLoggedInUser(response.data.user);
+        saveToken(response.data.newAccessToken);
       });
     }
 

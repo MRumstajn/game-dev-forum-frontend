@@ -61,13 +61,13 @@ export function UserProfilePage() {
 
   const updateFollowerList = useCallback(() => {
     if (user) {
-      getFollowers(user.id).then((response) => setFollowers(response));
+      getFollowers(user.id).then((response) => setFollowers(response.data));
     }
   }, [user]);
 
   useEffect(() => {
     if (params.hasOwnProperty("id")) {
-      getUserById(Number(params.id)).then((response) => setUser(response));
+      getUserById(Number(params.id)).then((response) => setUser(response.data));
     }
   }, [params]);
 
@@ -78,7 +78,7 @@ export function UserProfilePage() {
 
     if (authContext.loggedInUser) {
       getIsFollowing(user.id).then((response) =>
-        setIsCurrentUsrFollowingUser(response.isFollowing)
+        setIsCurrentUsrFollowingUser(response.data.isFollowing)
       );
 
       updateFollowerList();

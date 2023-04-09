@@ -1,10 +1,11 @@
 import { MarkNotificationsAsReadRequest } from "./MarkNotificationsAsReadRequest";
 import { NotificationResponse } from "./NotificationResponse";
+import { BaseResponseWrapper } from "../../common/api/BaseResponseWrapper";
 import { NOTIFICATION_MARK_AS_READ_URL } from "../../common/Routes";
 
 export async function postMarkNotificationAsReadRequest(
   request: MarkNotificationsAsReadRequest
-): Promise<NotificationResponse[]> {
+): Promise<BaseResponseWrapper<NotificationResponse[]>> {
   const response = await fetch(NOTIFICATION_MARK_AS_READ_URL, {
     method: "POST",
     headers: {
@@ -13,5 +14,9 @@ export async function postMarkNotificationAsReadRequest(
     body: JSON.stringify(request),
   });
 
-  return await response.json();
+  return {
+    ...(await response.json()),
+    status: response.status,
+    isOk: response.ok,
+  } as BaseResponseWrapper<NotificationResponse[]>;
 }

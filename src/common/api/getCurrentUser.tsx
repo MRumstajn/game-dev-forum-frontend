@@ -1,15 +1,15 @@
-import { StatusWrappedResponse } from "./StatusWrappedResponse";
+import { BaseResponseWrapper } from "./BaseResponseWrapper";
 import { UserResponse } from "./UserResponse";
 import { CURRENT_USER_URL } from "../Routes";
 
 export async function getCurrentUser(): Promise<
-  StatusWrappedResponse<UserResponse>
+  BaseResponseWrapper<UserResponse>
 > {
   const response = await fetch(CURRENT_USER_URL, { method: "GET" });
 
   return {
+    ...(await response.json()),
     status: response.status,
     isOk: response.ok,
-    data: await response.json(),
-  } as StatusWrappedResponse<UserResponse>;
+  } as BaseResponseWrapper<UserResponse>;
 }

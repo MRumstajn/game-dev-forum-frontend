@@ -1,11 +1,11 @@
 import { LoginRequest } from "./LoginRequest";
 import { LoginResponse } from "./LoginResponse";
-import { StatusWrappedResponse } from "../../common/api/StatusWrappedResponse";
+import { BaseResponseWrapper } from "../../common/api/BaseResponseWrapper";
 import { LOGIN_URL } from "../../common/Routes";
 
 export async function postLoginRequest(
   request: LoginRequest
-): Promise<StatusWrappedResponse<LoginResponse>> {
+): Promise<BaseResponseWrapper<LoginResponse>> {
   const response = await fetch(LOGIN_URL, {
     method: "POST",
     headers: {
@@ -15,8 +15,8 @@ export async function postLoginRequest(
   });
 
   return {
+    ...(await response.json()),
     status: response.status,
     isOk: response.ok,
-    data: await response.json(),
-  } as StatusWrappedResponse<LoginResponse>;
+  } as BaseResponseWrapper<LoginResponse>;
 }

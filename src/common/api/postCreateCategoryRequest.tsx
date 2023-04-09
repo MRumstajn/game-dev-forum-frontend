@@ -1,10 +1,11 @@
+import { BaseResponseWrapper } from "./BaseResponseWrapper";
 import { CategoryResponse } from "./CategoryResponse";
 import { CreateCategoryRequest } from "./CreateCategoryRequest";
 import { CATEGORY_URL } from "../Routes";
 
 export async function postCreateCategoryRequest(
   request: CreateCategoryRequest
-): Promise<CategoryResponse> {
+): Promise<BaseResponseWrapper<CategoryResponse>> {
   const response = await fetch(CATEGORY_URL, {
     method: "POST",
     headers: {
@@ -13,5 +14,9 @@ export async function postCreateCategoryRequest(
     body: JSON.stringify(request),
   });
 
-  return await response.json();
+  return {
+    ...(await response.json()),
+    status: response.status,
+    isOk: response.ok,
+  } as BaseResponseWrapper<CategoryResponse>;
 }
