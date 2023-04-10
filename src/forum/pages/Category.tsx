@@ -1,7 +1,13 @@
 import { FormEvent, useCallback, useContext, useEffect, useState } from "react";
 
 import { useModal } from "@tiller-ds/alert";
-import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
+import {
+  Breadcrumbs,
+  Button,
+  Card,
+  Pagination,
+  Typography,
+} from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
 import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
@@ -32,6 +38,8 @@ export function Category() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [usernameFilter, setUsernameFilter] = useState<string>();
+  const [page, setPage] = useState<number>(0);
+  const [totalThreads, setTotalThreads] = useState<number>();
 
   const params = useParams();
   const authContext = useContext(AuthContext);
@@ -43,9 +51,10 @@ export function Category() {
         return;
       }
 
-      postSearchThreadRequest(request).then((response) =>
-        setThreads(response.data)
-      );
+      postSearchThreadRequest(request).then((response) => {
+        setThreads(response.data.content);
+        setTotalThreads(response.data.totalElements);
+      });
     },
     [category]
   );
@@ -102,8 +111,10 @@ export function Category() {
     () =>
       updateThreadList({
         categoryId: category?.id,
+        pageSize: 10,
+        pageNumber: page,
       }),
-    [category, updateThreadList]
+    [category, updateThreadList, page]
   );
 
   // get details for all threads
@@ -225,36 +236,62 @@ export function Category() {
                 </Card.Body>
               </Card>
             )}
-            <div className="flex flex-col space-y-3">
-              <div className="grid grid-cols-3">
-                <Typography variant="text" element="p">
-                  Threads
+            <div className="flex flex-col space-y-3 pb-10">
+              {threads.length > 0 && (
+                <div>
+                  <div className="grid grid-cols-3 mb-3">
+                    <Typography variant="text" element="p">
+                      Threads
+                    </Typography>
+                    <Typography variant="text" element="p">
+                      Posts
+                    </Typography>
+                    <Typography variant="text" element="p">
+                      Latest post
+                    </Typography>
+                  </div>
+                  <div className="border-b-2 mb-3" />
+                  {threads.map((thread) => (
+                    <ThreadCard
+                      threadId={thread.id}
+                      title={thread.title}
+                      postCount={getStatisticForThread(thread.id)?.postCount}
+                      latestPostDate={
+                        getLatestPost(thread.id)
+                          ? getLatestPost(thread.id)?.creationDateTime
+                          : undefined
+                      }
+                      latestPostAuthor={
+                        getLatestPost(thread.id)
+                          ? getLatestPost(thread.id)?.author
+                          : undefined
+                      }
+                    />
+                  ))}
+                  {totalThreads && totalThreads > 10 && (
+                    <div className="mt-3">
+                      <Pagination
+                        pageNumber={page ? page : 0}
+                        pageSize={10}
+                        totalElements={totalThreads ? totalThreads : 0}
+                        className="justify-start"
+                        onPageChange={setPage}
+                      >
+                        {() => <></>}
+                      </Pagination>
+                    </div>
+                  )}
+                </div>
+              )}
+              {threads.length === 0 && (
+                <Typography
+                  variant="subtext"
+                  element="p"
+                  className="text-center mt-10"
+                >
+                  No threads at the moment
                 </Typography>
-                <Typography variant="text" element="p">
-                  Posts
-                </Typography>
-                <Typography variant="text" element="p">
-                  Latest post
-                </Typography>
-              </div>
-              <div className="border-b-2" />
-              {threads.map((thread) => (
-                <ThreadCard
-                  threadId={thread.id}
-                  title={thread.title}
-                  postCount={getStatisticForThread(thread.id)?.postCount}
-                  latestPostDate={
-                    getLatestPost(thread.id)
-                      ? getLatestPost(thread.id)?.creationDateTime
-                      : undefined
-                  }
-                  latestPostAuthor={
-                    getLatestPost(thread.id)
-                      ? getLatestPost(thread.id)?.author
-                      : undefined
-                  }
-                />
-              ))}
+              )}
             </div>
           </div>
         </div>

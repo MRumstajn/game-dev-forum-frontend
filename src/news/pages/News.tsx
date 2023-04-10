@@ -1,7 +1,13 @@
 import { FormEvent, useContext, useEffect, useState } from "react";
 
 import { useModal } from "@tiller-ds/alert";
-import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
+import {
+  Breadcrumbs,
+  Button,
+  Card,
+  Pagination,
+  Typography,
+} from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
 import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
@@ -25,6 +31,8 @@ export function News() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [usernameFilter, setUsernameFilter] = useState<string>();
+  const [page, setPage] = useState<number>(0);
+  const [totalThreads, setTotalThreads] = useState<number>();
 
   const authContext = useContext(AuthContext);
   const createThreadModal = useModal();
@@ -33,7 +41,7 @@ export function News() {
     postSearchCategoryRequest({
       title: "News",
     }).then((response) => {
-      setNewsCategoryId(response.data[0].id);
+      setNewsCategoryId(response.data.content[0].id);
     });
   }, []);
 
@@ -41,14 +49,17 @@ export function News() {
     updateThreadList({
       categoryId: newsCategoryId,
       authorUsername: usernameFilter,
+      pageSize: 10,
+      pageNumber: page,
     });
     // eslint-disable-next-line
-  }, [newsCategoryId]);
+  }, [newsCategoryId, page]);
 
   function updateThreadList(request: SearchThreadRequest) {
-    postSearchThreadRequest(request).then((response) =>
-      setNewsThreads(response.data)
-    );
+    postSearchThreadRequest(request).then((response) => {
+      setNewsThreads(response.data.content);
+      setTotalThreads(response.data.totalElements);
+    });
   }
 
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -176,26 +187,42 @@ export function News() {
                   </Card.Body>
                 </Card>
               )}
-              <div className="flex flex-col space-y-3">
-                {newsThreads &&
-                  newsThreads.map((thread: any) => (
-                    <NewsCard
-                      id={thread.id}
-                      title={thread.title}
-                      creationDate={thread.creationDate}
-                      author={thread.author}
-                    />
-                  ))}
-                {(newsThreads === undefined || newsThreads.length === 0) && (
-                  <Typography
-                    variant="subtext"
-                    element="p"
-                    className="text-center"
-                  >
-                    No threads at the moment
-                  </Typography>
-                )}
-              </div>
+
+              {newsThreads && newsThreads?.length > 0 && (
+                <div className="flex flex-col space-y-3">
+                  {newsThreads &&
+                    newsThreads.map((thread: any) => (
+                      <NewsCard
+                        id={thread.id}
+                        title={thread.title}
+                        creationDate={thread.creationDate}
+                        author={thread.author}
+                      />
+                    ))}
+                  {totalThreads && totalThreads > 10 && (
+                    <div className="mt-3">
+                      <Pagination
+                        pageNumber={page ? page : 0}
+                        pageSize={10}
+                        totalElements={totalThreads ? totalThreads : 0}
+                        className="justify-start"
+                        onPageChange={setPage}
+                      >
+                        {() => <></>}
+                      </Pagination>
+                    </div>
+                  )}
+                </div>
+              )}
+              {(newsThreads === undefined || newsThreads.length === 0) && (
+                <Typography
+                  variant="subtext"
+                  element="p"
+                  className="text-center"
+                >
+                  No threads at the moment
+                </Typography>
+              )}
             </div>
           </div>
         </div>

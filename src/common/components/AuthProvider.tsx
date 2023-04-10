@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -33,10 +33,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     navigate("/home");
   }, []);
 
-  const values = {
-    loggedInUser,
-    setLoggedInUser,
-  };
+  const values = useMemo(
+    () => ({
+      loggedInUser,
+      setLoggedInUser,
+    }),
+    [loggedInUser]
+  );
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;
 }

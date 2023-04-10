@@ -1,3 +1,5 @@
+import { PageableRequest } from "../../common/api/PageableRequest";
+
 export type SearchThreadRequest = {
   categoryId?: number;
 
@@ -10,4 +12,4 @@ export type SearchThreadRequest = {
   authorId?: number;
 
   authorUsername?: string;
-};
+} & PageableRequest;

@@ -1,7 +1,13 @@
 import { FormEvent, useContext, useEffect, useState } from "react";
 
 import { useModal } from "@tiller-ds/alert";
-import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
+import {
+  Breadcrumbs,
+  Button,
+  Card,
+  Pagination,
+  Typography,
+} from "@tiller-ds/core";
 import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 
@@ -32,6 +38,8 @@ export function Forum() {
   >([]);
   const [filterFormOpen, setFilterFormOpen] = useState<boolean>(false);
   const [titleFilter, setTitleFilter] = useState<string>();
+  const [page, setPage] = useState<number>(0);
+  const [totalCategories, setTotalCategories] = useState<number>();
 
   const authContext = useContext(AuthContext);
   const newCategoryModal = useModal();
@@ -51,8 +59,13 @@ export function Forum() {
 
     postSearchCategoryRequest({
       sectionId: section.id,
-    }).then((response) => setCategories(response.data));
-  }, [section]);
+      pageSize: 10,
+      pageNumber: page,
+    }).then((response) => {
+      setCategories(response.data.content);
+      setTotalCategories(response.data.totalElements);
+    });
+  }, [section, page]);
 
   // get details about each category
   useEffect(() => {
@@ -128,7 +141,7 @@ export function Forum() {
 
   function updateCategoryList(request: SearchCategoryRequest) {
     postSearchCategoryRequest(request).then((response) =>
-      setCategories(response.data)
+      setCategories(response.data.content)
     );
   }
 
@@ -206,31 +219,53 @@ export function Forum() {
                 </Card.Body>
               </Card>
             )}
-            <div className="flex flex-col space-y-3">
-              <div className="grid grid-cols-3">
-                <Typography variant="text" element="p">
-                  Category
-                </Typography>
-                <Typography variant="text" element="p">
-                  Threads
-                </Typography>
-                <Typography variant="text" element="p">
-                  Latest activity
-                </Typography>
+            {categories.length > 0 && (
+              <div>
+                <div className="grid grid-cols-3 mb-3">
+                  <Typography variant="text" element="p">
+                    Category
+                  </Typography>
+                  <Typography variant="text" element="p">
+                    Threads
+                  </Typography>
+                  <Typography variant="text" element="p">
+                    Latest activity
+                  </Typography>
+                </div>
+                <div className="border-b-2 mb-3" />
+                <div className="flex flex-col space-y-3">
+                  {categories.map((ct) => (
+                    <ForumCategoryCard
+                      categoryId={ct.id}
+                      title={ct.title}
+                      key={ct.id}
+                      threadCount={getStatisticsForCategory(ct.id)?.threadCount}
+                      threadWithLatestActivity={
+                        getStatisticsForCategory(ct.id)
+                          ?.threadWithLatestActivity
+                      }
+                      latestPost={getLatestPostInCategory(ct.id)}
+                    />
+                  ))}
+                  {totalCategories && totalCategories > 10 && (
+                    <Pagination
+                      pageNumber={page ? page : 0}
+                      pageSize={10}
+                      totalElements={totalCategories ? totalCategories : 0}
+                      className="justify-start"
+                      onPageChange={setPage}
+                    >
+                      {() => <></>}
+                    </Pagination>
+                  )}
+                </div>
               </div>
-              {categories.map((ct) => (
-                <ForumCategoryCard
-                  categoryId={ct.id}
-                  title={ct.title}
-                  key={ct.id}
-                  threadCount={getStatisticsForCategory(ct.id)?.threadCount}
-                  threadWithLatestActivity={
-                    getStatisticsForCategory(ct.id)?.threadWithLatestActivity
-                  }
-                  latestPost={getLatestPostInCategory(ct.id)}
-                />
-              ))}
-            </div>
+            )}
+            {categories.length === 0 && (
+              <Typography variant="subtext" element="p" className="text-center">
+                No categories at the moment
+              </Typography>
+            )}
           </div>
         </div>
       </div>

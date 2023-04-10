@@ -7,7 +7,13 @@ import {
   useState,
 } from "react";
 
-import { Breadcrumbs, Button, Card, Typography } from "@tiller-ds/core";
+import {
+  Breadcrumbs,
+  Button,
+  Card,
+  Pagination,
+  Typography,
+} from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
 import { Input, Textarea } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
@@ -56,6 +62,8 @@ export function Thread() {
   const [parentCategory, setParentCategory] = useState<CategoryResponse>();
   const [thread, setThread] = useState<ThreadResponse>();
   const [topPost, setTopPost] = useState<PostResponse>();
+  const [page, setPage] = useState<number>();
+  const [totalPosts, setTotalPosts] = useState<number>();
 
   const threadId = Number(params.threadId);
   const categoryId = params.categoryId ? Number(params.categoryId) : undefined;
@@ -66,8 +74,11 @@ export function Thread() {
   const topPostRef = useRef<HTMLDivElement>(null);
 
   const updatePostList = useCallback((request: SearchPostsRequest) => {
+    setPosts([]);
+
     postPostSearchRequest(request).then((response) => {
-      setPosts(response.data);
+      setPosts(response.data.content);
+      setTotalPosts(response.data.totalElements);
     });
   }, []);
 
@@ -124,8 +135,12 @@ export function Thread() {
   }, [posts]);
 
   useEffect(() => {
-    updatePostList(defaultSearchPostRequest);
-  }, [updatePostList]);
+    updatePostList({
+      ...defaultSearchPostRequest,
+      pageNumber: page,
+      pageSize: 10,
+    });
+  }, [updatePostList, page]);
 
   useEffect(() => {
     if (categoryId) {
@@ -401,7 +416,19 @@ export function Thread() {
                     No posts at the moment
                   </Typography>
                 )}
+                {totalPosts && totalPosts > 10 && (
+                  <Pagination
+                    pageNumber={page ? page : 0}
+                    pageSize={10}
+                    totalElements={totalPosts ? totalPosts : 0}
+                    className="justify-start"
+                    onPageChange={setPage}
+                  >
+                    {() => <></>}
+                  </Pagination>
+                )}
               </div>
+
               <form onSubmit={postInputFormSubmitHandler}>
                 <Textarea
                   name="content"

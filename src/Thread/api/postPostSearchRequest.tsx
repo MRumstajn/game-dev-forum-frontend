@@ -2,10 +2,11 @@ import { SearchPostsRequest } from "./SearchPostsRequest";
 import { BaseResponseWrapper } from "../../common/api/BaseResponseWrapper";
 import { PostResponse } from "../../common/api/PostResponse";
 import { POST_SEARCH_URL } from "../../common/Routes";
+import { PageResponseWrapper } from "../../forum/api/PageResponseWrapper";
 
 export async function postPostSearchRequest(
   request: SearchPostsRequest
-): Promise<BaseResponseWrapper<PostResponse[]>> {
+): Promise<BaseResponseWrapper<PageResponseWrapper<PostResponse>>> {
   const response = await fetch(POST_SEARCH_URL, {
     method: "POST",
     headers: {
@@ -18,5 +19,5 @@ export async function postPostSearchRequest(
     ...(await response.json()),
     status: response.status,
     isOk: response.ok,
-  } as BaseResponseWrapper<PostResponse[]>;
+  } as BaseResponseWrapper<PageResponseWrapper<PostResponse>>;
 }

@@ -14,6 +14,8 @@ export function NotificationBellMenu() {
   const [notifications, setNotifications] = useState<NotificationResponse[]>(
     []
   );
+  const [page, setPage] = useState<number>(0);
+  const [totalNotifications, setTotalNotifications] = useState<number>(0);
 
   const popupRef = useRef<any>(null);
   const notificationBellRef = useRef<any>(null);
@@ -26,9 +28,13 @@ export function NotificationBellMenu() {
 
     postSearchNotificationRequest({
       recipientId: authContext.loggedInUser.id,
-      sortPropertyList: [{ property: "isRead", direction: "DESC" }],
-    }).then((response) => setNotifications(response.data));
-  }, [authContext.loggedInUser]);
+      pageNumber: page,
+      pageSize: 3,
+    }).then((response) => {
+      setNotifications(() => response.data.content);
+      setTotalNotifications(response.data.totalElements);
+    });
+  }, [authContext.loggedInUser, page]);
 
   useEffect(() => {
     function handleMouseClick(event: MouseEvent) {
@@ -101,6 +107,8 @@ export function NotificationBellMenu() {
             markAllNotificationsAsReadCallback={markAllNotificationsAsRead}
             markNotificationsAsReadCallback={markNotificationsAsRead}
             notifications={notifications}
+            changePageCallback={setPage}
+            totalNotifications={totalNotifications}
           />
         </div>
       )}

@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 
-import { IconButton, Typography } from "@tiller-ds/core";
+import { IconButton, Pagination, Typography } from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
 import { NotificationCard } from "./NotificationCard";
@@ -8,60 +8,20 @@ import { NotificationResponse } from "../api/NotificationResponse";
 
 type NotificationPopupProps = {
   notifications: NotificationResponse[];
-
   markNotificationsAsReadCallback: (notificationIds: number[]) => void;
   markAllNotificationsAsReadCallback: () => void;
+  changePageCallback: (page: number) => void;
+  totalNotifications: number;
 };
 
 export function NotificationPopup({
   notifications,
   markAllNotificationsAsReadCallback,
   markNotificationsAsReadCallback,
+  changePageCallback,
+  totalNotifications,
 }: NotificationPopupProps) {
-  /*const [notifications, setNotifications] = useState<NotificationResponse[]>(
-    []
-  );
-
-  const authContext = useContext(AuthContext);
-
-  useEffect(() => {
-    if (!authContext.loggedInUser) {
-      return;
-    }
-
-    postSearchNotificationRequest({
-      recipientId: authContext.loggedInUser.id,
-      sortPropertyList: [{ property: "isRead", direction: "DESC" }],
-    }).then((response) => setNotifications(response));
-  }, [authContext.loggedInUser]);*/
-
-  /*function markNotificationsAsRead(notificationIds: number[]) {
-    postMarkNotificationAsReadRequest({
-      notificationIds: notificationIds,
-    }).then((response) => {
-      setNotifications((prevState) => {
-        notificationIds.forEach((notificationId) => {
-          const notificationIndex = prevState.findIndex(
-            (notification) => notification.id === notificationId
-          );
-
-          if (notificationIndex !== -1) {
-            prevState[notificationIndex].isRead = true;
-          }
-        });
-
-        return [...prevState];
-      });
-    });
-  }*/
-
-  /*function markAllNotificationsAsRead() {
-    markNotificationsAsRead(
-      notifications
-        .filter((notification) => !notification.isRead)
-        .map((notification) => notification.id)
-    );
-  }*/
+  const [page, setPage] = useState<number>(0);
 
   return (
     <div className="bg-slate-800 border-2 border-slate-700 w-80">
@@ -89,6 +49,33 @@ export function NotificationPopup({
             }
           />
         ))}
+        <Pagination
+          pageNumber={page}
+          pageSize={3}
+          totalElements={totalNotifications}
+          onPageChange={(page) => {
+            setPage(page);
+            changePageCallback(page);
+          }}
+          tokens={{
+            default: {
+              backgroundColor: "none",
+              textColor: "text-slate-600 hover:text-white",
+              borderColor: "none",
+            },
+            current: {
+              backgroundColor: "none hover:bg-navy-100",
+              textColor: "text-white",
+              borderColor: "border-none",
+            },
+            pageSummary: {
+              fontSize: "text-sm",
+              lineHeight: "leading-5",
+            },
+          }}
+        >
+          {() => <></>}
+        </Pagination>
       </div>
     </div>
   );

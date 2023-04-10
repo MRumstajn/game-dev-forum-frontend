@@ -1,3 +1,5 @@
+import { PageableRequest } from "../../common/api/PageableRequest";
+
 export type SearchPostsRequest = {
   threadId?: number;
 
@@ -6,4 +8,4 @@ export type SearchPostsRequest = {
   creationDateTimeFromIncluding?: Date;
 
   creationDateTimeToIncluding?: Date;
-};
+} & PageableRequest;

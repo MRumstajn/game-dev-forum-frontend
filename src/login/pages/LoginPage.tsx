@@ -8,6 +8,7 @@ import { Formik } from "formik";
 import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 
+import { ErrorCode } from "../../common/api/ErrorCode";
 import { UserResponse } from "../../common/api/UserResponse";
 import { AuthContext } from "../../common/components/AuthProvider";
 import {
@@ -67,7 +68,9 @@ export function LoginPage() {
       if (response.isOk) {
         logIn(response.data.user, response.data.accessToken);
       }
-      setShowInvalidCredentialsMsg(response.status === 403);
+      setShowInvalidCredentialsMsg(
+        response.errorCode === ErrorCode.INVALID_CREDENTIALS
+      );
     });
   }
 
