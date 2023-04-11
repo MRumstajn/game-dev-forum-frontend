@@ -42,11 +42,17 @@ export function News() {
     postSearchCategoryRequest({
       title: "News",
     }).then((response) => {
-      setNewsCategoryId(response.data.content[0].id);
+      if (response.data.content.length > 0) {
+        setNewsCategoryId(response.data.content[0].id);
+      }
     });
   }, []);
 
   useEffect(() => {
+    if (newsCategoryId === undefined) {
+      return;
+    }
+
     updateThreadList({
       categoryId: newsCategoryId,
       authorUsername: usernameFilter,
