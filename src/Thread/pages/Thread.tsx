@@ -108,18 +108,20 @@ export function Thread() {
       });
 
       // get post with max score
-      let firstPostScore = postScores[0];
-      let top = [firstPostScore];
-      postScores.forEach((postScore) => {
-        //  skip comparing first post (initial top post) to itself
-        if (postScore !== firstPostScore) {
-          if (postScore.score > top[0].score) {
-            top = [postScore];
-          } else if (postScore.score === top[0].score) {
-            top.push(postScore);
+      let firstPostScore = postScores.find((score) => score.score > 0);
+      let top = firstPostScore ? [firstPostScore] : [];
+      if (top.length > 0) {
+        postScores.forEach((postScore) => {
+          //  skip comparing first post (initial top post) to itself
+          if (postScore !== firstPostScore) {
+            if (postScore.score > top[0].score) {
+              top = [postScore];
+            } else if (postScore.score === top[0].score) {
+              top.push(postScore);
+            }
           }
-        }
-      });
+        });
+      }
 
       // if two posts have the max score, set uop post to undefined, otherwise set to post with max score
       if (top.length === 1) {
@@ -278,7 +280,9 @@ export function Thread() {
                     <Link to="/forum">Forum</Link>
                   </Breadcrumbs.Breadcrumb>
                   <Breadcrumbs.Breadcrumb>
-                    {parentCategory.title}
+                    <Link to={`/forum/${parentCategory.id}`}>
+                      {parentCategory.title}
+                    </Link>
                   </Breadcrumbs.Breadcrumb>
                 </Breadcrumbs>
               </div>
