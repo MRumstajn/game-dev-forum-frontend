@@ -10,6 +10,8 @@ type ThreadCardProps = {
 
   title: string;
 
+  author: UserResponse;
+
   postCount?: number;
 
   latestPostDate?: Date;
@@ -20,6 +22,7 @@ type ThreadCardProps = {
 export function ThreadCard({
   threadId,
   title,
+  author,
   postCount,
   latestPostDate,
   latestPostAuthor,
@@ -32,12 +35,15 @@ export function ThreadCard({
     <Link to={`/forum/${categoryId}/${threadId}`}>
       <Card>
         <Card.Body>
-          <div className="grid grid-cols-3">
+          <div className="grid grid-cols-4">
             <Typography variant="text" element="p">
               {title}
             </Typography>
             <Typography variant="text" element="p">
               {postCount}
+            </Typography>
+            <Typography variant="text" element="p">
+              {author.username}
             </Typography>
             {latestPostDate && latestPostAuthor && (
               <div className="flex flex-col space-y-3">

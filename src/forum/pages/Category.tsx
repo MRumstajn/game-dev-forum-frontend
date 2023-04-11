@@ -247,12 +247,15 @@ export function Category() {
             <div className="flex flex-col space-y-3 pb-10">
               {threads.length > 0 && (
                 <div>
-                  <div className="grid grid-cols-3 mb-3">
+                  <div className="grid grid-cols-4 mb-3">
                     <Typography variant="text" element="p">
                       Threads
                     </Typography>
                     <Typography variant="text" element="p">
                       Posts
+                    </Typography>
+                    <Typography variant="text" element="p">
+                      Author
                     </Typography>
                     <Typography variant="text" element="p">
                       Latest post
@@ -263,6 +266,7 @@ export function Category() {
                     <ThreadCard
                       threadId={thread.id}
                       title={thread.title}
+                      author={thread.author}
                       postCount={getStatisticForThread(thread.id)?.postCount}
                       latestPostDate={
                         getLatestPost(thread.id)

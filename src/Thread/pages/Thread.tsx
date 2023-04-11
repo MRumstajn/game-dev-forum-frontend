@@ -107,12 +107,16 @@ export function Thread() {
       });
 
       // get post with max score
-      let top = [postScores[0]];
+      let firstPostScore = postScores[0];
+      let top = [firstPostScore];
       postScores.forEach((postScore) => {
-        if (postScore.score > top[0].score) {
-          top = [postScore];
-        } else if (postScore.score === top[0].score) {
-          top.push(postScore);
+        //  skip comparing first post (initial top post) to itself
+        if (postScore !== firstPostScore) {
+          if (postScore.score > top[0].score) {
+            top = [postScore];
+          } else if (postScore.score === top[0].score) {
+            top.push(postScore);
+          }
         }
       });
 
