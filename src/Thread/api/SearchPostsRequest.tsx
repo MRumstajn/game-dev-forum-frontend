@@ -8,4 +8,8 @@ export type SearchPostsRequest = {
   creationDateTimeFromIncluding?: Date;
 
   creationDateTimeToIncluding?: Date;
+
+  likesFromIncluding?: number;
+
+  dislikesFromIncluding?: number;
 } & PageableRequest;

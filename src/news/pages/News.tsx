@@ -33,6 +33,7 @@ export function News() {
   const [usernameFilter, setUsernameFilter] = useState<string>();
   const [page, setPage] = useState<number>(0);
   const [totalThreads, setTotalThreads] = useState<number>();
+  const [filterUsed, setFilterUsed] = useState<boolean>(false);
 
   const authContext = useContext(AuthContext);
   const createThreadModal = useModal();
@@ -82,6 +83,21 @@ export function News() {
     }
 
     updateThreadList(request);
+
+    setFilterUsed(true);
+  }
+
+  function resetFilter() {
+    if (filterUsed) {
+      updateThreadList({
+        categoryId: newsCategoryId,
+        pageNumber: page,
+      });
+
+      setFilterUsed(false);
+    }
+
+    setFilterFormOpen(false);
   }
 
   return (
@@ -123,54 +139,48 @@ export function News() {
                 <Card className="flex flex-col space-y-10">
                   <Card.Body className="bg-gray-200">
                     <form onSubmit={filterFormSubmitHandler}>
-                      <div className="flex flex-col space-y-5 lg:space-y-0 lg:flex-row lg:space-x-10">
-                        <div className="flex flex-row space-x-3 items-center">
-                          <Typography variant="text" element="p">
-                            By
-                          </Typography>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-5">
+                        <div>
                           <Input
                             name="author"
                             placeholder="Author"
                             onChange={(event) =>
                               setUsernameFilter(event.target.value)
                             }
+                            label="Author"
                           />
                         </div>
-                        <div className="flex flex-col space-y-5 md:space-y-0 md:flex-row md:space-x-10">
-                          <div className="flex flex-row space-x-3 items-center">
-                            <Typography variant="text" element="p">
-                              Start date
-                            </Typography>
-                            <DateInput
-                              name="startDate"
-                              onChange={setStartDate}
-                              value={startDate}
-                              maxDate={endDate === null ? new Date() : endDate}
-                              onReset={() => setStartDate(null)}
-                            />
-                          </div>
-                          <div className="flex flex-row space-x-3 items-center">
-                            <Typography variant="text" element="p">
-                              End date
-                            </Typography>
-                            <DateInput
-                              name="endDate"
-                              onChange={setEndDate}
-                              value={endDate}
-                              minDate={
-                                startDate === null ? new Date() : startDate
-                              }
-                              onReset={() => setEndDate(null)}
-                            />
-                          </div>
+                        <div>
+                          <DateInput
+                            name="startDate"
+                            onChange={setStartDate}
+                            value={startDate}
+                            maxDate={endDate === null ? new Date() : endDate}
+                            onReset={() => setStartDate(null)}
+                            label="Start date"
+                            className="mt-5 sm:mt-0"
+                          />
+                        </div>
+                        <div>
+                          <DateInput
+                            name="endDate"
+                            onChange={setEndDate}
+                            value={endDate}
+                            minDate={
+                              startDate === null ? new Date() : startDate
+                            }
+                            onReset={() => setEndDate(null)}
+                            label="End date"
+                            className="mt-5 md:mt-0"
+                          />
                         </div>
                       </div>
-                      <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 justify-end mt-10">
+                      <div className="flex flex-col-reverse space-y-reverse space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 justify-end mt-10">
                         <Button
                           variant="filled"
                           color="danger"
                           className="w-full sm:w-fit"
-                          onClick={() => setFilterFormOpen(false)}
+                          onClick={() => resetFilter()}
                         >
                           Cancel
                         </Button>

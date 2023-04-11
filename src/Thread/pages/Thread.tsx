@@ -15,7 +15,7 @@ import {
   Typography,
 } from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
-import { Input, Textarea } from "@tiller-ds/form-elements";
+import { Input, NumberInput, Textarea } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 
 import moment from "moment/moment";
@@ -58,12 +58,15 @@ export function Thread() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [usernameFilter, setUsernameFilter] = useState<string>();
+  const [likeFilter, setLikeFilter] = useState<number>();
+  const [dislikeFilter, setDislikeFilter] = useState<number>();
   const [inputContent, setInputContent] = useState<string>("");
   const [parentCategory, setParentCategory] = useState<CategoryResponse>();
   const [thread, setThread] = useState<ThreadResponse>();
   const [topPost, setTopPost] = useState<PostResponse>();
   const [page, setPage] = useState<number>();
   const [totalPosts, setTotalPosts] = useState<number>();
+  const [filterUsed, setFilterUsed] = useState<boolean>(false);
 
   const threadId = Number(params.threadId);
   const categoryId = params.categoryId ? Number(params.categoryId) : undefined;
@@ -140,6 +143,7 @@ export function Thread() {
       pageNumber: page,
       pageSize: 10,
     });
+    // eslint-disable-next-line
   }, [updatePostList, page]);
 
   useEffect(() => {
@@ -158,6 +162,7 @@ export function Thread() {
     fetchPostReactionCounts();
   }, [fetchPostReactionCounts]);
 
+  // eslint-disable-next-line
   useEffect(() => findTopPost(), [postReactionsCounts]);
 
   useEffect(() => {
@@ -169,6 +174,7 @@ export function Thread() {
       postIds: posts.map((post) => post.id),
       userId: authContext.loggedInUser.id,
     }).then((response) => setCurrentUserPostReactions(response.data));
+    // eslint-disable-next-line
   }, [posts]);
 
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -177,6 +183,8 @@ export function Thread() {
     let request = {
       threadId: threadId,
       authorUsername: usernameFilter,
+      likesFromIncluding: likeFilter,
+      dislikesFromIncluding: dislikeFilter,
     } as SearchPostsRequest;
 
     if (startDate !== null) {
@@ -191,6 +199,21 @@ export function Thread() {
     }
 
     updatePostList(request);
+
+    setFilterUsed(true);
+  }
+
+  function resetFilter() {
+    if (filterUsed) {
+      updatePostList({
+        threadId: threadId,
+        pageNumber: page,
+      });
+
+      setFilterUsed(false);
+    }
+
+    setFilterFormOpen(false);
   }
 
   function postInputFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -313,54 +336,62 @@ export function Thread() {
                 <Card className="flex flex-col space-y-10">
                   <Card.Body className="bg-gray-200">
                     <form onSubmit={filterFormSubmitHandler}>
-                      <div className="flex flex-col space-y-5 lg:space-y-0 lg:flex-row lg:space-x-10">
-                        <div className="flex flex-row space-x-3 items-center">
-                          <Typography variant="text" element="p">
-                            By
-                          </Typography>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-5">
+                        <div>
                           <Input
                             name="author"
                             placeholder="Author"
                             onChange={(event) =>
                               setUsernameFilter(event.target.value)
                             }
+                            label="Author"
+                          />
+                          <NumberInput
+                            name="minLikes"
+                            placeholder="Min likes"
+                            onChange={setLikeFilter}
+                            label="Min likes"
+                            className="mt-5"
                           />
                         </div>
-                        <div className="flex flex-col space-y-5 md:space-y-0 md:flex-row md:space-x-10">
-                          <div className="flex flex-row space-x-3 items-center">
-                            <Typography variant="text" element="p">
-                              Start date
-                            </Typography>
-                            <DateInput
-                              name="startDate"
-                              onChange={setStartDate}
-                              value={startDate}
-                              maxDate={endDate === null ? new Date() : endDate}
-                              onReset={() => setStartDate(null)}
-                            />
-                          </div>
-                          <div className="flex flex-row space-x-3 items-center">
-                            <Typography variant="text" element="p">
-                              End date
-                            </Typography>
-                            <DateInput
-                              name="endDate"
-                              onChange={setEndDate}
-                              value={endDate}
-                              minDate={
-                                startDate === null ? new Date() : startDate
-                              }
-                              onReset={() => setEndDate(null)}
-                            />
-                          </div>
+                        <div>
+                          <DateInput
+                            name="startDate"
+                            onChange={setStartDate}
+                            value={startDate}
+                            maxDate={endDate === null ? new Date() : endDate}
+                            onReset={() => setStartDate(null)}
+                            label="Start date"
+                            className="mt-5 sm:mt-0"
+                          />
+                          <NumberInput
+                            name="minDislikes"
+                            placeholder="Min dislikes"
+                            onChange={setDislikeFilter}
+                            label="Min dislikes"
+                            className="mt-5"
+                          />
+                        </div>
+                        <div>
+                          <DateInput
+                            name="endDate"
+                            onChange={setEndDate}
+                            value={endDate}
+                            minDate={
+                              startDate === null ? new Date() : startDate
+                            }
+                            onReset={() => setEndDate(null)}
+                            label="End date"
+                            className="mt-5 md:mt-0"
+                          />
                         </div>
                       </div>
-                      <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 justify-end mt-10">
+                      <div className="flex flex-col-reverse space-y-reverse space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 justify-end mt-10">
                         <Button
                           variant="filled"
                           color="danger"
                           className="w-full sm:w-fit"
-                          onClick={() => setFilterFormOpen(false)}
+                          onClick={() => resetFilter()}
                         >
                           Cancel
                         </Button>
