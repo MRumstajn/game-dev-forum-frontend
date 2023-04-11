@@ -13,7 +13,7 @@ import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 
 import moment from "moment/moment";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { PostResponse } from "../../common/api/PostResponse";
@@ -45,6 +45,7 @@ export function Category() {
   const params = useParams();
   const authContext = useContext(AuthContext);
   const newThreadModal = useModal();
+  const navigate = useNavigate();
 
   const updateThreadList = useCallback(
     (request: SearchThreadRequest) => {
@@ -262,24 +263,26 @@ export function Category() {
                     </Typography>
                   </div>
                   <div className="border-b-2 mb-3" />
-                  {threads.map((thread) => (
-                    <ThreadCard
-                      threadId={thread.id}
-                      title={thread.title}
-                      author={thread.author}
-                      postCount={getStatisticForThread(thread.id)?.postCount}
-                      latestPostDate={
-                        getLatestPost(thread.id)
-                          ? getLatestPost(thread.id)?.creationDateTime
-                          : undefined
-                      }
-                      latestPostAuthor={
-                        getLatestPost(thread.id)
-                          ? getLatestPost(thread.id)?.author
-                          : undefined
-                      }
-                    />
-                  ))}
+                  <div className="flex flex-col gap-y-3">
+                    {threads.map((thread) => (
+                      <ThreadCard
+                        threadId={thread.id}
+                        title={thread.title}
+                        author={thread.author}
+                        postCount={getStatisticForThread(thread.id)?.postCount}
+                        latestPostDate={
+                          getLatestPost(thread.id)
+                            ? getLatestPost(thread.id)?.creationDateTime
+                            : undefined
+                        }
+                        latestPostAuthor={
+                          getLatestPost(thread.id)
+                            ? getLatestPost(thread.id)?.author
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </div>
                   {totalThreads && totalThreads > 10 && (
                     <div className="mt-3">
                       <Pagination
@@ -310,9 +313,10 @@ export function Category() {
       </div>
       <CreateThreadModal
         modal={newThreadModal}
-        onThreadCreatedCallback={(thread) =>
-          setThreads((prevState) => [...prevState, thread])
-        }
+        onThreadCreatedCallback={(thread) => {
+          setThreads((prevState) => [...prevState, thread]);
+          navigate(`/forum/${category?.id}/${thread.id}`);
+        }}
         categoryId={category?.id}
       />
     </>

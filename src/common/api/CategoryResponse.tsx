@@ -1,7 +1,9 @@
+import { SectionResponse } from "./SectionResponse";
+
 export type CategoryResponse = {
   id: number;
 
-  sectionId: number;
+  section: SectionResponse;
 
   title: string;
 };

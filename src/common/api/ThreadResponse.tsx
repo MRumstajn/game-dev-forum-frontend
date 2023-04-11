@@ -1,9 +1,10 @@
+import { CategoryResponse } from "./CategoryResponse";
 import { UserResponse } from "./UserResponse";
 
 export type ThreadResponse = {
   id: number;
 
-  categoryId: number;
+  category: CategoryResponse;
 
   author: UserResponse;
 

@@ -1,3 +1,4 @@
+import { ThreadResponse } from "./ThreadResponse";
 import { UserResponse } from "./UserResponse";
 
 export type PostResponse = {
@@ -9,5 +10,5 @@ export type PostResponse = {
 
   creationDateTime: Date;
 
-  threadId: number;
+  thread: ThreadResponse;
 };

@@ -24,6 +24,7 @@ import { Link, useParams } from "react-router-dom";
 import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { PostResponse } from "../../common/api/PostResponse";
 import { ThreadResponse } from "../../common/api/ThreadResponse";
+import { UserRole } from "../../common/api/UserRole";
 import { AuthContext } from "../../common/components/AuthProvider";
 import { PostReactionType } from "../../common/constants";
 import { deletePost } from "../api/deletePost";
@@ -262,7 +263,6 @@ export function Thread() {
       (postReaction) => postReaction.postId === postId
     );
   }
-
   return (
     <>
       <div className="m-3 sm:m-10">
@@ -464,26 +464,32 @@ export function Thread() {
                 )}
               </div>
 
-              <form onSubmit={postInputFormSubmitHandler}>
-                <Textarea
-                  name="content"
-                  value={inputContent}
-                  onChange={(event) =>
-                    setInputContent(event.currentTarget.value)
-                  }
-                  placeholder="What would you like to say?"
-                />
-                <div className="flex flex-row sm:justify-end mt-5">
-                  <Button
-                    type="submit"
-                    variant="filled"
-                    color="primary"
-                    className="w-full sm:w-fit"
-                  >
-                    Post
-                  </Button>
-                </div>
-              </form>
+              {authContext.loggedInUser &&
+                !(
+                  thread?.category.section.title.toLowerCase() === "news" &&
+                  authContext.loggedInUser?.role !== UserRole.ADMIN
+                ) && (
+                  <form onSubmit={postInputFormSubmitHandler}>
+                    <Textarea
+                      name="content"
+                      value={inputContent}
+                      onChange={(event) =>
+                        setInputContent(event.currentTarget.value)
+                      }
+                      placeholder="What would you like to say?"
+                    />
+                    <div className="flex flex-row sm:justify-end mt-5">
+                      <Button
+                        type="submit"
+                        variant="filled"
+                        color="primary"
+                        className="w-full sm:w-fit"
+                      >
+                        Post
+                      </Button>
+                    </div>
+                  </form>
+                )}
             </div>
           </div>
         </div>

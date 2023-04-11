@@ -13,7 +13,7 @@ import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 
 import moment from "moment";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { ThreadResponse } from "../../common/api/ThreadResponse";
 import { UserRole } from "../../common/api/UserRole";
@@ -37,6 +37,7 @@ export function News() {
 
   const authContext = useContext(AuthContext);
   const createThreadModal = useModal();
+  const navigate = useNavigate();
 
   useEffect(() => {
     postSearchCategoryRequest({
@@ -205,7 +206,7 @@ export function News() {
               )}
 
               {newsThreads && newsThreads?.length > 0 && (
-                <div className="flex flex-col space-y-3">
+                <div className="flex flex-col gap-y-3">
                   {newsThreads &&
                     newsThreads.map((thread: any) => (
                       <NewsCard
@@ -246,11 +247,12 @@ export function News() {
       <CreateThreadModal
         modal={createThreadModal}
         categoryId={newsCategoryId}
-        onThreadCreatedCallback={(thread) =>
+        onThreadCreatedCallback={(thread) => {
           setNewsThreads((prevState) =>
             prevState ? [...prevState, thread] : prevState
-          )
-        }
+          );
+          navigate(`/news/${thread.id}`);
+        }}
       />
     </>
   );

@@ -251,7 +251,7 @@ export function Forum() {
                   </Typography>
                 </div>
                 <div className="border-b-2 mb-3" />
-                <div className="flex flex-col space-y-3">
+                <div className="flex flex-col gap-y-3">
                   {categories.map((ct) => (
                     <ForumCategoryCard
                       categoryId={ct.id}
