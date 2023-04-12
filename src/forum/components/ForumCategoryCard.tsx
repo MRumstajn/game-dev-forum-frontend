@@ -29,7 +29,12 @@ export function ForumCategoryCard({
   }
 
   return (
-    <Link to={`/forum/${categoryId}`}>
+    <Link
+      to={`/forum/${categoryId}`}
+      tokens={{
+        master: "no-underline",
+      }}
+    >
       <Card>
         <Card.Body>
           <div className="grid grid-cols-3">
@@ -53,9 +58,14 @@ export function ForumCategoryCard({
                       <Typography variant="subtext" element="p">
                         by
                       </Typography>
-                      <Link to={`/profile/${latestPost.author.id}`}>
+                      <Link
+                        to={`/profile/${latestPost.author.id}`}
+                        className="w-1/3"
+                      >
                         <Typography variant="text" element="p">
-                          {latestPost.author.username}
+                          <span className="text-blue-800">
+                            {latestPost.author.username}
+                          </span>
                         </Typography>
                       </Link>
                     </div>

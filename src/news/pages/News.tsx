@@ -208,11 +208,11 @@ export function News() {
               {newsThreads && newsThreads?.length > 0 && (
                 <div className="flex flex-col gap-y-3">
                   {newsThreads &&
-                    newsThreads.map((thread: any) => (
+                    newsThreads.map((thread: ThreadResponse) => (
                       <NewsCard
                         id={thread.id}
                         title={thread.title}
-                        creationDate={thread.creationDate}
+                        creationDate={thread.creationDateTime}
                         author={thread.author}
                       />
                     ))}

@@ -22,6 +22,11 @@ export const defaultComponentConfig: ThemeConfigFactory = {
         padding: "px-3",
       },
     },
+    Card: {
+      container: {
+        boxShadow: "shadow-md",
+      },
+    },
   },
 };
 

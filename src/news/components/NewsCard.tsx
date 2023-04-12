@@ -15,21 +15,29 @@ type NewsCardProps = {
 
 export function NewsCard({ id, title, creationDate, author }: NewsCardProps) {
   return (
-    <Link to={`/news/${id}`}>
+    <Link
+      to={`/news/${id}`}
+      tokens={{
+        master: "no-underline",
+      }}
+    >
       <Card>
         <Card.Body className="flex flex-row justify-between">
           <Typography variant="text" element="p">
             {title}
           </Typography>
-          <div className="flex flex-col space-y-3">
-            <Typography variant="text" element="p">
-              {formatDate(creationDate)}
+          <div className="flex flex-row space-x-1">
+            <Typography variant="subtext" element="p">
+              by
             </Typography>
             <Link to={`/profile/${author.id}`}>
               <Typography variant="text" element="p">
-                by {author.username}
+                <span className="text-blue-800">{author.username}</span>
               </Typography>
             </Link>
+            <Typography variant="subtext" element="p">
+              on {formatDate(creationDate)}
+            </Typography>
           </div>
         </Card.Body>
       </Card>

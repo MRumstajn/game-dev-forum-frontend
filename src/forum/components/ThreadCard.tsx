@@ -32,7 +32,12 @@ export function ThreadCard({
   const categoryId = Number(params.categoryId);
 
   return (
-    <Link to={`/forum/${categoryId}/${threadId}`}>
+    <Link
+      to={`/forum/${categoryId}/${threadId}`}
+      tokens={{
+        master: "no-underline",
+      }}
+    >
       <Card>
         <Card.Body>
           <div className="grid grid-cols-4">
@@ -42,24 +47,28 @@ export function ThreadCard({
             <Typography variant="text" element="p">
               {postCount}
             </Typography>
-            <Typography variant="text" element="p">
-              {author.username}
-            </Typography>
+
+            <Link to={`/profile/${author.id}`} className="w-1/3">
+              <Typography variant="text" element="p">
+                <span className="text-blue-800">{author.username}</span>
+              </Typography>
+            </Link>
+
             {latestPostDate && latestPostAuthor && (
-              <div className="flex flex-col space-y-3">
-                <Typography variant="text" element="p">
-                  {formatDate(latestPostDate)}
+              <div className="flex flex-row space-x-1">
+                <Typography variant="subtext" element="p">
+                  by
                 </Typography>
-                <div className="flex flex-row space-x-1">
-                  <Typography variant="subtext" element="p">
-                    by
-                  </Typography>
-                  <Link to={`/profile/${latestPostAuthor.id}`}>
-                    <Typography variant="text" element="p">
+                <Link to={`/profile/${latestPostAuthor.id}`}>
+                  <Typography variant="text" element="p">
+                    <span className="text-blue-800">
                       {latestPostAuthor.username}
-                    </Typography>
-                  </Link>
-                </div>
+                    </span>
+                  </Typography>
+                </Link>
+                <Typography variant="subtext" element="p">
+                  on {formatDate(latestPostDate)}
+                </Typography>
               </div>
             )}
           </div>

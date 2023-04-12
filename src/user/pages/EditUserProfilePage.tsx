@@ -69,7 +69,7 @@ export function EditUserProfilePage() {
   }
 
   function navigateBack() {
-    navigate("/profile");
+    navigate(`/profile/${authContext.loggedInUser?.id}`);
   }
 
   useEffect(() => {
