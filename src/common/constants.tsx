@@ -21,3 +21,7 @@ export const SAME_PASSWORD_MESSAGE =
 export const BIO_TOO_LONG_MESSAGE = "Max bio length is 100 characters";
 
 export const PASSWORD_DOES_NOT_MATCH_MESSAGE = "Passwords do not match";
+
+// screen sizes
+
+export const NAVBAR_BREAKPOINT_PX = 870;

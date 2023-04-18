@@ -6,6 +6,7 @@ module.exports = {
     extend: {
       screens: {
         "-sm": { max: "639px" },
+        "nav-break": { min: "870px" },
       },
       colors: {
         // brand default primary value from preset

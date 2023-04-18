@@ -24,7 +24,7 @@ export function NotificationPopup({
   const [page, setPage] = useState<number>(0);
 
   return (
-    <div className="bg-slate-800 border-2 border-slate-700 w-80">
+    <div className="relative w-full nav-break:absolute nav-break:origin-top-right nav-break:right-0 bg-slate-800 border-2 border-slate-700 nav-break:w-80">
       <div className="flex flex-row justify-between bg-slate-700 p-1">
         <Typography variant="text" element="p">
           <strong className="text-white">Notifications</strong>
