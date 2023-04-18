@@ -22,6 +22,12 @@ export const BIO_TOO_LONG_MESSAGE = "Max bio length is 100 characters";
 
 export const PASSWORD_DOES_NOT_MATCH_MESSAGE = "Passwords do not match";
 
+export const POST_CONTENT_TOO_SHORT_MESSAGE =
+  "Post content must be 3 or more letters long";
+
+export const POST_CONTENT_TOO_LONG_MESSAGE =
+  "Post content can have max 200 letters";
+
 // screen sizes
 
 export const NAVBAR_BREAKPOINT_PX = 870;

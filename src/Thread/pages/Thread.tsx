@@ -15,18 +15,25 @@ import {
   Typography,
 } from "@tiller-ds/core";
 import { DateInput } from "@tiller-ds/date";
-import { Input, NumberInput, Textarea } from "@tiller-ds/form-elements";
+import { Input, NumberInput } from "@tiller-ds/form-elements";
+import { TextareaField } from "@tiller-ds/formik-elements";
 import { Icon } from "@tiller-ds/icons";
 
+import { Formik } from "formik";
 import moment from "moment/moment";
 import { Link, useParams } from "react-router-dom";
+import * as yup from "yup";
 
 import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { PostResponse } from "../../common/api/PostResponse";
 import { ThreadResponse } from "../../common/api/ThreadResponse";
 import { UserRole } from "../../common/api/UserRole";
 import { AuthContext } from "../../common/components/AuthProvider";
-import { PostReactionType } from "../../common/constants";
+import {
+  POST_CONTENT_TOO_LONG_MESSAGE,
+  POST_CONTENT_TOO_SHORT_MESSAGE,
+  PostReactionType,
+} from "../../common/constants";
 import { deletePost } from "../api/deletePost";
 import { getCategoryById } from "../api/getCategoryById";
 import { getThreadById } from "../api/getThreadById";
@@ -45,6 +52,22 @@ type PostScore = {
   score: number;
 };
 
+type PostForm = {
+  content: string;
+};
+
+const initialPostFormValues = {
+  content: "",
+} as PostForm;
+
+const postFormValidationSchema = yup.object().shape({
+  content: yup
+    .string()
+    .min(3, POST_CONTENT_TOO_SHORT_MESSAGE)
+    .max(200, POST_CONTENT_TOO_LONG_MESSAGE)
+    .required(POST_CONTENT_TOO_SHORT_MESSAGE),
+});
+
 export function Thread() {
   const params = useParams();
 
@@ -61,7 +84,6 @@ export function Thread() {
   const [usernameFilter, setUsernameFilter] = useState<string>();
   const [likeFilter, setLikeFilter] = useState<number>();
   const [dislikeFilter, setDislikeFilter] = useState<number>();
-  const [inputContent, setInputContent] = useState<string>("");
   const [parentCategory, setParentCategory] = useState<CategoryResponse>();
   const [thread, setThread] = useState<ThreadResponse>();
   const [topPost, setTopPost] = useState<PostResponse>();
@@ -223,12 +245,10 @@ export function Thread() {
     setFilterFormOpen(false);
   }
 
-  function postInputFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  function postInputFormSubmitHandler(form: PostForm) {
     postCreatePostRequest({
       threadId: threadId,
-      content: inputContent,
+      content: form.content,
     }).then((response) => {
       if (posts !== undefined) {
         setPosts((prevState) => {
@@ -265,6 +285,7 @@ export function Thread() {
       (postReaction) => postReaction.postId === postId
     );
   }
+
   return (
     <>
       <div className="m-3 sm:m-10">
@@ -473,26 +494,33 @@ export function Thread() {
                   thread?.category.section.title.toLowerCase() === "news" &&
                   authContext.loggedInUser?.role !== UserRole.ADMIN
                 ) && (
-                  <form onSubmit={postInputFormSubmitHandler}>
-                    <Textarea
-                      name="content"
-                      value={inputContent}
-                      onChange={(event) =>
-                        setInputContent(event.currentTarget.value)
-                      }
-                      placeholder="What would you like to say?"
-                    />
-                    <div className="flex flex-row sm:justify-end mt-5">
-                      <Button
-                        type="submit"
-                        variant="filled"
-                        color="primary"
-                        className="w-full sm:w-fit"
-                      >
-                        Post
-                      </Button>
-                    </div>
-                  </form>
+                  <Formik
+                    initialValues={initialPostFormValues}
+                    validationSchema={postFormValidationSchema}
+                    onSubmit={(values, { resetForm }) => {
+                      postInputFormSubmitHandler(values);
+                      resetForm();
+                    }}
+                  >
+                    {(formik) => (
+                      <form onSubmit={formik.handleSubmit}>
+                        <TextareaField
+                          name="content"
+                          placeholder="What would you like to say?"
+                        />
+                        <div className="flex flex-row sm:justify-end mt-5">
+                          <Button
+                            type="submit"
+                            variant="filled"
+                            color="primary"
+                            className="w-full sm:w-fit"
+                          >
+                            Post
+                          </Button>
+                        </div>
+                      </form>
+                    )}
+                  </Formik>
                 )}
             </div>
           </div>
