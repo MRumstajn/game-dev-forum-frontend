@@ -15,6 +15,7 @@ import { Home } from "./home/pages/Home";
 import { LoginPage } from "./login/pages/LoginPage";
 import { SignUpPage } from "./login/pages/SignUpPage";
 import { Marketplace } from "./marketplace/pages/Marketplace";
+import { WorkOfferPreviewPage } from "./marketplace/pages/WorkOfferPreviewPage";
 import { Navbar } from "./navbar/components/Navbar";
 import { News } from "./news/pages/News";
 import { Rules } from "./Rules/Rules";
@@ -45,6 +46,7 @@ function App() {
             <Route path="/profile/:id" element={<UserProfilePage />} />
             <Route path="/profile/edit" element={<EditUserProfilePage />} />
             <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/marketplace/:id" element={<WorkOfferPreviewPage />} />
           </Routes>
         </AuthProvider>
       </IntlProvider>

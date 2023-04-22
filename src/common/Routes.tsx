@@ -47,3 +47,5 @@ export const WORK_OFFER_CATEGORY_SEARCH_URL =
 
 export const WORK_OFFER_AVERAGE_TOTAL_RATING_URL =
   "/api/work-offer-ratings/average-and-total";
+
+export const WORK_OFFER_RATING_URL = "/api/work-offer-ratings";
