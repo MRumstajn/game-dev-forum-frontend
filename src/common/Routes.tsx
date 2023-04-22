@@ -37,3 +37,13 @@ export const USER_CHANGE_PASSWORD_URL = "/api/auth/change-password";
 export const NOTIFICATION_SEARCH_URL = "/api/notifications/search";
 
 export const NOTIFICATION_MARK_AS_READ_URL = "/api/notifications/mark-as-read";
+
+export const WORK_OFFER_URL = "/api/work-offers";
+
+export const WORK_OFFER_SEARCH_URL = "/api/work-offers/search";
+
+export const WORK_OFFER_CATEGORY_SEARCH_URL =
+  "/api/work-offer-categories/search";
+
+export const WORK_OFFER_AVERAGE_TOTAL_RATING_URL =
+  "/api/work-offer-ratings/average-and-total";

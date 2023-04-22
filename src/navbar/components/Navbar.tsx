@@ -27,6 +27,7 @@ const navLinks: { [key: string]: string } = {
   Rules: "/rules",
   About: "/about",
   Chat: "/chat",
+  Marketplace: "/marketplace",
 };
 
 export function Navbar() {

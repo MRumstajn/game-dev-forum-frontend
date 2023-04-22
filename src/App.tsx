@@ -14,6 +14,7 @@ import { Forum } from "./forum/pages/Forum";
 import { Home } from "./home/pages/Home";
 import { LoginPage } from "./login/pages/LoginPage";
 import { SignUpPage } from "./login/pages/SignUpPage";
+import { Marketplace } from "./marketplace/pages/Marketplace";
 import { Navbar } from "./navbar/components/Navbar";
 import { News } from "./news/pages/News";
 import { Rules } from "./Rules/Rules";
@@ -43,6 +44,7 @@ function App() {
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/profile/:id" element={<UserProfilePage />} />
             <Route path="/profile/edit" element={<EditUserProfilePage />} />
+            <Route path="/marketplace" element={<Marketplace />} />
           </Routes>
         </AuthProvider>
       </IntlProvider>

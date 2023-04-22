@@ -7,6 +7,8 @@ export enum PostReactionType {
   DISLIKE = "DISLIKE",
 }
 
+export const MAX_WORK_OFFER_CATEGORY_TITLE_LENGTH = 30;
+
 // messages
 
 export const INPUT_TOO_LONG_MESSAGE = "Input is too long";
@@ -27,6 +29,8 @@ export const POST_CONTENT_TOO_SHORT_MESSAGE =
 
 export const POST_CONTENT_TOO_LONG_MESSAGE =
   "Post content can have max 200 letters";
+
+export const WORK_OFFER_RATE_RANGE_MESSAGE = "Rating can be min 1 and max 5";
 
 // screen sizes
 
