@@ -1,11 +1,14 @@
-import { SearchWorkOfferCategoryRequest } from "./SearchWorkOfferCategoryRequest";
+import { SearchWorkOfferCategoryRequestPageable } from "./SearchWorkOfferCategoryRequestPageable";
 import { WorkOfferCategoryResponse } from "./WorkOfferCategoryResponse";
 import { BaseResponseWrapper } from "../../common/api/BaseResponseWrapper";
 import { WORK_OFFER_CATEGORY_SEARCH_URL } from "../../common/Routes";
+import { PageResponseWrapper } from "../../forum/api/PageResponseWrapper";
 
 export async function postSearchWorkOfferCategorySearchRequest(
-  request: SearchWorkOfferCategoryRequest
-): Promise<BaseResponseWrapper<WorkOfferCategoryResponse[]>> {
+  request: SearchWorkOfferCategoryRequestPageable
+): Promise<
+  BaseResponseWrapper<PageResponseWrapper<WorkOfferCategoryResponse>>
+> {
   const response = await fetch(WORK_OFFER_CATEGORY_SEARCH_URL, {
     method: "POST",
     headers: {
@@ -18,5 +21,5 @@ export async function postSearchWorkOfferCategorySearchRequest(
     ...(await response.json()),
     status: response.status,
     isOk: response.ok,
-  } as BaseResponseWrapper<WorkOfferCategoryResponse[]>;
+  } as BaseResponseWrapper<PageResponseWrapper<WorkOfferCategoryResponse>>;
 }

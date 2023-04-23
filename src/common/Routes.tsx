@@ -42,6 +42,8 @@ export const WORK_OFFER_URL = "/api/work-offers";
 
 export const WORK_OFFER_SEARCH_URL = "/api/work-offers/search";
 
+export const WORK_OFFER_CATEGORY_URL = "/api/work-offer-categories";
+
 export const WORK_OFFER_CATEGORY_SEARCH_URL =
   "/api/work-offer-categories/search";
 
