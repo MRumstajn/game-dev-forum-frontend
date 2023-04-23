@@ -32,6 +32,8 @@ export const POST_CONTENT_TOO_LONG_MESSAGE =
 
 export const WORK_OFFER_RATE_RANGE_MESSAGE = "Rating can be min 1 and max 5";
 
+export const WORK_OFFER_MIN_PRICE_MESSAGE = "Price has to be 0 or greater";
+
 // screen sizes
 
 export const NAVBAR_BREAKPOINT_PX = 870;

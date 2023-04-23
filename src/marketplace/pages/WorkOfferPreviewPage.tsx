@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
+import { useModal } from "@tiller-ds/alert";
 import { Breadcrumbs, Button, IconButton, Typography } from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
+import { UserRole } from "../../common/api/UserRole";
+import { AuthContext } from "../../common/components/AuthProvider";
+import { ConfirmDeleteModal } from "../../common/pages/ConfirmDeleteModal";
+import { deleteWorkOffer } from "../api/deleteWorkOffer";
 import { getWorkOfferById } from "../api/getWorkOfferById";
 import { postRateWorkOfferRequest } from "../api/postRateWorkOfferRequest";
 import { postWorkOfferTotalAndAverageRatingRequest } from "../api/postWorkOfferTotalAndAverageRatingRequest";
@@ -19,6 +24,9 @@ export function WorkOfferPreviewPage() {
   const [messageFormOpen, setMessageFormOpen] = useState<boolean>(false);
 
   const params = useParams();
+  const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
+  const confirmDeleteModal = useModal();
 
   function getRatingData(workOfferId: number) {
     postWorkOfferTotalAndAverageRatingRequest({
@@ -27,11 +35,11 @@ export function WorkOfferPreviewPage() {
   }
 
   useEffect(() => {
-    const workOfferId = Number(params.id);
+    const workOfferId = Number(params.workOfferId);
     getWorkOfferById(workOfferId).then((response) => {
       setWorkOffer(response.data);
     });
-  }, [params.id]);
+  }, [params.workOfferId]);
 
   useEffect(() => {
     if (workOffer) {
@@ -66,9 +74,9 @@ export function WorkOfferPreviewPage() {
           icon={
             <Icon
               type="star"
-              variant={i < starCount ? "fill" : "light"}
+              variant={i + 1 > starCount ? "light" : "fill"}
               className={`text-${
-                i < starCount ? "orange" : "gray"
+                i + 1 <= starCount ? "orange" : "gray"
               }-600 hover:text-orange-600`}
             />
           }
@@ -79,6 +87,18 @@ export function WorkOfferPreviewPage() {
     }
 
     return stars;
+  }
+
+  function deleteThisWorkOffer() {
+    if (!workOffer) {
+      return;
+    }
+
+    deleteWorkOffer(workOffer.id).then((response) => {
+      if (response.ok) {
+        navigate("/marketplace");
+      }
+    });
   }
 
   return (
@@ -100,6 +120,31 @@ export function WorkOfferPreviewPage() {
                 <Typography variant="h1" element="h1">
                   {workOffer?.title}
                 </Typography>
+                {authContext.loggedInUser &&
+                  (authContext.loggedInUser.id === workOffer?.author.id ||
+                    authContext.loggedInUser.role === UserRole.ADMIN) && (
+                    <div className="flex flex-row gap-x-3">
+                      <Button
+                        variant="filled"
+                        color="primary"
+                        onClick={() => {
+                          workOffer &&
+                            navigate(
+                              `/marketplace/${workOffer.workOfferCategoryId}/${workOffer.id}/edit`
+                            );
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="filled"
+                        color="danger"
+                        onClick={confirmDeleteModal.onOpen}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  )}
               </div>
               <div className="flex flex-col gap-y-20">
                 <div className="flex flex-col gap-y-1">
@@ -143,22 +188,28 @@ export function WorkOfferPreviewPage() {
               </div>
             </div>
             <div className="border-b mt-10 mb-5" />
-            {!messageFormOpen && (
-              <div className="flex flex-row justify-end">
-                <Button
-                  variant="filled"
-                  color="primary"
-                  trailingIcon={<Icon type="envelope" />}
-                  onClick={() => setMessageFormOpen(true)}
-                >
-                  Message user
-                </Button>
-              </div>
-            )}
+            {!messageFormOpen &&
+              authContext.loggedInUser &&
+              authContext.loggedInUser?.id !== workOffer?.author.id && (
+                <div className="flex flex-row justify-end">
+                  <Button
+                    variant="filled"
+                    color="primary"
+                    trailingIcon={<Icon type="envelope" />}
+                    onClick={() => setMessageFormOpen(true)}
+                  >
+                    Message user
+                  </Button>
+                </div>
+              )}
             {messageFormOpen && <MessageDialog />}
           </div>
         </div>
       </div>
+      <ConfirmDeleteModal
+        modal={confirmDeleteModal}
+        confirmCallback={() => deleteThisWorkOffer()}
+      />
     </>
   );
 }

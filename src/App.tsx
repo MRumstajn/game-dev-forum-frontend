@@ -15,6 +15,7 @@ import { Home } from "./home/pages/Home";
 import { LoginPage } from "./login/pages/LoginPage";
 import { SignUpPage } from "./login/pages/SignUpPage";
 import { Marketplace } from "./marketplace/pages/Marketplace";
+import { WorkOfferCreateOrEditPage } from "./marketplace/pages/WorkOfferCreatedOrEditPage";
 import { WorkOfferPreviewPage } from "./marketplace/pages/WorkOfferPreviewPage";
 import { Navbar } from "./navbar/components/Navbar";
 import { News } from "./news/pages/News";
@@ -46,7 +47,18 @@ function App() {
             <Route path="/profile/:id" element={<UserProfilePage />} />
             <Route path="/profile/edit" element={<EditUserProfilePage />} />
             <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/marketplace/:id" element={<WorkOfferPreviewPage />} />
+            <Route
+              path="/marketplace/:categoryId/:workOfferId"
+              element={<WorkOfferPreviewPage />}
+            />
+            <Route
+              path="/marketplace/:categoryId/:workOfferId/edit"
+              element={<WorkOfferCreateOrEditPage />}
+            />
+            <Route
+              path="/marketplace/:categoryId/new"
+              element={<WorkOfferCreateOrEditPage />}
+            />
           </Routes>
         </AuthProvider>
       </IntlProvider>

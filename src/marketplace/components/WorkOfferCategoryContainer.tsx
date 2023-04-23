@@ -68,7 +68,9 @@ export function WorkOfferCategoryContainer({
                   <WorkOfferCard
                     workOffer={workOffer}
                     clickCallback={() =>
-                      navigate(`/marketplace/${workOffer.id}`)
+                      navigate(
+                        `/marketplace/${workOfferCategory.id}/${workOffer.id}`
+                      )
                     }
                   />
                 ))}
@@ -79,7 +81,9 @@ export function WorkOfferCategoryContainer({
                 )}
                 <CreateCard
                   label={"Offer service"}
-                  clickCallback={() => console.log("new service!")}
+                  clickCallback={() =>
+                    navigate(`/marketplace/${workOfferCategory.id}/new`)
+                  }
                 />
               </div>
             </Card.Body>
