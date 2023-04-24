@@ -66,7 +66,9 @@ export function WorkOfferCreateOrEditPage() {
 
   const params = useParams();
   const navigate = useNavigate();
-  const previousUrl = `/marketplace/${workOffer?.workOfferCategoryId}/${workOffer?.id}`;
+  const previousUrl = workOffer
+    ? `/marketplace/${workOffer?.workOfferCategoryId}/${workOffer?.id}`
+    : "/marketplace";
 
   useEffect(() => {
     if (params.workOfferId) {
