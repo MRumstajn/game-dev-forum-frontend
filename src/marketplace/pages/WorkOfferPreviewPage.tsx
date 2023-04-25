@@ -15,13 +15,11 @@ import { postRateWorkOfferRequest } from "../api/postRateWorkOfferRequest";
 import { postWorkOfferTotalAndAverageRatingRequest } from "../api/postWorkOfferTotalAndAverageRatingRequest";
 import { WorkOfferAverageAndTotalRatingResponse } from "../api/WorkOfferAverageAndTotalRatingResponse";
 import { WorkOfferResponse } from "../api/WorkOfferResponse";
-import { MessageDialog } from "../components/MessageDialog";
 
 export function WorkOfferPreviewPage() {
   const [workOffer, setWorkOffer] = useState<WorkOfferResponse>();
   const [ratings, setRatings] =
     useState<WorkOfferAverageAndTotalRatingResponse>();
-  const [messageFormOpen, setMessageFormOpen] = useState<boolean>(false);
 
   const params = useParams();
   const authContext = useContext(AuthContext);
@@ -188,21 +186,20 @@ export function WorkOfferPreviewPage() {
               </div>
             </div>
             <div className="border-b mt-10 mb-5" />
-            {!messageFormOpen &&
-              authContext.loggedInUser &&
+            {authContext.loggedInUser &&
               authContext.loggedInUser?.id !== workOffer?.author.id && (
                 <div className="flex flex-row justify-end">
+                  {/* TODO prepare message dialog */}
                   <Button
                     variant="filled"
                     color="primary"
                     trailingIcon={<Icon type="envelope" />}
-                    onClick={() => setMessageFormOpen(true)}
+                    onClick={() => navigate("/messaging")}
                   >
                     Message user
                   </Button>
                 </div>
               )}
-            {messageFormOpen && <MessageDialog />}
           </div>
         </div>
       </div>

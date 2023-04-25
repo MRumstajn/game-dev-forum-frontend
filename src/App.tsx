@@ -17,6 +17,7 @@ import { SignUpPage } from "./login/pages/SignUpPage";
 import { Marketplace } from "./marketplace/pages/Marketplace";
 import { WorkOfferCreateOrEditPage } from "./marketplace/pages/WorkOfferCreatedOrEditPage";
 import { WorkOfferPreviewPage } from "./marketplace/pages/WorkOfferPreviewPage";
+import { MessagingPage } from "./messaging/pages/MessagingPage";
 import { Navbar } from "./navbar/components/Navbar";
 import { News } from "./news/pages/News";
 import { Rules } from "./Rules/Rules";
@@ -59,6 +60,7 @@ function App() {
               path="/marketplace/:categoryId/new"
               element={<WorkOfferCreateOrEditPage />}
             />
+            <Route path="/messaging" element={<MessagingPage />} />
           </Routes>
         </AuthProvider>
       </IntlProvider>

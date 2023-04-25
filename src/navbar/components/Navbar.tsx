@@ -147,7 +147,7 @@ export function Navbar() {
     if (!Object.values(navLinks).includes(location)) {
       setSelectedNavLink(undefined);
     }
-  }, [window.location.pathname]);
+  }, []);
 
   return (
     <>
@@ -267,6 +267,9 @@ export function Navbar() {
                     }
                   >
                     View profile
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item onSelect={() => navigate(`/messaging`)}>
+                    Messages
                   </DropdownMenu.Item>
                   <DropdownMenu.Item onSelect={() => logOut()}>
                     Sign out
