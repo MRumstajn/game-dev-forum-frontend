@@ -25,16 +25,27 @@ export function ConversationCard({
           className="flex flex-row justify-between p-3"
           onClick={() => clickCallback()}
         >
-          <div className="flex flex-row gap-x-3">
+          <div className="flex flex-row gap-x-3 items-center">
             <Avatar round={true} size="30" name={user.username} />
+            <Typography variant="text" element="p">
+              <span className={`${unreadMessages > 0 ? "font-bold" : ""}`}>
+                {user.username}
+              </span>
+            </Typography>
             {unreadMessages > 0 && (
               <div className="rounded-full flex justify-center items-center border-red-600 bg-red-600 text-white">
-                <p>{unreadMessages}</p>
+                <p className={unreadMessages > 0 ? "font-bold" : ""}>
+                  {unreadMessages}
+                </p>
               </div>
             )}
           </div>
           <div className="flex items-center">
-            <Typography variant="text" element="p">
+            <Typography
+              variant="text"
+              element="p"
+              className={unreadMessages > 0 ? "font-bold" : ""}
+            >
               {moment(latestPostDate).format("DD.MM.yyyy")}
             </Typography>
           </div>

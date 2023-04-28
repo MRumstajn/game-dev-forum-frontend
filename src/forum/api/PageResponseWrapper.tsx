@@ -3,6 +3,8 @@ export type PageResponseWrapper<T> = {
 
   totalElements: number;
 
+  totalPages: number;
+
   pageNumber: number;
 
   pageSize: number;

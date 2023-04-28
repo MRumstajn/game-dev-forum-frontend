@@ -49,19 +49,28 @@ export function MessagingPage() {
   const [totalConversations, setTotalConversations] = useState<number>(0);
   const [messages, setMessages] = useState<MessageResponse[]>([]);
   const [messagePage, setMessagePage] = useState<number>(0);
+  const [initialMessageFetch, setInitialMessageFetch] =
+    useState<boolean>(false);
 
   const authContext = useContext(AuthContext);
 
-  const fetchMessages = useCallback((conversationId: number, page: number) => {
-    postSearchMessagePageableRequest({
-      pageSize: 10,
-      pageNumber: page,
-      conversationId: conversationId,
-    }).then((response) => {
-      setMessages(response.data.content);
-      setTotalMessages(response.data.totalElements);
-    });
-  }, []);
+  const fetchMessages = useCallback(
+    (conversationId: number, requestPage: number) => {
+      postSearchMessagePageableRequest({
+        pageSize: 5,
+        pageNumber: requestPage,
+        conversationId: conversationId,
+      }).then((response) => {
+        setMessages(response.data.content);
+        setTotalMessages(response.data.totalElements);
+        if (!initialMessageFetch) {
+          setMessagePage(response.data.totalPages - 1);
+          setInitialMessageFetch(true);
+        }
+      });
+    },
+    [initialMessageFetch]
+  );
 
   function isCurrentUserOwnerOfMessage(message: MessageResponse) {
     return authContext.loggedInUser?.id === message.author.id;
@@ -113,7 +122,6 @@ export function MessagingPage() {
         <div className="mt-20">
           <div className="flex flex-row">
             <div className="w-1/3 flex flex-col">
-              {/* card date fix */}
               {conversations.map((conversation) => (
                 <ConversationCard
                   user={
@@ -122,8 +130,8 @@ export function MessagingPage() {
                         participant.id !== authContext.loggedInUser?.id
                     )[0]
                   }
-                  latestPostDate={new Date()}
-                  unreadMessages={10}
+                  latestPostDate={conversation.latestMessageDateTime}
+                  unreadMessages={conversation.unreadMessages}
                   clickCallback={() => setSelectedConversation(conversation)}
                 />
               ))}
@@ -181,7 +189,7 @@ export function MessagingPage() {
                 <div>
                   <Pagination
                     pageNumber={messagePage}
-                    pageSize={10}
+                    pageSize={5}
                     totalElements={totalMessages}
                     onPageChange={setMessagePage}
                     tokens={{

@@ -27,7 +27,9 @@ export function MessageBubble({ message, showControls }: MessageBubbleProps) {
           <strong>{message.author.username}</strong>
         </Typography>
       </Card.Header>
-      <Card.Body>{message.content}</Card.Body>
+      <Card.Body className="pl-3 pt-0 pr-0 pb-0 m-0">
+        {message.content}
+      </Card.Body>
       <Card.Footer className="border-none">
         <div className="flex flex-row justify-between">
           <Typography variant="subtext" element="p">
