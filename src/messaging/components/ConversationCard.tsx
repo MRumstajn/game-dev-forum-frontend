@@ -33,10 +33,12 @@ export function ConversationCard({
               </span>
             </Typography>
             {unreadMessages > 0 && (
-              <div className="rounded-full flex justify-center items-center border-red-600 bg-red-600 text-white">
-                <p className={unreadMessages > 0 ? "font-bold" : ""}>
-                  {unreadMessages}
-                </p>
+              <div className="rounded-full flex w-[20px] h-[20px] justify-center items-center border-red-600 bg-red-600 text-white">
+                <div>
+                  <p className="font-bold text-xs">
+                    {unreadMessages < 10 ? unreadMessages : "9+"}
+                  </p>
+                </div>
               </div>
             )}
           </div>

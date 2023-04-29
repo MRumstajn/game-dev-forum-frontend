@@ -14,4 +14,6 @@ export type MessageResponse = {
   conversation: ConversationResponse;
 
   isRead: boolean;
+
+  deleted: boolean;
 };

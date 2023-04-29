@@ -1,10 +1,11 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
-import { Breadcrumbs, Button, Pagination } from "@tiller-ds/core";
+import { Breadcrumbs, Button, Pagination, Typography } from "@tiller-ds/core";
 import { TextareaField } from "@tiller-ds/formik-elements";
 import { Icon } from "@tiller-ds/icons";
 
 import { Formik } from "formik";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 
@@ -15,8 +16,10 @@ import {
   INPUT_TOO_SHORT_MESSAGE,
 } from "../../common/constants";
 import { ConversationResponse } from "../api/ConversationResponse";
+import { deleteMessage } from "../api/deleteMessage";
 import { MessageResponse } from "../api/MessageResponse";
 import { postCreateMessageRequest } from "../api/postCreateMessageRequest";
+import { postMarkMessagesAsReadRequest } from "../api/postMarkMessagesAsReadRequest";
 import { postSearchConversationsRequestPageable } from "../api/postSearchConversationsRequestPageable";
 import { postSearchMessagePageableRequest } from "../api/postSearchMessagePageableRequest";
 import { ConversationCard } from "../components/ConversationCard";
@@ -49,21 +52,29 @@ export function MessagingPage() {
   const [totalConversations, setTotalConversations] = useState<number>(0);
   const [messages, setMessages] = useState<MessageResponse[]>([]);
   const [messagePage, setMessagePage] = useState<number>(0);
+  const [totalMessagePages, setTotalMessagePages] = useState<number>(0);
   const [initialMessageFetch, setInitialMessageFetch] =
     useState<boolean>(false);
+  const [dataLen, setDataLen] = useState<number>(5);
+  const [render, setRender] = useState<boolean>(false);
 
+  const messageContainerRef = useRef(null);
   const authContext = useContext(AuthContext);
 
   const fetchMessages = useCallback(
     (conversationId: number, requestPage: number) => {
+      console.log("fetching page " + requestPage);
       postSearchMessagePageableRequest({
         pageSize: 5,
         pageNumber: requestPage,
         conversationId: conversationId,
       }).then((response) => {
-        setMessages(response.data.content);
+        setMessages((prevState) => [...prevState, ...response.data.content]);
         setTotalMessages(response.data.totalElements);
+        setDataLen((prevState) => prevState + 5);
+        setMessagePage(requestPage);
         if (!initialMessageFetch) {
+          setTotalMessagePages(response.data.totalPages);
           setMessagePage(response.data.totalPages - 1);
           setInitialMessageFetch(true);
         }
@@ -71,6 +82,13 @@ export function MessagingPage() {
     },
     [initialMessageFetch]
   );
+
+  useEffect(() => {
+    if (selectedConversation) {
+      fetchMessages(selectedConversation?.id, totalMessagePages - 1);
+    }
+    //eslint-disable-next-line
+  }, [totalMessages]);
 
   function isCurrentUserOwnerOfMessage(message: MessageResponse) {
     return authContext.loggedInUser?.id === message.author.id;
@@ -82,7 +100,10 @@ export function MessagingPage() {
         content: form.content,
         conversationId: selectedConversation.id,
       }).then((response) => {
-        setMessages((prevState) => [...prevState, response.data]);
+        setMessages((prevState) => {
+          prevState.unshift(response.data);
+          return [...prevState];
+        });
         setTotalMessages((prevState) => prevState + 1);
       });
     }
@@ -95,7 +116,7 @@ export function MessagingPage() {
 
     postSearchConversationsRequestPageable({
       pageNumber: page,
-      pageSize: 10,
+      pageSize: 5,
     }).then((response) => {
       setConversations(response.data.content);
       setTotalConversations(response.data.totalElements);
@@ -108,7 +129,60 @@ export function MessagingPage() {
     }
 
     fetchMessages(selectedConversation.id, messagePage);
-  }, [selectedConversation, messagePage, fetchMessages]);
+    // eslint-disable-next-line
+  }, [selectedConversation]);
+
+  useEffect(() => {
+    if (selectedConversation) {
+      postMarkMessagesAsReadRequest({
+        conversationId: selectedConversation.id,
+      }).then((response) => {
+        if (response.isOk) {
+          setMessages((prevState) => {
+            let prevStateClone = [...prevState];
+            prevStateClone.map((message) => {
+              if (message.conversation.id === selectedConversation.id) {
+                message.isRead = true;
+              }
+
+              return message;
+            });
+
+            return prevStateClone;
+          });
+        }
+      });
+
+      setConversations((prevState) => {
+        prevState.map((conversation) => {
+          if (conversation.id === selectedConversation.id) {
+            conversation.unreadMessages = 0;
+          }
+        });
+
+        return prevState;
+      });
+    }
+  }, [selectedConversation]);
+
+  function deleteMessageHandler(id: number) {
+    deleteMessage(id).then((response) => {
+      if (response.isOk) {
+        setMessages((prevState) => {
+          prevState.map((message) => {
+            if (message.id === id) {
+              message.deleted = true;
+            }
+
+            return message;
+          });
+
+          return prevState;
+        });
+        setRender((prevState) => !prevState);
+      }
+    });
+  }
 
   return (
     <div className="m-10">
@@ -120,112 +194,160 @@ export function MessagingPage() {
           <Breadcrumbs.Breadcrumb>Messaging</Breadcrumbs.Breadcrumb>
         </Breadcrumbs>
         <div className="mt-20">
-          <div className="flex flex-row">
-            <div className="w-1/3 flex flex-col">
-              {conversations.map((conversation) => (
-                <ConversationCard
-                  user={
-                    conversation.participants.filter(
-                      (participant) =>
-                        participant.id !== authContext.loggedInUser?.id
-                    )[0]
-                  }
-                  latestPostDate={conversation.latestMessageDateTime}
-                  unreadMessages={conversation.unreadMessages}
-                  clickCallback={() => setSelectedConversation(conversation)}
-                />
-              ))}
-              <div className="flex flex-row justify-center">
+          <div className="flex flex-row gap-x-3">
+            <div className="w-1/3 h-[570px] flex flex-col border">
+              <div className="flex flex-row justify-center bg-slate-300">
+                <Typography variant="title" element="h4">
+                  Conversations
+                </Typography>
+              </div>
+              <div className="flex flex-col justify-between p-3 mt-3 h-full">
                 <div>
-                  <Pagination
-                    className="mx-auto"
-                    pageNumber={page}
-                    pageSize={10}
-                    totalElements={totalConversations}
-                    onPageChange={setPage}
-                    tokens={{
-                      default: {
-                        backgroundColor: "none",
-                        textColor: "text-slate-600",
-                        borderColor: "none",
-                      },
-                      current: {
-                        backgroundColor: "none hover:bg-navy-100",
-                        textColor: "text-slate-600",
-                        borderColor: "border-none",
-                      },
-                      pageSummary: {
-                        fontSize: "text-sm",
-                        lineHeight: "leading-5",
-                      },
-                    }}
-                  >
-                    {() => null}
-                  </Pagination>
+                  {conversations.map((conversation) => (
+                    <ConversationCard
+                      user={
+                        conversation.participants.filter(
+                          (participant) =>
+                            participant.id !== authContext.loggedInUser?.id
+                        )[0]
+                      }
+                      latestPostDate={conversation.latestMessageDateTime}
+                      unreadMessages={conversation.unreadMessages}
+                      clickCallback={() =>
+                        setSelectedConversation(conversation)
+                      }
+                    />
+                  ))}
+                </div>
+
+                <div className="flex flex-row justify-center">
+                  <div>
+                    <Pagination
+                      className="mx-auto"
+                      pageNumber={page}
+                      pageSize={5}
+                      totalElements={totalConversations}
+                      onPageChange={setPage}
+                      tokens={{
+                        default: {
+                          backgroundColor: "none",
+                          textColor: "text-slate-600",
+                          borderColor: "none",
+                        },
+                        current: {
+                          backgroundColor: "none hover:bg-navy-100",
+                          textColor: "text-slate-600",
+                          borderColor: "border-none",
+                        },
+                        pageSummary: {
+                          fontSize: "text-sm",
+                          lineHeight: "leading-5",
+                        },
+                      }}
+                    >
+                      {() => null}
+                    </Pagination>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="border-r mr-3 ml-3" />
-            <div className="flex flex-col gap-y-3 flex-grow">
-              <div className="flex flex-col gap-y-3">
-                {messages.map((message) => (
-                  <div
-                    className={`max-w-1/2 flex flex-row ${
-                      isCurrentUserOwnerOfMessage(message)
-                        ? "justify-end"
-                        : "justify-start"
-                    }`}
-                  >
-                    <MessageBubble
-                      message={message}
-                      showControls={isCurrentUserOwnerOfMessage(message)}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {selectedConversation && (
-                <div>
-                  <Pagination
-                    pageNumber={messagePage}
-                    pageSize={5}
-                    totalElements={totalMessages}
-                    onPageChange={setMessagePage}
-                    tokens={{
-                      default: {
-                        backgroundColor: "none",
-                        textColor: "text-slate-600",
-                        borderColor: "none",
-                      },
-                      current: {
-                        backgroundColor: "none hover:bg-navy-100",
-                        textColor: "text-slate-600",
-                        borderColor: "border-none",
-                      },
-                      pageSummary: {
-                        fontSize: "text-sm",
-                        lineHeight: "leading-5",
-                      },
+            <div className="flex flex-col h-[570px] flex-grow border">
+              <div
+                style={{
+                  height: 490,
+                  overflow: "scroll",
+                  display: "flex",
+                  flexDirection: "column-reverse",
+                }}
+                ref={messageContainerRef}
+              >
+                {messageContainerRef.current && selectedConversation && (
+                  <InfiniteScroll
+                    className="flex flex-col gap-y-3"
+                    style={{
+                      display: "flex",
+                      flexDirection: "column-reverse",
+                      overflow: "hidden",
                     }}
+                    inverse={true}
+                    scrollableTarget={messageContainerRef.current}
+                    next={() => {
+                      if (selectedConversation && messagePage > 0) {
+                        fetchMessages(selectedConversation.id, messagePage - 1);
+                        setMessagePage((prevState) => prevState - 1);
+                      }
+                    }}
+                    hasMore={messages.length < totalMessages}
+                    loader={
+                      <div className="flex flex-row justify-center">
+                        <Typography variant="subtext">Loading...</Typography>
+                      </div>
+                    }
+                    endMessage={
+                      <div className="flex flex-row justify-center">
+                        <Typography variant="subtext">
+                          This is the start of your conversation
+                        </Typography>
+                      </div>
+                    }
+                    dataLength={dataLen}
                   >
-                    {() => null}
-                  </Pagination>
+                    {messages.map((message) => (
+                      <div
+                        className={`max-w-1/2 flex flex-row ${
+                          isCurrentUserOwnerOfMessage(message)
+                            ? "justify-end"
+                            : "justify-start"
+                        }`}
+                      >
+                        <MessageBubble
+                          message={message}
+                          showControls={isCurrentUserOwnerOfMessage(message)}
+                          deleteCallback={() =>
+                            deleteMessageHandler(message.id)
+                          }
+                        />
+                      </div>
+                    ))}
+                  </InfiniteScroll>
+                )}
+                {!selectedConversation && (
+                  <div className="h-full flex items-center justify-center">
+                    <div className="flex justify-center">
+                      <Typography variant="subtext" element="p">
+                        Select a conversation
+                      </Typography>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {selectedConversation && (
+                <div className="mt-3">
                   <Formik
                     initialValues={initialFormValues}
-                    onSubmit={formSubmitHandler}
+                    onSubmit={(values, { resetForm }) => {
+                      formSubmitHandler(values);
+                      resetForm();
+                    }}
                     validationSchema={formValidationSchema}
                   >
                     {(formik) => (
                       <form onSubmit={formik.handleSubmit}>
-                        <div className="flex flex-col gap-y-3">
-                          <TextareaField name="content" className="flex-grow" />
-                          <div className="flex flex-row justify-end">
+                        <div className="flex flex-col gap-x-3">
+                          <TextareaField
+                            name="content"
+                            className="flex-grow h-[60px] border-x-0 border-b-0"
+                            tokens={{
+                              borderRadius: "rounded-none",
+                            }}
+                          />
+                          <div>
                             <Button
                               variant="filled"
                               color="primary"
                               type="submit"
-                              className="w-1/12 max-h-10 h-10"
+                              className="w-full max-h-10 rounded-none"
                             >
                               Send
                             </Button>
