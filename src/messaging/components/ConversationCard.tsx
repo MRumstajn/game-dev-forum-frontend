@@ -6,7 +6,7 @@ import Avatar from "react-avatar";
 import { UserResponse } from "../../common/api/UserResponse";
 
 type ConversationCardProps = {
-  user: UserResponse;
+  user: UserResponse | undefined;
   latestPostDate: Date;
   unreadMessages: number;
   clickCallback: () => void;
@@ -26,10 +26,10 @@ export function ConversationCard({
           onClick={() => clickCallback()}
         >
           <div className="flex flex-row gap-x-3 items-center">
-            <Avatar round={true} size="30" name={user.username} />
+            <Avatar round={true} size="30" name={user?.username} />
             <Typography variant="text" element="p">
               <span className={`${unreadMessages > 0 ? "font-bold" : ""}`}>
-                {user.username}
+                {user?.username}
               </span>
             </Typography>
             {unreadMessages > 0 && (

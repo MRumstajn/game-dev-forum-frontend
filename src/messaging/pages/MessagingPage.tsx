@@ -9,6 +9,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 
+import { UserResponse } from "../../common/api/UserResponse";
 import { AuthContext } from "../../common/components/AuthProvider";
 import {
   INPUT_REQUIRED_MESSAGE,
@@ -95,10 +96,13 @@ export function MessagingPage() {
   }
 
   function formSubmitHandler(form: Form) {
-    if (selectedConversation) {
+    if (selectedConversation && authContext.loggedInUser) {
       postCreateMessageRequest({
         content: form.content,
-        conversationId: selectedConversation.id,
+        recipientId: getRecipientFromConversation(
+          selectedConversation,
+          authContext.loggedInUser.id
+        ).id,
       }).then((response) => {
         setMessages((prevState) => {
           prevState.unshift(response.data);
@@ -184,6 +188,15 @@ export function MessagingPage() {
     });
   }
 
+  function getRecipientFromConversation(
+    conversation: ConversationResponse,
+    currentUserId: number
+  ): UserResponse {
+    return conversation.participantA.id === currentUserId
+      ? conversation.participantB
+      : conversation.participantA;
+  }
+
   return (
     <div className="m-10">
       <div className="container mx-auto max-w-5xl">
@@ -206,10 +219,12 @@ export function MessagingPage() {
                   {conversations.map((conversation) => (
                     <ConversationCard
                       user={
-                        conversation.participants.filter(
-                          (participant) =>
-                            participant.id !== authContext.loggedInUser?.id
-                        )[0]
+                        authContext.loggedInUser
+                          ? getRecipientFromConversation(
+                              conversation,
+                              authContext.loggedInUser.id
+                            )
+                          : undefined
                       }
                       latestPostDate={conversation.latestMessageDateTime}
                       unreadMessages={conversation.unreadMessages}
