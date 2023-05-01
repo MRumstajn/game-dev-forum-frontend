@@ -189,9 +189,15 @@ export function WorkOfferCreateOrEditPage() {
                     >
                       Cancel
                     </Button>
-                    <Button variant="filled" color="primary" type="submit">
-                      Save changes
-                    </Button>
+                    {workOffer ? (
+                      <Button variant="filled" color="primary" type="submit">
+                        Save changes
+                      </Button>
+                    ) : (
+                      <Button variant="filled" color="primary" type="submit">
+                        Create
+                      </Button>
+                    )}
                   </div>
                 </form>
               )}
