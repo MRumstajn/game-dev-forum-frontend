@@ -189,12 +189,13 @@ export function WorkOfferPreviewPage() {
             {authContext.loggedInUser &&
               authContext.loggedInUser?.id !== workOffer?.author.id && (
                 <div className="flex flex-row justify-end">
-                  {/* TODO prepare message dialog */}
                   <Button
                     variant="filled"
                     color="primary"
                     trailingIcon={<Icon type="envelope" />}
-                    onClick={() => navigate("/messaging")}
+                    onClick={() =>
+                      navigate(`/messaging/new/${workOffer?.author.id}`)
+                    }
                   >
                     Message user
                   </Button>

@@ -61,6 +61,10 @@ function App() {
               element={<WorkOfferCreateOrEditPage />}
             />
             <Route path="/messaging" element={<MessagingPage />} />
+            <Route
+              path="/messaging/new/:recipientId"
+              element={<MessagingPage />}
+            />
           </Routes>
         </AuthProvider>
       </IntlProvider>

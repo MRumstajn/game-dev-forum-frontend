@@ -6,7 +6,7 @@ import { Icon } from "@tiller-ds/icons";
 
 import { Formik } from "formik";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import * as yup from "yup";
 
 import { UserResponse } from "../../common/api/UserResponse";
@@ -16,6 +16,7 @@ import {
   INPUT_TOO_LONG_MESSAGE,
   INPUT_TOO_SHORT_MESSAGE,
 } from "../../common/constants";
+import { getUserById } from "../../user/api/getUserById";
 import { ConversationResponse } from "../api/ConversationResponse";
 import { deleteMessage } from "../api/deleteMessage";
 import { MessageResponse } from "../api/MessageResponse";
@@ -43,7 +44,7 @@ const formValidationSchema = yup.object().shape({
 });
 
 export function MessagingPage() {
-  const [page, setPage] = useState<number>(0);
+  const [conversationPage, setConversationPage] = useState<number>(0);
   const [totalMessages, setTotalMessages] = useState<number>(0);
   const [conversations, setConversations] = useState<ConversationResponse[]>(
     []
@@ -53,57 +54,126 @@ export function MessagingPage() {
   const [totalConversations, setTotalConversations] = useState<number>(0);
   const [messages, setMessages] = useState<MessageResponse[]>([]);
   const [messagePage, setMessagePage] = useState<number>(0);
-  const [totalMessagePages, setTotalMessagePages] = useState<number>(0);
-  const [initialMessageFetch, setInitialMessageFetch] =
-    useState<boolean>(false);
   const [dataLen, setDataLen] = useState<number>(5);
   const [render, setRender] = useState<boolean>(false);
 
   const messageContainerRef = useRef(null);
   const authContext = useContext(AuthContext);
+  const params = useParams();
 
-  const fetchMessages = useCallback(
-    (conversationId: number, requestPage: number) => {
-      console.log("fetching page " + requestPage);
-      postSearchMessagePageableRequest({
-        pageSize: 5,
-        pageNumber: requestPage,
-        conversationId: conversationId,
-      }).then((response) => {
-        setMessages((prevState) => [...prevState, ...response.data.content]);
-        setTotalMessages(response.data.totalElements);
-        setDataLen((prevState) => prevState + 5);
-        setMessagePage(requestPage);
-        if (!initialMessageFetch) {
-          setTotalMessagePages(response.data.totalPages);
-          setMessagePage(response.data.totalPages - 1);
-          setInitialMessageFetch(true);
+  // effects start here
+
+  // load conversations
+  useEffect(() => {
+    postSearchConversationsRequestPageable({
+      pageNumber: conversationPage,
+      pageSize: 5,
+    }).then((response) => {
+      setConversations(response.data.content);
+      setTotalConversations(response.data.totalElements);
+    });
+  }, [conversationPage]);
+
+  // if the user has been redirected to a chat from somewhere else,
+  // open the conversation or create a mock conversation
+  // if the two users have not communicated before
+  useEffect(() => {
+    if (!params.recipientId || !authContext.loggedInUser) {
+      return;
+    }
+
+    const currentUser = authContext.loggedInUser;
+    const recipientId = Number(params.recipientId);
+    const conversationMatch = conversations.find(
+      (conversation) =>
+        getRecipientFromConversation(conversation, currentUser.id).id ===
+        recipientId
+    );
+
+    if (conversationMatch) {
+      setSelectedConversation(conversationMatch);
+    } else {
+      getUserById(recipientId).then((response) => {
+        if (response.isOk) {
+          // mock conversation so the first message can be sent, after which a real conversation will be created
+          const mockedConversation = createNewMockedConversation(
+            currentUser,
+            response.data
+          );
+          setSelectedConversation(mockedConversation);
+          setConversations((prevState) => [...prevState, mockedConversation]);
         }
       });
-    },
-    [initialMessageFetch]
-  );
-
-  useEffect(() => {
-    if (selectedConversation) {
-      fetchMessages(selectedConversation?.id, totalMessagePages - 1);
     }
     //eslint-disable-next-line
-  }, [totalMessages]);
+  }, [totalConversations]);
 
-  function isCurrentUserOwnerOfMessage(message: MessageResponse) {
-    return authContext.loggedInUser?.id === message.author.id;
-  }
+  // get info about how many pages there are.
+  // also fetch last page, and fetch the one before that because sometimes
+  // the latest page can have less than 5 elements.
+  useEffect(() => {
+    if (!selectedConversation || selectedConversation.id === -1) {
+      return;
+    }
+
+    postSearchMessagePageableRequest({
+      conversationId: selectedConversation.id,
+      pageSize: 5,
+      pageNumber: 0,
+    }).then((response) => {
+      setTotalMessages(response.data.totalElements);
+      setDataLen(5);
+
+      if (response.data.totalPages > 1) {
+        setMessagePage(response.data.totalPages - 1);
+      } else {
+        setMessagePage(0);
+      }
+
+      if (response.data.totalPages >= 1) {
+        let lastMsgPage = response.data.totalPages - 1;
+        fetchMessagesForConversation(
+          selectedConversation.id,
+          lastMsgPage,
+          true
+        );
+
+        if (lastMsgPage > 0) {
+          lastMsgPage -= 1;
+          fetchMessagesForConversation(
+            selectedConversation.id,
+            lastMsgPage,
+            false
+          );
+        }
+
+        setMessagePage(lastMsgPage);
+      }
+    });
+    //eslint-disable-next-line
+  }, [selectedConversation]);
+
+  // update data len
+  useEffect(() => setDataLen(messages.length), [messages]);
+
+  // handlers start here
 
   function formSubmitHandler(form: Form) {
-    if (selectedConversation && authContext.loggedInUser) {
-      postCreateMessageRequest({
-        content: form.content,
-        recipientId: getRecipientFromConversation(
-          selectedConversation,
-          authContext.loggedInUser.id
-        ).id,
-      }).then((response) => {
+    if (!selectedConversation || !authContext.loggedInUser) {
+      return;
+    }
+
+    let promise;
+    promise = postCreateMessageRequest({
+      content: form.content,
+      recipientId: getRecipientFromConversation(
+        selectedConversation,
+        authContext.loggedInUser.id
+      ).id,
+    });
+
+    if (promise) {
+      promise.then((response) => {
         setMessages((prevState) => {
           prevState.unshift(response.data);
           return [...prevState];
@@ -113,29 +183,7 @@ export function MessagingPage() {
     }
   }
 
-  useEffect(() => {
-    if (!authContext.loggedInUser) {
-      return;
-    }
-
-    postSearchConversationsRequestPageable({
-      pageNumber: page,
-      pageSize: 5,
-    }).then((response) => {
-      setConversations(response.data.content);
-      setTotalConversations(response.data.totalElements);
-    });
-  }, [authContext.loggedInUser, page]);
-
-  useEffect(() => {
-    if (!selectedConversation) {
-      return;
-    }
-
-    fetchMessages(selectedConversation.id, messagePage);
-    // eslint-disable-next-line
-  }, [selectedConversation]);
-
+  // when conversation is selected, mark all messages as read
   useEffect(() => {
     if (selectedConversation) {
       postMarkMessagesAsReadRequest({
@@ -162,12 +210,45 @@ export function MessagingPage() {
           if (conversation.id === selectedConversation.id) {
             conversation.unreadMessages = 0;
           }
+
+          return conversation;
         });
 
         return prevState;
       });
     }
   }, [selectedConversation]);
+
+  // util functions start here
+
+  const fetchMessagesForConversation = useCallback(
+    (conversationId: number, page: number, clearExistingMessages: boolean) => {
+      postSearchMessagePageableRequest({
+        pageSize: 5,
+        pageNumber: page,
+        conversationId: conversationId,
+      }).then((response) => {
+        if (clearExistingMessages) {
+          setMessages(response.data.content.reverse());
+        } else {
+          setMessages((prevState) => [
+            ...prevState,
+            ...response.data.content.reverse(),
+          ]);
+        }
+      });
+    },
+    []
+  );
+
+  function getRecipientFromConversation(
+    conversation: ConversationResponse,
+    currentUserId: number
+  ): UserResponse {
+    return conversation.participantA.id === currentUserId
+      ? conversation.participantB
+      : conversation.participantA;
+  }
 
   function deleteMessageHandler(id: number) {
     deleteMessage(id).then((response) => {
@@ -188,14 +269,23 @@ export function MessagingPage() {
     });
   }
 
-  function getRecipientFromConversation(
-    conversation: ConversationResponse,
-    currentUserId: number
-  ): UserResponse {
-    return conversation.participantA.id === currentUserId
-      ? conversation.participantB
-      : conversation.participantA;
+  function isCurrentUserOwnerOfMessage(message: MessageResponse) {
+    return authContext.loggedInUser?.id === message.author.id;
   }
+
+  const createNewMockedConversation = useCallback(
+    (currentUser: UserResponse, otherParticipant: UserResponse) => {
+      return {
+        participantA: currentUser,
+        participantB: otherParticipant,
+        id: -1,
+        unreadMessages: 0,
+        latestMessageDateTime: new Date(),
+      };
+    },
+
+    []
+  );
 
   return (
     <div className="m-10">
@@ -215,7 +305,7 @@ export function MessagingPage() {
                 </Typography>
               </div>
               <div className="flex flex-col justify-between p-3 mt-3 h-full">
-                <div>
+                <div className="flex flex-col gap-y-3">
                   {conversations.map((conversation) => (
                     <ConversationCard
                       user={
@@ -239,10 +329,10 @@ export function MessagingPage() {
                   <div>
                     <Pagination
                       className="mx-auto"
-                      pageNumber={page}
+                      pageNumber={conversationPage}
                       pageSize={5}
                       totalElements={totalConversations}
-                      onPageChange={setPage}
+                      onPageChange={setConversationPage}
                       tokens={{
                         default: {
                           backgroundColor: "none",
@@ -288,8 +378,16 @@ export function MessagingPage() {
                     inverse={true}
                     scrollableTarget={messageContainerRef.current}
                     next={() => {
-                      if (selectedConversation && messagePage > 0) {
-                        fetchMessages(selectedConversation.id, messagePage - 1);
+                      if (
+                        selectedConversation &&
+                        selectedConversation.id !== -1 &&
+                        messagePage > 0
+                      ) {
+                        fetchMessagesForConversation(
+                          selectedConversation.id,
+                          messagePage - 1,
+                          false
+                        );
                         setMessagePage((prevState) => prevState - 1);
                       }
                     }}
@@ -310,7 +408,7 @@ export function MessagingPage() {
                   >
                     {messages.map((message) => (
                       <div
-                        className={`max-w-1/2 flex flex-row ${
+                        className={`max-w-1/2 flex flex-row mx-3 ${
                           isCurrentUserOwnerOfMessage(message)
                             ? "justify-end"
                             : "justify-start"
