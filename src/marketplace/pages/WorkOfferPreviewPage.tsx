@@ -10,17 +10,20 @@ import { UserRole } from "../../common/api/UserRole";
 import { AuthContext } from "../../common/components/AuthProvider";
 import { ConfirmDeleteModal } from "../../common/pages/ConfirmDeleteModal";
 import { deleteWorkOffer } from "../api/deleteWorkOffer";
+import { deleteWorkOfferRating } from "../api/deleteWorkOfferRating";
 import { getWorkOfferById } from "../api/getWorkOfferById";
 import { postRateWorkOfferRequest } from "../api/postRateWorkOfferRequest";
+import { postSearchWorkOfferRatingRequest } from "../api/postSearchWorkOfferRatingRequest";
 import { postWorkOfferTotalAndAverageRatingRequest } from "../api/postWorkOfferTotalAndAverageRatingRequest";
 import { WorkOfferAverageAndTotalRatingResponse } from "../api/WorkOfferAverageAndTotalRatingResponse";
+import { WorkOfferRatingResponse } from "../api/WorkOfferRatingResponse";
 import { WorkOfferResponse } from "../api/WorkOfferResponse";
 
 export function WorkOfferPreviewPage() {
   const [workOffer, setWorkOffer] = useState<WorkOfferResponse>();
-  const [ratings, setRatings] =
+  const [averageTotalRatings, setAverageTotalRatings] =
     useState<WorkOfferAverageAndTotalRatingResponse>();
-
+  const [userRating, setUserRating] = useState<WorkOfferRatingResponse>();
   const params = useParams();
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
@@ -29,8 +32,25 @@ export function WorkOfferPreviewPage() {
   function getRatingData(workOfferId: number) {
     postWorkOfferTotalAndAverageRatingRequest({
       workOfferIds: [workOfferId],
-    }).then((response) => setRatings(response.data[0]));
+    }).then((response) => {
+      setAverageTotalRatings(response.data[0]);
+    });
   }
+
+  useEffect(() => {
+    if (!workOffer || !authContext.loggedInUser) {
+      return;
+    }
+
+    postSearchWorkOfferRatingRequest({
+      workOfferId: workOffer.id,
+      userId: authContext.loggedInUser.id,
+    }).then((response) => {
+      if (response.isOk && response.data.length > 0) {
+        setUserRating(response.data[0]);
+      }
+    });
+  }, [authContext.loggedInUser, workOffer]);
 
   useEffect(() => {
     const workOfferId = Number(params.workOfferId);
@@ -54,6 +74,7 @@ export function WorkOfferPreviewPage() {
       workOfferId: workOffer.id,
       rating: newRating,
     }).then((response) => {
+      setUserRating(response.data);
       if (response.isOk) {
         getRatingData(workOffer.id);
       }
@@ -73,9 +94,9 @@ export function WorkOfferPreviewPage() {
             <Icon
               type="star"
               variant={i + 1 > starCount ? "light" : "fill"}
-              className={`text-${
-                i + 1 <= starCount ? "orange" : "gray"
-              }-600 hover:text-orange-600`}
+              style={{
+                color: i + 1 <= starCount ? "rgb(255, 165, 0)" : "gray",
+              }}
             />
           }
           onClick={() => rateService(i + 1)}
@@ -98,6 +119,21 @@ export function WorkOfferPreviewPage() {
       }
     });
   }
+
+  function clearRatingHandler() {
+    if (!userRating || !workOffer) {
+      return;
+    }
+
+    deleteWorkOfferRating(userRating.id).then((response) => {
+      if (response.isOk) {
+        getRatingData(workOffer.id);
+        setUserRating(undefined);
+      }
+    });
+  }
+
+  console.log("user RATING: " + JSON.stringify(userRating));
 
   return (
     <>
@@ -172,14 +208,30 @@ export function WorkOfferPreviewPage() {
                   </div>
                   <div className="flex flex-col gap-y-1">
                     <Typography variant="text" element="p">
-                      <strong>
-                        Average rating ({ratings?.totalRatings} ratings):
-                      </strong>
+                      <strong>Ratings:</strong>
                     </Typography>
-                    <div className="flex flex-row gap-x-1">
-                      {ratings
-                        ? generateStarIconRow(ratings.averageRating)
-                        : []}
+                    <div className="flex flex-row gap-x-1 items-center">
+                      <Typography variant="text" element="p" className="">
+                        <strong>{averageTotalRatings?.averageRating}</strong>
+                      </Typography>
+                      <Icon type="star" variant="fill" />
+                      <Typography variant="text" element="p" className="ml-3">
+                        <strong>
+                          {averageTotalRatings?.totalRatings} total rating(s)
+                        </strong>
+                      </Typography>
+                    </div>
+
+                    <div className="flex flex-row gap-x-1 mt-3">
+                      <Typography variant="text" element="p">
+                        Your rating:
+                      </Typography>
+                      {generateStarIconRow(userRating ? userRating.rating : 0)}
+                      <IconButton
+                        icon={<Icon type="x" className="text-slate-300" />}
+                        label="Clear rating"
+                        onClick={() => clearRatingHandler()}
+                      />
                     </div>
                   </div>
                 </div>

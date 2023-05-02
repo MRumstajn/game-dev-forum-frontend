@@ -52,6 +52,8 @@ export const WORK_OFFER_AVERAGE_TOTAL_RATING_URL =
 
 export const WORK_OFFER_RATING_URL = "/api/work-offer-ratings";
 
+export const WORK_OFFER_RATING_SEARCH_URL = "/api/work-offer-ratings/search";
+
 export const MESSAGE_URL = "/api/messages";
 
 export const MESSAGE_SEARCH_URL = "/api/messages/search";
