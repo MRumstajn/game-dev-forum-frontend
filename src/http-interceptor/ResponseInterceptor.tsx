@@ -13,20 +13,7 @@ export function ResponseInterceptor() {
           window.location.replace("/404");
           break;
         case 403:
-          if (
-            response.request.url.endsWith("/auth/current-user") ||
-            window.location.href.endsWith("/home")
-          ) {
-            console.log("current user arm");
-            break;
-          }
-
-          if (!window.location.href.includes("/login")) {
-            console.log("/403 arm");
-            window.location.replace("/403");
-          }
           if (response.request.headers.get("Authorization") !== null) {
-            console.log("no auth arm");
             clearToken();
             window.location.replace("/login");
           }

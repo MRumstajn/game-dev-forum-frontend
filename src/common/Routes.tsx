@@ -37,3 +37,29 @@ export const USER_CHANGE_PASSWORD_URL = "/api/auth/change-password";
 export const NOTIFICATION_SEARCH_URL = "/api/notifications/search";
 
 export const NOTIFICATION_MARK_AS_READ_URL = "/api/notifications/mark-as-read";
+
+export const NOTIFICATION_UNREAD_COUNT_URL = "/api/notifications/unread-count";
+
+export const WORK_OFFER_URL = "/api/work-offers";
+
+export const WORK_OFFER_SEARCH_URL = "/api/work-offers/search";
+
+export const WORK_OFFER_CATEGORY_URL = "/api/work-offer-categories";
+
+export const WORK_OFFER_CATEGORY_SEARCH_URL =
+  "/api/work-offer-categories/search";
+
+export const WORK_OFFER_AVERAGE_TOTAL_RATING_URL =
+  "/api/work-offer-ratings/average-and-total";
+
+export const WORK_OFFER_RATING_URL = "/api/work-offer-ratings";
+
+export const WORK_OFFER_RATING_SEARCH_URL = "/api/work-offer-ratings/search";
+
+export const MESSAGE_URL = "/api/messages";
+
+export const MESSAGE_SEARCH_URL = "/api/messages/search";
+
+export const MESSAGE_MARK_AS_READ_URL = "/api/messages/mark-as-read";
+
+export const CONVERSATION_SEARCH_URL = "/api/conversations/search";

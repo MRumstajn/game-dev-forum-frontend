@@ -132,6 +132,14 @@ export function UserProfilePage() {
                       >
                         Follow
                       </Button>
+                      <Button
+                        variant="filled"
+                        color="primary"
+                        leadingIcon={<Icon type="envelope" />}
+                        onClick={() => navigate(`/messaging/new/${user?.id}`)}
+                      >
+                        Message
+                      </Button>
                     </div>
                   )}
                 {authContext.loggedInUser &&

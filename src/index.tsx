@@ -23,7 +23,7 @@ ResponseInterceptor();
 RequestInterceptor();
 
 root.render(
-  <React.StrictMode>
+  <>
     <ThemeProvider
       themeConfig={defaultComponentConfig}
       iconConfig={defaultIconConfig}
@@ -32,7 +32,7 @@ root.render(
         <App />
       </BrowserRouter>
     </ThemeProvider>
-  </React.StrictMode>
+  </>
 );
 
 // If you want to start measuring performance in your app, pass a function

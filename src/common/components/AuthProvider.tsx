@@ -19,7 +19,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loggedInUser, setLoggedInUser] = useState<UserResponse | undefined>(
     undefined
   );
-  const navigate = useNavigate();
 
   useEffect(() => {
     const localToken = getToken();
@@ -30,7 +29,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       });
     }
-    navigate("/home");
+    // TODO navigate("/home");
   }, []);
 
   const values = useMemo(

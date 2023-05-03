@@ -1,3 +1,5 @@
 export type MarkNotificationsAsReadRequest = {
-  notificationIds: number[];
+  notificationIds?: number[];
+
+  markAllAsRead?: boolean;
 };
