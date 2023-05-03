@@ -104,13 +104,8 @@ export function Navbar() {
       ? { markAllAsRead: true }
       : { notificationIds: notificationIds };
     postMarkNotificationAsReadRequest(request).then(() => {
-      console.log("test");
       setNotifications((prevState) => {
         prevState.forEach((notification) => {
-          /*const notificationIndex = prevState.findIndex(
-            (notification) => notification.id === notificationId
-          );*/
-
           if (notificationIds.includes(notification.id) || all) {
             notification.isRead = true;
           }

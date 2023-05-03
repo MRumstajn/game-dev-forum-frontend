@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 
+import { useModal } from "@tiller-ds/alert";
 import {
   Breadcrumbs,
   Button,
@@ -18,14 +19,16 @@ import { DateInput } from "@tiller-ds/date";
 import { Input, NumberInput } from "@tiller-ds/form-elements";
 import { TextareaField } from "@tiller-ds/formik-elements";
 import { Icon } from "@tiller-ds/icons";
+import { DropdownMenu } from "@tiller-ds/menu";
 
 import { Formik } from "formik";
 import moment from "moment/moment";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import * as yup from "yup";
 
 import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { PostResponse } from "../../common/api/PostResponse";
+import { putEditThreadRequest } from "../../common/api/putEditThreadRequest";
 import { ThreadResponse } from "../../common/api/ThreadResponse";
 import { UserRole } from "../../common/api/UserRole";
 import { AuthContext } from "../../common/components/AuthProvider";
@@ -34,7 +37,10 @@ import {
   POST_CONTENT_TOO_SHORT_MESSAGE,
   PostReactionType,
 } from "../../common/constants";
+import { ConfirmDeleteModal } from "../../common/pages/ConfirmDeleteModal";
+import { EditThreadModal } from "../../common/pages/EditThreadModal";
 import { deletePost } from "../api/deletePost";
+import { deleteThread } from "../api/deleteThread";
 import { getCategoryById } from "../api/getCategoryById";
 import { getThreadById } from "../api/getThreadById";
 import { postCreatePostRequest } from "../api/postCreatePostRequest";
@@ -98,6 +104,9 @@ export function Thread() {
   } as SearchPostsRequest;
   const authContext = useContext(AuthContext);
   const topPostRef = useRef<HTMLDivElement>(null);
+  const editModal = useModal();
+  const confirmDeleteModal = useModal();
+  const navigate = useNavigate();
 
   const updatePostList = useCallback((request: SearchPostsRequest) => {
     setPosts([]);
@@ -286,6 +295,39 @@ export function Thread() {
     );
   }
 
+  function deleteThisThread() {
+    if (!thread) {
+      return;
+    }
+
+    deleteThread(thread.id)
+      .then(() => {
+        const pathParts = window.location.pathname
+          .split("/")
+          .filter((part) => part.length > 0);
+        if (pathParts[0] === "news") {
+          navigate("/news");
+        } else {
+          navigate(`/forum/${pathParts[pathParts.length - 2]}`);
+        }
+      })
+      .catch();
+  }
+
+  function editTitle(newTitle: string) {
+    if (!thread) {
+      return;
+    }
+
+    putEditThreadRequest(threadId, {
+      title: newTitle,
+    }).then((response) => {
+      if (response.isOk) {
+        setThread(response.data);
+      }
+    });
+  }
+
   return (
     <>
       <div className="m-3 sm:m-10">
@@ -349,17 +391,28 @@ export function Thread() {
                     </div>
                   )}
                 </div>
-                <div>
-                  <Button
-                    variant="filled"
-                    color="primary"
-                    onClick={() => {
-                      setFilterFormOpen(!filterFormOpen);
-                    }}
+                <DropdownMenu title="Actions" color="primary">
+                  <DropdownMenu.Item
+                    onSelect={() => setFilterFormOpen(!filterFormOpen)}
                   >
-                    <span className="text-white">Filter</span>
-                  </Button>
-                </div>
+                    Filter
+                  </DropdownMenu.Item>
+                  {(authContext.loggedInUser?.id === thread?.author.id ||
+                    authContext.loggedInUser?.role === UserRole.ADMIN) && (
+                    <div>
+                      <DropdownMenu.Item
+                        onSelect={() => editModal.onOpen(null)}
+                      >
+                        Edit
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onSelect={() => confirmDeleteModal.onOpen(null)}
+                      >
+                        Delete
+                      </DropdownMenu.Item>
+                    </div>
+                  )}
+                </DropdownMenu>
               </div>
               {filterFormOpen && (
                 <Card className="flex flex-col space-y-10">
@@ -526,6 +579,15 @@ export function Thread() {
           </div>
         </div>
       </div>
+      <ConfirmDeleteModal
+        modal={confirmDeleteModal}
+        confirmCallback={() => deleteThisThread()}
+      />
+      <EditThreadModal
+        modal={editModal}
+        oldTitle={thread?.title}
+        confirmCallback={(newTitle) => editTitle(newTitle)}
+      />
     </>
   );
 }
