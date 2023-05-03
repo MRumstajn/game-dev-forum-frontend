@@ -1,22 +1,25 @@
 import React from "react";
 
-import { Card, IconButton, Typography } from "@tiller-ds/core";
+import { Card, IconButton, Link, Typography } from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
 import moment from "moment";
 
+import { UserResponse } from "../../common/api/UserResponse";
 import { MessageResponse } from "../api/MessageResponse";
 
 type MessageBubbleProps = {
   message: MessageResponse;
   showControls: boolean;
   deleteCallback: () => void;
+  author: UserResponse;
 };
 
 export function MessageBubble({
   message,
   showControls,
   deleteCallback,
+  author,
 }: MessageBubbleProps) {
   return (
     <Card
@@ -28,9 +31,11 @@ export function MessageBubble({
       }}
     >
       <Card.Header className="border-none">
-        <Typography variant="text" element="p">
-          <strong>{message.author.username}</strong>
-        </Typography>
+        <Link to={`/profile/${author.id}`}>
+          <Typography variant="text" element="p">
+            <strong>{message.author.username}</strong>
+          </Typography>
+        </Link>
       </Card.Header>
       <Card.Body className="pl-3 pt-0 pr-0 pb-0 m-0">
         {!message.deleted ? (

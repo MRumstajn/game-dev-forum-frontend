@@ -103,58 +103,62 @@ export function UserProfilePage() {
                 <Typography variant="h3" element="h3">
                   User information
                 </Typography>
-                {authContext.loggedInUser?.id === user?.id && (
-                  <div className="flex flex-row gap-x-3">
-                    <Button
-                      variant="filled"
-                      color="primary"
-                      onClick={() => navigate("/profile/edit")}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="filled"
-                      color="primary"
-                      onClick={changePasswordModal.onOpen}
-                    >
-                      Change password
-                    </Button>
-                  </div>
-                )}
-                {authContext.loggedInUser &&
-                  !isCurrentUserProfile &&
-                  !isCurrentUserFollowingUser && (
+                <div className="flex flex-row gap-x-3">
+                  {authContext.loggedInUser?.id === user?.id && (
                     <div className="flex flex-row gap-x-3">
                       <Button
                         variant="filled"
                         color="primary"
-                        onClick={() => followHandler()}
+                        onClick={() => navigate("/profile/edit")}
                       >
-                        Follow
+                        Edit
                       </Button>
                       <Button
                         variant="filled"
                         color="primary"
-                        leadingIcon={<Icon type="envelope" />}
-                        onClick={() => navigate(`/messaging/new/${user?.id}`)}
+                        onClick={changePasswordModal.onOpen}
                       >
-                        Message
+                        Change password
                       </Button>
                     </div>
                   )}
-                {authContext.loggedInUser &&
-                  !isCurrentUserProfile &&
-                  isCurrentUserFollowingUser && (
-                    <div className="flex flex-row gap-x-3">
-                      <Button
-                        variant="filled"
-                        color="primary"
-                        onClick={() => unfollowHandler()}
-                      >
-                        Unfollow
-                      </Button>
-                    </div>
+                  {authContext.loggedInUser &&
+                    !isCurrentUserProfile &&
+                    !isCurrentUserFollowingUser && (
+                      <div className="flex flex-row gap-x-3">
+                        <Button
+                          variant="filled"
+                          color="primary"
+                          onClick={() => followHandler()}
+                        >
+                          Follow
+                        </Button>
+                      </div>
+                    )}
+                  {authContext.loggedInUser &&
+                    !isCurrentUserProfile &&
+                    isCurrentUserFollowingUser && (
+                      <div className="flex flex-row gap-x-3">
+                        <Button
+                          variant="filled"
+                          color="primary"
+                          onClick={() => unfollowHandler()}
+                        >
+                          Unfollow
+                        </Button>
+                      </div>
+                    )}
+                  {authContext.loggedInUser?.id !== user?.id && (
+                    <Button
+                      variant="filled"
+                      color="primary"
+                      leadingIcon={<Icon type="envelope" />}
+                      onClick={() => navigate(`/messaging/new/${user?.id}`)}
+                    >
+                      Message
+                    </Button>
                   )}
+                </div>
               </div>
               <Card>
                 <Card.Body>

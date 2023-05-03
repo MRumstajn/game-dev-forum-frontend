@@ -321,6 +321,7 @@ export function MessagingPage() {
                       clickCallback={() =>
                         setSelectedConversation(conversation)
                       }
+                      selected={selectedConversation?.id === conversation.id}
                     />
                   ))}
                 </div>
@@ -420,6 +421,7 @@ export function MessagingPage() {
                           deleteCallback={() =>
                             deleteMessageHandler(message.id)
                           }
+                          author={message.author}
                         />
                       </div>
                     ))}
