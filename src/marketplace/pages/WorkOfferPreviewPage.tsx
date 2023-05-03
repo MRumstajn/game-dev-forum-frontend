@@ -133,8 +133,6 @@ export function WorkOfferPreviewPage() {
     });
   }
 
-  console.log("user RATING: " + JSON.stringify(userRating));
-
   return (
     <>
       <div className="m-10">

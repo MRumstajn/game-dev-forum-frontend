@@ -38,6 +38,8 @@ export const NOTIFICATION_SEARCH_URL = "/api/notifications/search";
 
 export const NOTIFICATION_MARK_AS_READ_URL = "/api/notifications/mark-as-read";
 
+export const NOTIFICATION_UNREAD_COUNT_URL = "/api/notifications/unread-count";
+
 export const WORK_OFFER_URL = "/api/work-offers";
 
 export const WORK_OFFER_SEARCH_URL = "/api/work-offers/search";

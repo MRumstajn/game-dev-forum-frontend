@@ -17,6 +17,7 @@ import { NotificationPopup } from "./NotificationPopup";
 import { AuthContext } from "../../common/components/AuthProvider";
 import { clearToken } from "../../util/jwtTokenUtils";
 import { isScreenBelowNavbarBreakpoint } from "../../util/screenUtil";
+import { getUnreadNotificationsCount } from "../api/getUnreadNotificationsCount";
 import { NotificationResponse } from "../api/NotificationResponse";
 import { postMarkNotificationAsReadRequest } from "../api/postMarkNotificationAsReadRequest";
 import { postSearchNotificationRequest } from "../api/postSearchNotificationRequest";
@@ -41,6 +42,8 @@ export function Navbar() {
   );
   const [notificationPage, setNotificationPage] = useState<number>(0);
   const [totalNotifications, setTotalNotifications] = useState<number>(0);
+  const [unreadNotificationCount, setUnreadNotificationCount] =
+    useState<number>(0);
 
   const popupRef = useRef<any>(null);
   const notificationBellRef = useRef<any>(null);
@@ -90,38 +93,32 @@ export function Navbar() {
     return () => window.removeEventListener("mousedown", handleMouseClick);
   }, []);
 
-  function markNotificationsAsRead(notificationIds: number[]) {
-    postMarkNotificationAsReadRequest({
-      notificationIds: notificationIds,
-    }).then(() => {
-      setNotifications((prevState) => {
-        notificationIds.forEach((notificationId) => {
-          const notificationIndex = prevState.findIndex(
-            (notification) => notification.id === notificationId
-          );
+  useEffect(() => {
+    getUnreadNotificationsCount().then((response) =>
+      setUnreadNotificationCount(response.data.unreadNotifications)
+    );
+  }, [notifications]);
 
-          if (notificationIndex !== -1) {
-            prevState[notificationIndex].isRead = true;
+  function markNotificationsAsRead(notificationIds: number[], all: boolean) {
+    const request = all
+      ? { markAllAsRead: true }
+      : { notificationIds: notificationIds };
+    postMarkNotificationAsReadRequest(request).then(() => {
+      console.log("test");
+      setNotifications((prevState) => {
+        prevState.forEach((notification) => {
+          /*const notificationIndex = prevState.findIndex(
+            (notification) => notification.id === notificationId
+          );*/
+
+          if (notificationIds.includes(notification.id) || all) {
+            notification.isRead = true;
           }
         });
 
         return [...prevState];
       });
     });
-  }
-
-  function markAllNotificationsAsRead() {
-    markNotificationsAsRead(
-      notifications
-        .filter((notification) => !notification.isRead)
-        .map((notification) => notification.id)
-    );
-  }
-
-  function unreadNotificationsExist() {
-    return (
-      notifications.find((notification) => !notification.isRead) !== undefined
-    );
   }
 
   const checkScreenSize = useCallback(() => {
@@ -208,7 +205,7 @@ export function Navbar() {
                       icon={
                         <Icon
                           type={
-                            unreadNotificationsExist()
+                            unreadNotificationCount > 0
                               ? "bell-ringing"
                               : "bell-simple"
                           }
@@ -229,10 +226,12 @@ export function Navbar() {
                     ref={popupRef}
                   >
                     <NotificationPopup
-                      markAllNotificationsAsReadCallback={
-                        markAllNotificationsAsRead
+                      markAllNotificationsAsReadCallback={() =>
+                        markNotificationsAsRead([], true)
                       }
-                      markNotificationsAsReadCallback={markNotificationsAsRead}
+                      markNotificationsAsReadCallback={(notifications) =>
+                        markNotificationsAsRead(notifications, false)
+                      }
                       notifications={notifications}
                       changePageCallback={setNotificationPage}
                       totalNotifications={totalNotifications}
@@ -291,10 +290,12 @@ export function Navbar() {
             notificationsShown && (
               <div className="relative w-full z-10" ref={popupRef}>
                 <NotificationPopup
-                  markAllNotificationsAsReadCallback={
-                    markAllNotificationsAsRead
+                  markAllNotificationsAsReadCallback={() =>
+                    markNotificationsAsRead([], true)
                   }
-                  markNotificationsAsReadCallback={markNotificationsAsRead}
+                  markNotificationsAsReadCallback={(notifications) =>
+                    markNotificationsAsRead(notifications, false)
+                  }
                   notifications={notifications}
                   changePageCallback={setNotificationPage}
                   totalNotifications={totalNotifications}
