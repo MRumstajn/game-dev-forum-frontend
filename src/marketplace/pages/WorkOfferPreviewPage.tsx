@@ -184,7 +184,7 @@ export function WorkOfferPreviewPage() {
                     <strong>Description:</strong>
                   </Typography>
                   <Typography variant="text" element="p">
-                    {workOffer?.description}
+                    <pre>{workOffer?.description}</pre>
                   </Typography>
                 </div>
                 <div className="flex flex-row justify-between">

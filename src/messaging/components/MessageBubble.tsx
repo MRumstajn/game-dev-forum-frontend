@@ -34,7 +34,7 @@ export function MessageBubble({
       </Card.Header>
       <Card.Body className="pl-3 pt-0 pr-0 pb-0 m-0">
         {!message.deleted ? (
-          message.content
+          <pre>{message.content}</pre>
         ) : (
           <div className="flex flex-row justify-center gap-x-1 text-gray-400">
             <Icon type="trash" variant="fill" />

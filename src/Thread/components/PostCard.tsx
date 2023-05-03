@@ -204,14 +204,14 @@ export function PostCard({
               ) : (
                 <div className="overflow-hidden">
                   <Typography variant="text" element="p">
-                    {postContent}
+                    <pre>{postContent}</pre>
                   </Typography>
                 </div>
               )}
             </div>
             <div className="p-3">
               <Typography variant="subtext" element="p">
-                {author.bio ? author.bio : "No bio yet"}
+                <pre>{author.bio ? author.bio : "No bio yet"}</pre>
               </Typography>
             </div>
           </div>
