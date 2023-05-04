@@ -265,7 +265,7 @@ export function Forum() {
                       latestPost={getLatestPostInCategory(ct.id)}
                     />
                   ))}
-                  {totalCategories && totalCategories > 10 && (
+                  {totalCategories !== undefined && totalCategories > 10 && (
                     <Pagination
                       pageNumber={page ? page : 0}
                       pageSize={10}
@@ -273,7 +273,7 @@ export function Forum() {
                       className="justify-start"
                       onPageChange={setPage}
                     >
-                      {() => <></>}
+                      {() => null}
                     </Pagination>
                   )}
                 </div>

@@ -11,6 +11,7 @@ import {
 import { DateInput } from "@tiller-ds/date";
 import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
+import { DropdownMenu } from "@tiller-ds/menu";
 
 import moment from "moment/moment";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -20,10 +21,14 @@ import { PostResponse } from "../../common/api/PostResponse";
 import { ThreadResponse } from "../../common/api/ThreadResponse";
 import { UserRole } from "../../common/api/UserRole";
 import { AuthContext } from "../../common/components/AuthProvider";
+import { ConfirmDeleteModal } from "../../common/pages/ConfirmDeleteModal";
 import { CreateThreadModal } from "../../common/pages/CreateThreadModal";
+import { EditTitleModal } from "../../common/pages/EditTitleModal";
 import { postSearchThreadRequest } from "../../news/api/postSearchThreadRequest";
 import { SearchThreadRequest } from "../../news/api/SearchThreadRequest";
 import { getCategoryById } from "../../Thread/api/getCategoryById";
+import { deleteCategory } from "../api/deleteCategory";
+import { putEditCategoryRequest } from "../api/postEditCategoryRequest";
 import { postThreadStatisticsRequest } from "../api/postThreadStatisticsRequest";
 import { ThreadStatisticsResponse } from "../api/ThreadStatisticsResponse";
 import { ThreadCard } from "../components/ThreadCard";
@@ -46,6 +51,8 @@ export function Category() {
   const authContext = useContext(AuthContext);
   const newThreadModal = useModal();
   const navigate = useNavigate();
+  const editModal = useModal();
+  const confirmDeleteModal = useModal();
 
   const updateThreadList = useCallback(
     (request: SearchThreadRequest) => {
@@ -116,6 +123,32 @@ export function Category() {
     setFilterFormOpen(false);
   }
 
+  function deleteThisCategory() {
+    if (!category) {
+      return;
+    }
+
+    deleteCategory(category.id).then((response) => {
+      if (response.isOk) {
+        navigate("/forum");
+      }
+    });
+  }
+
+  function editTitle(newTitle: string) {
+    if (!category) {
+      return;
+    }
+
+    putEditCategoryRequest(category.id, {
+      title: newTitle,
+    }).then((response) => {
+      if (response.isOk) {
+        setCategory(response.data);
+      }
+    });
+  }
+
   // get parent category
   useEffect(() => {
     getCategoryById(Number(params.categoryId)).then((response) => {
@@ -182,6 +215,18 @@ export function Category() {
                   >
                     New thread
                   </Button>
+                )}
+                {authContext.loggedInUser?.role === UserRole.ADMIN && (
+                  <DropdownMenu title="Actions" color="primary">
+                    <DropdownMenu.Item onSelect={() => editModal.onOpen(null)}>
+                      Edit
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={() => confirmDeleteModal.onOpen(null)}
+                    >
+                      Delete
+                    </DropdownMenu.Item>
+                  </DropdownMenu>
                 )}
               </div>
             </div>
@@ -318,6 +363,15 @@ export function Category() {
           navigate(`/forum/${category?.id}/${thread.id}`);
         }}
         categoryId={category?.id}
+      />
+      <ConfirmDeleteModal
+        modal={confirmDeleteModal}
+        confirmCallback={() => deleteThisCategory()}
+      />
+      <EditTitleModal
+        modal={editModal}
+        confirmCallback={editTitle}
+        oldTitle={category?.title}
       />
     </>
   );

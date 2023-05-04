@@ -38,7 +38,7 @@ import {
   PostReactionType,
 } from "../../common/constants";
 import { ConfirmDeleteModal } from "../../common/pages/ConfirmDeleteModal";
-import { EditThreadModal } from "../../common/pages/EditThreadModal";
+import { EditTitleModal } from "../../common/pages/EditTitleModal";
 import { deletePost } from "../api/deletePost";
 import { deleteThread } from "../api/deleteThread";
 import { getCategoryById } from "../api/getCategoryById";
@@ -105,7 +105,8 @@ export function Thread() {
   const authContext = useContext(AuthContext);
   const topPostRef = useRef<HTMLDivElement>(null);
   const editModal = useModal();
-  const confirmDeleteModal = useModal();
+  const confirmDeleteThreadModal = useModal();
+  const confirmDeletePostModal = useModal();
   const navigate = useNavigate();
 
   const updatePostList = useCallback((request: SearchPostsRequest) => {
@@ -406,7 +407,7 @@ export function Thread() {
                         Edit
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
-                        onSelect={() => confirmDeleteModal.onOpen(null)}
+                        onSelect={() => confirmDeleteThreadModal.onOpen(null)}
                       >
                         Delete
                       </DropdownMenu.Item>
@@ -491,34 +492,44 @@ export function Thread() {
                 </Card>
               )}
               <div className="flex flex-col space-y-10">
-                {posts &&
+                {posts !== undefined &&
                   posts.map((post) => (
-                    <PostCard
-                      postId={post.id}
-                      content={post.content}
-                      author={post.author}
-                      creationDate={post.creationDateTime}
-                      isTopPost={topPost?.id === post.id}
-                      topPostRef={topPostRef}
-                      onReactionsChanged={() => {
-                        fetchPostReactionCounts();
-                        findTopPost();
-                      }}
-                      likes={
-                        getReactionCountForPost(PostReactionType.LIKE, post.id)
-                          ?.count
-                      }
-                      dislikes={
-                        getReactionCountForPost(
-                          PostReactionType.DISLIKE,
+                    <div>
+                      <PostCard
+                        postId={post.id}
+                        content={post.content}
+                        author={post.author}
+                        creationDate={post.creationDateTime}
+                        isTopPost={topPost?.id === post.id}
+                        topPostRef={topPostRef}
+                        onReactionsChanged={() => {
+                          fetchPostReactionCounts();
+                          findTopPost();
+                        }}
+                        likes={
+                          getReactionCountForPost(
+                            PostReactionType.LIKE,
+                            post.id
+                          )?.count
+                        }
+                        dislikes={
+                          getReactionCountForPost(
+                            PostReactionType.DISLIKE,
+                            post.id
+                          )?.count
+                        }
+                        deleteHandler={() =>
+                          confirmDeletePostModal.onOpen(null)
+                        }
+                        currentUserPostReaction={getCurrentUserReactionForPost(
                           post.id
-                        )?.count
-                      }
-                      deleteHandler={() => cardDeleteHandler(post.id)}
-                      currentUserPostReaction={getCurrentUserReactionForPost(
-                        post.id
-                      )}
-                    />
+                        )}
+                      />
+                      <ConfirmDeleteModal
+                        modal={confirmDeletePostModal}
+                        confirmCallback={() => cardDeleteHandler(post.id)}
+                      />
+                    </div>
                   ))}
                 {(posts === undefined || posts.length === 0) && (
                   <Typography
@@ -529,7 +540,7 @@ export function Thread() {
                     No posts at the moment
                   </Typography>
                 )}
-                {totalPosts && totalPosts > 10 && (
+                {totalPosts !== undefined && totalPosts > 10 && (
                   <Pagination
                     pageNumber={page ? page : 0}
                     pageSize={10}
@@ -580,10 +591,10 @@ export function Thread() {
         </div>
       </div>
       <ConfirmDeleteModal
-        modal={confirmDeleteModal}
+        modal={confirmDeleteThreadModal}
         confirmCallback={() => deleteThisThread()}
       />
-      <EditThreadModal
+      <EditTitleModal
         modal={editModal}
         oldTitle={thread?.title}
         confirmCallback={(newTitle) => editTitle(newTitle)}

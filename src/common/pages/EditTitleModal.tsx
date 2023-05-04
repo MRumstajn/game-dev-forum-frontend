@@ -30,7 +30,7 @@ const formValidationSchema = yup.object({
     .required(INPUT_REQUIRED_MESSAGE),
 });
 
-export function EditThreadModal({
+export function EditTitleModal({
   modal,
   oldTitle,
   confirmCallback,
