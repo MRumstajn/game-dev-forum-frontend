@@ -62,10 +62,9 @@ export function EditUserProfilePage() {
       }).then((response) => {
         authContext.setLoggedInUser(response.data.user);
         saveToken(response.data.newAccessToken);
+        navigateBack();
       });
     }
-
-    navigateBack();
   }
 
   function navigateBack() {

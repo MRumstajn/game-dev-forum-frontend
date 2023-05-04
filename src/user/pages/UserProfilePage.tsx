@@ -66,7 +66,7 @@ export function UserProfilePage() {
   }, [user]);
 
   useEffect(() => {
-    if (params.hasOwnProperty("id")) {
+    if (params.id) {
       getUserById(Number(params.id)).then((response) => setUser(response.data));
     }
   }, [params]);
