@@ -1,14 +1,15 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Breadcrumbs, Button, Typography } from "@tiller-ds/core";
 import { InputField } from "@tiller-ds/formik-elements";
 import { Icon } from "@tiller-ds/icons";
 
 import { Formik } from "formik";
+import Avatar from "react-avatar";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 
-import { AuthContext } from "../../common/components/AuthProvider";
+import { UserResponse } from "../../common/api/UserResponse";
 import {
   INPUT_TOO_LONG_MESSAGE,
   INPUT_TOO_SHORT_MESSAGE,
@@ -19,7 +20,12 @@ import { LoginRequestPacket } from "../network/packets/LoginRequestPacket";
 import { LoginResponsePacket } from "../network/packets/LoginResponsePacket";
 import { MessageRequestPacket } from "../network/packets/MessageRequestPacket";
 import { MessageResponsePacket } from "../network/packets/MessageResponsePacket";
+import { OnlineUsersRequestPacket } from "../network/packets/OnlineUsersRequestPacket";
+import { OnlineUsersResponsePacket } from "../network/packets/OnlineUsersResponsePacket";
 import { Packet, PacketType } from "../network/packets/Packet";
+import { SystemMessagePacket } from "../network/packets/SystemMessagePacket";
+import { UserJoinPacket } from "../network/packets/UserJoinPacket";
+import { UserLeavePacket } from "../network/packets/UserLeavePacket";
 
 type Form = {
   message: string;
@@ -38,22 +44,16 @@ const formValidationSchema = yup.object({
 });
 
 export function Chat() {
-  const [chatLines, setChatLines] = useState<string[]>([]);
+  const [packets, setPackets] = useState<Packet[]>([]);
+  const [users, setUsers] = useState<UserResponse[]>([]);
   const [clientReady, setClientReady] = useState<boolean>(false);
   const [client, setClient] = useState<Client>();
 
-  const authContext = useContext(AuthContext);
-
-  const messagePacketToChatLine = useCallback(
-    (packet: MessageResponsePacket | MessageRequestPacket): string => {
-      return packet.type === PacketType.MESSAGE_RESPONSE
-        ? `(${(packet as MessageResponsePacket).author.username}): ${
-            packet.message
-          }`
-        : `(${authContext.loggedInUser?.username}): ${packet.message}`;
-    },
-    [authContext.loggedInUser?.username]
-  );
+  const fetchOnlineUsers = useCallback(() => {
+    client?.sendPacket({
+      type: "ONLINE_USERS_REQUEST",
+    } as OnlineUsersRequestPacket);
+  }, [client]);
 
   const onPacketReceived = useCallback(
     (packet: Packet) => {
@@ -61,18 +61,42 @@ export function Chat() {
         case PacketType.LOGIN_RESPONSE:
           if ((packet as LoginResponsePacket).status === "OK") {
             setClientReady(true);
+            fetchOnlineUsers();
           }
-
           break;
         case PacketType.MESSAGE_RESPONSE:
-          setChatLines((prevState) => [
-            ...prevState,
-            messagePacketToChatLine(packet as MessageResponsePacket),
-          ]);
+          addToPackets(packet as MessageResponsePacket);
+          break;
+        case PacketType.SYSTEM_MESSAGE:
+          addToPackets(packet as SystemMessagePacket);
+          break;
+        case PacketType.USER_JOIN:
+          const joinPacket = packet as UserJoinPacket;
+          addToPackets(joinPacket);
+          break;
+        case PacketType.USER_LEAVE:
+          const leavePacket = packet as UserJoinPacket;
+          addToPackets(leavePacket);
+          removeFromUsers(leavePacket.user);
+          break;
+        case PacketType.ONLINE_USERS_RESPONSE:
+          const onlineUsersPacket = packet as OnlineUsersResponsePacket;
+          setUsers(onlineUsersPacket.onlineUsers);
+          break;
       }
     },
-    [messagePacketToChatLine]
+    [fetchOnlineUsers]
   );
+
+  function addToPackets(packet: Packet) {
+    setPackets((prevState) => [...prevState, packet]);
+  }
+
+  function removeFromUsers(userToRemove: UserResponse) {
+    setUsers((prevState) => [
+      ...prevState.filter((user) => user.id !== userToRemove.id),
+    ]);
+  }
 
   useEffect(() => setClient(new Client()), []);
 
@@ -113,10 +137,48 @@ export function Chat() {
         message: form.message,
       } as MessageRequestPacket);
 
-      setChatLines((prevState) => [
-        ...prevState,
-        messagePacketToChatLine(requestPacket),
-      ]);
+      addToPackets(requestPacket as MessageResponsePacket);
+    }
+  }
+
+  function packetToChatLine(packet: Packet) {
+    if (packet.type === PacketType.MESSAGE_RESPONSE) {
+      return (
+        <Typography variant="text" element="p">
+          <strong>({(packet as MessageResponsePacket).author.username})</strong>
+          : {(packet as MessageResponsePacket).message}
+        </Typography>
+      );
+    }
+
+    if (packet.type === PacketType.SYSTEM_MESSAGE) {
+      return (
+        <Typography variant="subtext" element="p">
+          <i>{(packet as SystemMessagePacket).message}</i>
+        </Typography>
+      );
+    }
+
+    if (packet.type === PacketType.USER_JOIN) {
+      return (
+        <Typography variant="subtext" element="p">
+          <i>
+            <Icon type="arrow-circle-right" variant="thin" />{" "}
+            {(packet as UserJoinPacket).user.username} has joined the chat
+          </i>
+        </Typography>
+      );
+    }
+
+    if (packet.type === PacketType.USER_LEAVE) {
+      return (
+        <Typography variant="subtext" element="p">
+          <i>
+            <Icon type="arrow-circle-left" variant="thin" />
+            {(packet as UserLeavePacket).user.username} has left the chat
+          </i>
+        </Typography>
+      );
     }
   }
 
@@ -140,16 +202,15 @@ export function Chat() {
                 </div>
                 <div className="flex flex-col">
                   <div className="p-3 flex flex-col gap-y-3 h-[500px]">
-                    {chatLines.map((line) => (
-                      <Typography variant="text" element="p">
-                        {line}
-                      </Typography>
-                    ))}
+                    {packets.map((packet) => packetToChatLine(packet))}
                   </div>
                   <div className="mt-auto">
                     <Formik
                       initialValues={formInitialValues}
-                      onSubmit={formSubmitHandler}
+                      onSubmit={(values, { resetForm }) => {
+                        formSubmitHandler(values);
+                        resetForm();
+                      }}
                       validationSchema={formValidationSchema}
                     >
                       {(formik) => (
@@ -185,9 +246,29 @@ export function Chat() {
                   </Typography>
                 </div>
                 <div className="p-3 flex flex-col gap-y-3">
-                  <p>user</p>
-                  <p>user</p>
-                  <p>user</p>
+                  {users.map((user) => (
+                    <div className="grid grid-cols-2">
+                      <div className="flex flex-row gap-x-3 items-center">
+                        <Link to={`/profile/${user.id}`}>
+                          <div className="flex flex-row gap-x-3 items-center">
+                            <Avatar
+                              size="30"
+                              name={user.username}
+                              round={true}
+                            />
+                            <Typography variant="text" element="p">
+                              {user.username}
+                            </Typography>
+                          </div>
+                        </Link>
+                        <Icon
+                          type="circle"
+                          variant="fill"
+                          className="text-green-600"
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

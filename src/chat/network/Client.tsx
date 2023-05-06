@@ -3,8 +3,12 @@ import { LoginRequestPacket } from "./packets/LoginRequestPacket";
 import { LoginResponsePacket } from "./packets/LoginResponsePacket";
 import { MessageRequestPacket } from "./packets/MessageRequestPacket";
 import { MessageResponsePacket } from "./packets/MessageResponsePacket";
+import { OnlineUsersRequestPacket } from "./packets/OnlineUsersRequestPacket";
+import { OnlineUsersResponsePacket } from "./packets/OnlineUsersResponsePacket";
 import { Packet, PacketType } from "./packets/Packet";
 import { SystemMessagePacket } from "./packets/SystemMessagePacket";
+import { UserJoinPacket } from "./packets/UserJoinPacket";
+import { UserLeavePacket } from "./packets/UserLeavePacket";
 
 export type PacketListener = (packet: Packet) => void;
 
@@ -56,6 +60,18 @@ export class Client {
             break;
           case PacketType.SYSTEM_MESSAGE:
             packet = packet as SystemMessagePacket;
+            break;
+          case PacketType.USER_JOIN:
+            packet = packet as UserJoinPacket;
+            break;
+          case PacketType.USER_LEAVE:
+            packet = packet as UserLeavePacket;
+            break;
+          case PacketType.ONLINE_USERS_REQUEST:
+            packet = packet as OnlineUsersRequestPacket;
+            break;
+          case PacketType.ONLINE_USERS_RESPONSE:
+            packet = packet as OnlineUsersResponsePacket;
             break;
         }
 
