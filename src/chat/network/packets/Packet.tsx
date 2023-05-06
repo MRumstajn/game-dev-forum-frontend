@@ -1,0 +1,12 @@
+export enum PacketType {
+  MESSAGE_RESPONSE = "MESSAGE_RESPONSE",
+  MESSAGE_REQUEST = "MESSAGE_REQUEST",
+  LOGIN_REQUEST = "LOGIN_REQUEST",
+  LOGIN_RESPONSE = "LOGIN_RESPONSE",
+  ERROR = "ERROR",
+  SYSTEM_MESSAGE = "SYSTEM_MESSAGE",
+}
+
+export type Packet = {
+  type: PacketType;
+};

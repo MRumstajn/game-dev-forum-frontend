@@ -5,6 +5,7 @@ import { IntlProvider } from "@tiller-ds/intl";
 import { Route, Routes } from "react-router-dom";
 
 import { About } from "./about/About";
+import { Chat } from "./chat/pages/Chat";
 import { AuthProvider } from "./common/components/AuthProvider";
 import { AccessDeniedErrorPage } from "./error-page/AccessDeniedErrorPage";
 import { InternalErrorPage } from "./error-page/InternalErrorPage";
@@ -48,6 +49,7 @@ function App() {
             <Route path="/profile/:id" element={<UserProfilePage />} />
             <Route path="/profile/edit" element={<EditUserProfilePage />} />
             <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/chat" element={<Chat />} />
             <Route
               path="/marketplace/:categoryId/:workOfferId"
               element={<WorkOfferPreviewPage />}
