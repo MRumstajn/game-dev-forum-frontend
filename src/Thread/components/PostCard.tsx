@@ -11,6 +11,7 @@ import { UserResponse } from "../../common/api/UserResponse";
 import { UserRole } from "../../common/api/UserRole";
 import { AuthContext } from "../../common/components/AuthProvider";
 import { PostReactionType } from "../../common/constants";
+import { getReputationBadgeTitle } from "../../common/util/userReputationUtil";
 import { formatDate } from "../../util/dateUtil";
 import { deleteUserPostReaction } from "../api/deleteUserPostReaction";
 import { postCreateUserPostReactionRequest } from "../api/postCreateUserPostReactionRequest";
@@ -178,6 +179,14 @@ export function PostCard({
                   </Typography>
                 </div>
               </Link>
+              <div className="-sm:justify-end -sm:pr-3 text-center">
+                <Typography variant="text" element="p">
+                  Reputation: {author.reputation}
+                </Typography>
+                <Typography variant="subtext" element="p">
+                  ({getReputationBadgeTitle(author ? author.reputation : 0)})
+                </Typography>
+              </div>
               <div className="-sm:justify-end -sm:pr-3 text-center">
                 <Typography variant="subtitle" element="p">
                   Joined

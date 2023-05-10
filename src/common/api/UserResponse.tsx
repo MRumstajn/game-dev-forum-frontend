@@ -10,4 +10,6 @@ export type UserResponse = {
   role: UserRole;
 
   bio: string;
+
+  reputation: number;
 };

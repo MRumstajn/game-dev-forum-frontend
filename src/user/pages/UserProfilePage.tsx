@@ -10,6 +10,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ChangePasswordModal } from "./changePasswordModal";
 import { UserResponse } from "../../common/api/UserResponse";
 import { AuthContext } from "../../common/components/AuthProvider";
+import { getReputationBadgeTitle } from "../../common/util/userReputationUtil";
 import { followUser } from "../api/followUser";
 import { getFollowers } from "../api/getFollowers";
 import { getIsFollowing } from "../api/getIsFollowing";
@@ -169,7 +170,7 @@ export function UserProfilePage() {
                         <strong>{user?.username}</strong>
                       </Typography>
                     </div>
-                    <div className="grid grid-cols-3">
+                    <div className="grid grid-cols-4">
                       <div>
                         <Typography variant="title" element="h4">
                           Join date:
@@ -190,9 +191,32 @@ export function UserProfilePage() {
                         <Typography variant="title" element="h4">
                           Bio:
                         </Typography>
-                        <Typography variant="text" element="p">
-                          {user?.bio}
+                        {user?.bio && user.bio.length > 0 ? (
+                          <Typography variant="text" element="p">
+                            {user?.bio}
+                          </Typography>
+                        ) : (
+                          <Typography variant="subtext" element="p">
+                            No bio yet
+                          </Typography>
+                        )}
+                      </div>
+                      <div>
+                        <Typography variant="title" element="h4">
+                          Reputation:
                         </Typography>
+                        <div className="flex flex-row gap-x-1 items-center">
+                          <Typography variant="text" element="p">
+                            {user?.reputation}
+                          </Typography>
+                          <Typography variant="subtext" element="p">
+                            (
+                            {getReputationBadgeTitle(
+                              user ? user.reputation : 0
+                            )}
+                            )
+                          </Typography>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -9,6 +9,36 @@ export enum PostReactionType {
 
 export const MAX_WORK_OFFER_CATEGORY_TITLE_LENGTH = 30;
 
+export const USER_REPUTATION_RANKS: {
+  minReputation: number;
+  title: string;
+}[] = [
+  {
+    minReputation: 5,
+    title: "Newbiew",
+  },
+  {
+    minReputation: 15,
+    title: "Junior",
+  },
+  {
+    minReputation: 30,
+    title: "Well known",
+  },
+  {
+    minReputation: 50,
+    title: "Senior",
+  },
+  {
+    minReputation: 70,
+    title: "All knowing",
+  },
+  {
+    minReputation: 100,
+    title: "Legend",
+  },
+];
+
 // messages
 
 export const INPUT_TOO_LONG_MESSAGE = "Input is too long";
