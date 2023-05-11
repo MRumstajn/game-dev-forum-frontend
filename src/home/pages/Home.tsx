@@ -6,8 +6,10 @@ import { Icon } from "@tiller-ds/icons";
 import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { CategoryStatisticsResponse } from "../../common/api/CategoryStatisticsResponse";
 import { postCategoryStatisticsRequest } from "../../common/api/postCategoryStatisticsRequest";
+import { UserResponse } from "../../common/api/UserResponse";
 import { getOverallStatistics } from "../api/getOverallStatistics";
 import { getTopCategories } from "../api/getTopCategories";
+import { getTopUsers } from "../api/getTopUsers";
 import { OverallStatisticsResponse } from "../api/OverallStatisticsResponse";
 import { StatisticCard } from "../components/StatisticTable/StatisticTable";
 
@@ -16,6 +18,7 @@ export function Home() {
   const [topCategoriesDetails, setTopCategoriesDetails] = useState<
     CategoryStatisticsResponse[]
   >([]);
+  const [topUsers, setTopUsers] = useState<UserResponse[]>([]);
   const [overallStatistics, setOverallStatistics] =
     useState<OverallStatisticsResponse>();
 
@@ -37,6 +40,8 @@ export function Home() {
     getOverallStatistics().then((statisticResponse) =>
       setOverallStatistics(statisticResponse.data)
     );
+
+    getTopUsers().then((response) => setTopUsers(response.data));
   }, []);
 
   return (
@@ -93,6 +98,15 @@ export function Home() {
                             )[0].threadCount
                           } threads`
                         : `0 threads`,
+                  };
+                })}
+              />
+              <StatisticCard
+                statisticName="Top users"
+                statistics={topUsers.map((user) => {
+                  return {
+                    name: user.username,
+                    value: `${user.reputation} reputation`,
                   };
                 })}
               />
