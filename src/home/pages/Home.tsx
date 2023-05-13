@@ -75,12 +75,6 @@ export function Home() {
                   <li>
                     <Link to="/about">About</Link>
                   </li>
-                  <li>
-                    <Link to="/tos">Terms of service</Link>
-                  </li>
-                  <li>
-                    <Link to="/privacy">Privacy policy</Link>
-                  </li>
                 </ul>
               </div>
             </div>
