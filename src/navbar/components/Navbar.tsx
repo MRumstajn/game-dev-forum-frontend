@@ -7,7 +7,6 @@ import React, {
 } from "react";
 
 import { Button, IconButton, Typography } from "@tiller-ds/core";
-import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 import { DropdownMenu } from "@tiller-ds/menu";
 
@@ -21,6 +20,8 @@ import { getUnreadNotificationsCount } from "../api/getUnreadNotificationsCount"
 import { NotificationResponse } from "../api/NotificationResponse";
 import { postMarkNotificationAsReadRequest } from "../api/postMarkNotificationAsReadRequest";
 import { postSearchNotificationRequest } from "../api/postSearchNotificationRequest";
+
+const profileMenuOptions = ["View profile", "Messages", "Sign out"];
 
 const navLinks: { [key: string]: string } = {
   News: "/news",
@@ -48,6 +49,7 @@ export function Navbar() {
   const popupRef = useRef<any>(null);
   const notificationBellRef = useRef<any>(null);
   const navbarRef = useRef<any>(null);
+  const profilePopupRef = useRef<any>(null);
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
 
@@ -82,13 +84,22 @@ export function Navbar() {
         setNotificationsShown(false);
       }
 
-      if (navbarRef.current && !navbarRef.current.contains(event.target)) {
+      let element = event.target as HTMLElement;
+      if (
+        navbarRef.current &&
+        !navbarRef.current.contains(event.target) &&
+        element.tagName !== "BUTTON" &&
+        !profileMenuOptions.includes(element.innerText)
+      ) {
         setExpanded(false);
+      }
+
+      if ((event.target as HTMLElement).role === "menuItem") {
+        console.log("menu item!");
       }
     }
 
     window.addEventListener("mousedown", handleMouseClick);
-
     // cleanup
     return () => window.removeEventListener("mousedown", handleMouseClick);
   }, []);
@@ -181,15 +192,6 @@ export function Navbar() {
           </ul>
         </div>
         <div className="flex flex-col gap-y-5 items-center nav-break:flex-row nav-break:gap-x-5 nav-break:gap-y-0">
-          <div
-            className={`${
-              isScreenBelowNavbarBreakpoint() && !expanded
-                ? "hidden"
-                : "block w-1/2"
-            }`}
-          >
-            <Input name="search" placeholder="🔎 Search" />
-          </div>
           <div className={"flex gap-x-3 justify-center nav-break:justify-end"}>
             <div className="relative">
               {authContext.loggedInUser &&
@@ -243,6 +245,7 @@ export function Navbar() {
             >
               {authContext.loggedInUser ? (
                 <DropdownMenu
+                  ref={profilePopupRef}
                   title={
                     <Typography variant="text" element="p">
                       <p className="text-white">

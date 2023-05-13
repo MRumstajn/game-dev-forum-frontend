@@ -24,7 +24,7 @@ export function MessageBubble({
   return (
     <Card
       tokens={{
-        master: "w-1/2",
+        master: "max-w-md",
         container: {
           backgroundColor: "bg-gray-300",
         },
@@ -37,9 +37,9 @@ export function MessageBubble({
           </Typography>
         </Link>
       </Card.Header>
-      <Card.Body className="pl-3 pt-0 pr-0 pb-0 m-0">
+      <Card.Body className="pl-3 pt-0 pr-3 pb-0 m-0">
         {!message.deleted ? (
-          <pre>{message.content}</pre>
+          <pre className="whitespace-normal">{message.content}</pre>
         ) : (
           <div className="flex flex-row justify-center gap-x-1 text-gray-400">
             <Icon type="trash" variant="fill" />

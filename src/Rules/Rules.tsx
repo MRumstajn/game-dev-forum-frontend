@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 export function Rules() {
   return (
     <>
-      <div className="m-10">
+      <div className="m-1 sm:m-10">
         <div className="container mx-auto max-w-5xl">
           <Breadcrumbs icon={<Icon type="caret-right" />}>
             <Breadcrumbs.Breadcrumb>

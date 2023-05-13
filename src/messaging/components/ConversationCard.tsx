@@ -28,7 +28,10 @@ export function ConversationCard({
           onClick={() => clickCallback()}
         >
           <div className="flex flex-row gap-x-3 items-center">
-            <Link className="flex flex-row gap-x-3" to={`/profile/${user?.id}`}>
+            <Link
+              className="flex flex-row gap-x-3 items-center"
+              to={`/profile/${user?.id}`}
+            >
               <Avatar round={true} size="30" name={user?.username} />
               <Typography variant="text" element="p">
                 <span className={`${unreadMessages > 0 ? "font-bold" : ""}`}>

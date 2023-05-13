@@ -155,39 +155,45 @@ export function PostCard({
         }
       >
         <div className="flex flex-col sm:flex-row">
-          <div className="w-full border-b-2 sm:w-1/4 sm:border-b-0 sm:border-r-2 pt-3 pb-3 overflow-hidden">
+          <div className="w-full flex-shrink-0 border-b-2 sm:w-1/4 sm:border-b-0 sm:border-r-2 pt-3 pb-3 overflow-hidden">
             <div className="flex flex-row space-x-3 sm:space-x-0 sm:flex-col sm:space-y-3 -sm:justify-between">
               <Link to={`/profile/${author.id}`}>
-                <div className="sm:hidden ml-3">
-                  <Avatar name={author.username} size="50" round={true} />
-                </div>
-                <div className="-sm:hidden text-center">
-                  <Avatar
-                    name={author.username}
-                    size="80"
-                    round={true}
-                    className="sm:mx-auto"
-                  />
-                </div>
-                <div className="items-center flex flex-row sm:w-3/2 sm:mx-auto">
-                  <Typography
-                    variant="h5"
-                    element="h5"
-                    className="w-full text-center truncate "
-                  >
-                    {author.username}
-                  </Typography>
+                <div className="flex flex-row gap-x-3 sm:flex-col sm:gap-y-3 sm:gap-x-0">
+                  <div className="sm:hidden ml-3">
+                    <Avatar name={author.username} size="50" round={true} />
+                  </div>
+                  <div className="hidden sm:block text-center">
+                    <Avatar
+                      name={author.username}
+                      size="80"
+                      round={true}
+                      className="sm:mx-auto"
+                    />
+                  </div>
+                  <div className="items-center flex flex-row sm:w-3/2 sm:mx-auto">
+                    <Typography
+                      variant="h5"
+                      element="h5"
+                      className="w-full text-center truncate "
+                    >
+                      {author.username}
+                    </Typography>
+                  </div>
                 </div>
               </Link>
-              <div className="-sm:justify-end -sm:pr-3 text-center">
+              <div className="-sm:justify-end -sm:pr-3 text-center items-center my-auto sm:my-0">
                 <Typography variant="text" element="p">
                   Reputation: {author.reputation}
                 </Typography>
-                <Typography variant="subtext" element="p">
+                <Typography
+                  variant="subtext"
+                  element="p"
+                  className="hidden sm:block"
+                >
                   ({getReputationBadgeTitle(author ? author.reputation : 0)})
                 </Typography>
               </div>
-              <div className="-sm:justify-end -sm:pr-3 text-center">
+              <div className="hidden sm:block flex flex-row gap-x-1 sm:flex-col -sm:justify-end -sm:pr-3 text-center items-center my-auto sm:my-0">
                 <Typography variant="subtitle" element="p">
                   Joined
                 </Typography>
@@ -197,7 +203,7 @@ export function PostCard({
               </div>
             </div>
           </div>
-          <div className="flex flex-col w-full">
+          <div className="flex flex-col grow">
             <div className="border-b h-full p-3 flex flex-col space-y-3">
               <div className="flex justify-end">
                 <Typography variant="subtitle" element="p">
@@ -213,7 +219,7 @@ export function PostCard({
               ) : (
                 <div className="overflow-hidden">
                   <Typography variant="text" element="p">
-                    <pre>{postContent}</pre>
+                    <pre className="whitespace-normal">{postContent}</pre>
                   </Typography>
                 </div>
               )}

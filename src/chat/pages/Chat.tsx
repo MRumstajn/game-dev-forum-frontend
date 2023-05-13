@@ -25,7 +25,6 @@ import { OnlineUsersResponsePacket } from "../network/packets/OnlineUsersRespons
 import { Packet, PacketType } from "../network/packets/Packet";
 import { SystemMessagePacket } from "../network/packets/SystemMessagePacket";
 import { UserJoinPacket } from "../network/packets/UserJoinPacket";
-import { UserLeavePacket } from "../network/packets/UserLeavePacket";
 
 type Form = {
   message: string;
@@ -161,30 +160,38 @@ export function Chat() {
 
     if (packet.type === PacketType.USER_JOIN) {
       return (
-        <Typography variant="subtext" element="p">
+        <div className="flex flex-row gap-x-1 items-center pt1">
           <i>
             <Icon type="arrow-circle-right" variant="thin" />{" "}
-            {(packet as UserJoinPacket).user.username} has joined the chat
           </i>
-        </Typography>
+          <Typography variant="subtext" element="p">
+            <i>
+              {(packet as UserJoinPacket).user.username} has joined the chat
+            </i>
+          </Typography>
+        </div>
       );
     }
 
     if (packet.type === PacketType.USER_LEAVE) {
       return (
-        <Typography variant="subtext" element="p">
-          <i>
-            <Icon type="arrow-circle-left" variant="thin" />
-            {(packet as UserLeavePacket).user.username} has left the chat
-          </i>
-        </Typography>
+        <div className="flex flex-row gap-x-1 items-center pt1">
+          <Typography variant="subtext" element="p">
+            <i>
+              <Icon type="arrow-circle-left" variant="thin" />
+            </i>
+          </Typography>
+          <Typography variant="subtext" element="p">
+            <i>{(packet as UserJoinPacket).user.username} has left the chat</i>
+          </Typography>
+        </div>
       );
     }
   }
 
   return (
     <>
-      <div className="m-10">
+      <div className="m-1 sm:m-10">
         <div className="container mx-auto max-w-5xl">
           <Breadcrumbs icon={<Icon type="caret-right" />}>
             <Breadcrumbs.Breadcrumb>
@@ -193,15 +200,15 @@ export function Chat() {
             <Breadcrumbs.Breadcrumb>Chat</Breadcrumbs.Breadcrumb>
           </Breadcrumbs>
           <div className="mt-20">
-            <div className="grid grid-cols-3 border rounded-md">
-              <div className="col-span-2 border-r">
+            <div className="flex flex-col-reverse gap-y-3 sm:flex-row sm:gap-y-0 border-0 sm:border rounded-md mt-3 sm:mt-0">
+              <div className="grow border-r border-l sm:border-l-0 border-b sm:border-b-0">
                 <div className="bg-slate-300 border-b rounded-tl-md text-center">
                   <Typography variant="title" element="h4">
                     Chat
                   </Typography>
                 </div>
                 <div className="flex flex-col">
-                  <div className="p-3 flex flex-col gap-y-3 h-[500px]">
+                  <div className="p-3 flex flex-col gap-y-3 h-[500px] overflow-y-scroll break-all">
                     {packets.map((packet) => packetToChatLine(packet))}
                   </div>
                   <div className="mt-auto">
@@ -239,16 +246,16 @@ export function Chat() {
                   </div>
                 </div>
               </div>
-              <div className="col-span-1">
-                <div className="bg-slate-300 border-b rounded-tr-md text-center">
+              <div className="border rounded-tl-md rounded-tr-md sm:border-0">
+                <div className="bg-slate-300 border-b rounded-tr-md rounded-tl-md sm:rounded-tl-none text-center px-3">
                   <Typography variant="title" element="h4">
                     Online users
                   </Typography>
                 </div>
-                <div className="p-3 flex flex-col gap-y-3">
+                <div className="p-3 flex flex-col gap-y-3 items-center h-[300px] sm:h-[530px] sm:justify-start overflow-scroll">
                   {users.map((user) => (
-                    <div className="grid grid-cols-2">
-                      <div className="flex flex-row gap-x-3 items-center">
+                    <div className="flex flex-row gap-x-1 mx-3 w-full">
+                      <div className="flex flex-row gap-x-3 items-center justify-start">
                         <Link to={`/profile/${user.id}`}>
                           <div className="flex flex-row gap-x-3 items-center">
                             <Avatar
@@ -265,6 +272,7 @@ export function Chat() {
                           type="circle"
                           variant="fill"
                           className="text-green-600"
+                          size={3}
                         />
                       </div>
                     </div>

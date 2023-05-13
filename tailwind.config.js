@@ -6,6 +6,8 @@ module.exports = {
     extend: {
       screens: {
         "-sm": { max: "639px" },
+        "controls-mobile": { max: "450px" },
+        "controls-large": { min: "450px" },
         "nav-break": { min: "870px" },
       },
       colors: {

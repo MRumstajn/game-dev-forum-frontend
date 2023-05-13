@@ -109,7 +109,7 @@ export function News() {
 
   return (
     <>
-      <div className="m-10">
+      <div className="m-1 sm:m-10">
         <div className="container mx-auto max-w-5xl">
           <Breadcrumbs icon={<Icon type="caret-right" />}>
             <Breadcrumbs.Breadcrumb>
@@ -119,15 +119,16 @@ export function News() {
           </Breadcrumbs>
           <div className="mt-20">
             <div className="flex flex-col space-y-20">
-              <div className="flex flex-row justify-between">
+              <div className="flex controls-mobile:flex-col flex-row justify-between">
                 <Typography variant="h1" element="h1">
                   News
                 </Typography>
-                <div className="flex flex-row gap-x-3">
+                <div className="flex controls-mobile:flex-col flex-row gap-y-3 gap-x-3 mt-5 controls-large:mt-0 justify-end">
                   <Button
                     variant="filled"
                     color="primary"
                     onClick={() => setFilterFormOpen((prevState) => !prevState)}
+                    className="controls-mobile:w-full w-fit"
                   >
                     <span className="text-white">Filter</span>
                   </Button>
@@ -136,6 +137,7 @@ export function News() {
                       variant="filled"
                       color="primary"
                       onClick={createThreadModal.onOpen}
+                      className="controls-mobile:w-full w-fit"
                     >
                       <span className="text-white">New thread</span>
                     </Button>

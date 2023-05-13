@@ -69,19 +69,23 @@ export function ChangePasswordModal({ modal }: ChangePasswordModalProps) {
           {(formik) => (
             <form onSubmit={formik.handleSubmit}>
               <div className="flex flex-col gap-y-5 mt-10">
-                <div className="flex flex-row gap-x-3 justify-between">
-                  <Typography variant="text" element="p">
-                    Current password:
-                  </Typography>
+                <div className="flex flex-col sm:flex-row gap-y-1 gap-x-3 justify-between">
+                  <div className="flex flex-row justify-start">
+                    <Typography variant="text" element="p">
+                      Current password:
+                    </Typography>
+                  </div>
                   <PasswordInputField name="currentPassword" />
                 </div>
-                <div className="flex flex-row gap-x-3 justify-between">
-                  <Typography variant="text" element="p">
-                    New password:
-                  </Typography>
+                <div className="flex flex-col sm:flex-row gap-y-1 gap-x-3 sm:justify-between">
+                  <div className="flex flex-row justify-start">
+                    <Typography variant="text" element="p">
+                      New password:
+                    </Typography>
+                  </div>
                   <PasswordInputField name="newPassword" />
                 </div>
-                <div className="flex flex-row gap-x-3 justify-end mt-5">
+                <div className="flex flex-col-reverse sm:flex-row gap-y-3 gap-x-3 justify-end mt-5">
                   <Button
                     variant="filled"
                     color="danger"

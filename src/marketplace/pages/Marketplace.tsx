@@ -115,7 +115,7 @@ export function Marketplace() {
 
   return (
     <>
-      <div className="m-10">
+      <div className="m-1 sm:m-10">
         <div className="container mx-auto max-w-5xl">
           <Breadcrumbs icon={<Icon type="caret-right" />}>
             <Breadcrumbs.Breadcrumb>
@@ -124,15 +124,16 @@ export function Marketplace() {
             <Breadcrumbs.Breadcrumb>Marketplace</Breadcrumbs.Breadcrumb>
           </Breadcrumbs>
           <div className="mt-20">
-            <div className="flex flex-row justify-between">
+            <div className="flex controls-mobile:flex-col flex-row gap-y-3 justify-between">
               <Typography variant="h1" element="h1">
                 Marketplace
               </Typography>
-              <div className="flex flex-row gap-x-3">
+              <div className="flex controls-mobile:flex-col gap-y-3 flex-row gap-x-3 justify-end mt-5 controls-large:mt-0">
                 <Button
                   variant="filled"
                   color="primary"
                   onClick={() => setFilterFormOpen((prevState) => !prevState)}
+                  className="controls-mobile:w-full w-fit"
                 >
                   <span className="text-white">Filter</span>
                 </Button>
@@ -141,6 +142,7 @@ export function Marketplace() {
                     variant="filled"
                     color="primary"
                     onClick={createWorkOfferCategoryModal.onOpen}
+                    className="controls-mobile:w-full w-fit"
                   >
                     <span className="text-white">New work category</span>
                   </Button>
@@ -148,7 +150,7 @@ export function Marketplace() {
               </div>
             </div>
             {filterFormOpen && (
-              <Card className="flex flex-col space-y-10">
+              <Card className="flex flex-col space-y-10 mt-5">
                 <Card.Body className="bg-gray-200">
                   <Formik
                     initialValues={filterFormInitialValues}

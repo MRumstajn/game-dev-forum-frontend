@@ -88,7 +88,7 @@ export function EditUserProfilePage() {
 
   return (
     <>
-      <div className="m-10">
+      <div className="m-1 sm:m-10">
         <div className="container mx-auto max-w-5xl">
           <Breadcrumbs icon={<Icon type="caret-right" />}>
             <Breadcrumbs.Breadcrumb>
@@ -113,31 +113,40 @@ export function EditUserProfilePage() {
                   <Card>
                     <Card.Body>
                       <form onSubmit={formik.handleSubmit}>
-                        <div className="grid grid-cols-2 w-1/2 gap-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 w-full sm:w-fit gap-y-3">
                           <div>
                             <Typography variant="text" element="p">
                               Change username:
                             </Typography>
                           </div>
-                          <div>
-                            <InputField name="username" />
+                          <div className="flex flex-row justify-start">
+                            <InputField
+                              name="username"
+                              className="w-full sm:w-fit"
+                            />
                           </div>
                           <div>
                             <Typography variant="text" element="p">
                               Change bio:
                             </Typography>
                           </div>
-                          <div>
-                            <TextareaField name="bio" width={100} height={20} />
+                          <div className="flex flex-row justify-start">
+                            <TextareaField
+                              name="bio"
+                              width={100}
+                              height={20}
+                              className="w-full sm:w-fit"
+                            />
                           </div>
                         </div>
 
-                        <div className="flex flex-row gap-x-3 justify-end">
+                        <div className="flex controls-mobile:flex-col-reverse flex-row gap-x-3 gap-y-3 justify-end mt-5">
                           <Button
                             variant="filled"
                             color="danger"
                             type="reset"
                             onClick={() => navigateBack()}
+                            className="controls-mobile:w-full w-fit"
                           >
                             Cancel
                           </Button>
@@ -145,6 +154,7 @@ export function EditUserProfilePage() {
                             variant="filled"
                             color="primary"
                             type="submit"
+                            className="controls-mobile:w-full w-fit"
                           >
                             Save changes
                           </Button>

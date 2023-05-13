@@ -135,7 +135,7 @@ export function WorkOfferPreviewPage() {
 
   return (
     <>
-      <div className="m-10">
+      <div className="m-1 sm:m-10">
         <div className="container mx-auto max-w-5xl">
           <Breadcrumbs icon={<Icon type="caret-right" />}>
             <Breadcrumbs.Breadcrumb>
@@ -148,14 +148,14 @@ export function WorkOfferPreviewPage() {
           </Breadcrumbs>
           <div className="mt-20">
             <div className="flex flex-col space-y-20">
-              <div className="flex flex-row justify-between">
+              <div className="flex controls-mobile:flex-col flex-row justify-between">
                 <Typography variant="h1" element="h1">
                   {workOffer?.title}
                 </Typography>
                 {authContext.loggedInUser &&
                   (authContext.loggedInUser.id === workOffer?.author.id ||
                     authContext.loggedInUser.role === UserRole.ADMIN) && (
-                    <div className="flex flex-row gap-x-3">
+                    <div className="flex controls-mobile:flex-col gap-y-3 sm:flex-row gap-x-3 mt-5 controls-large:mt-0">
                       <Button
                         variant="filled"
                         color="primary"
@@ -187,7 +187,7 @@ export function WorkOfferPreviewPage() {
                     <pre>{workOffer?.description}</pre>
                   </Typography>
                 </div>
-                <div className="flex flex-row justify-between">
+                <div className="flex flex-col gap-y-5 sm:flex-row justify-between">
                   <div className="flex flex-col gap-y-1">
                     <Typography variant="text" element="p">
                       <strong>Service offered by:</strong>

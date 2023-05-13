@@ -167,7 +167,7 @@ export function Forum() {
 
   return (
     <>
-      <div className="m-10">
+      <div className="m-1 sm:m-10">
         <div className="container mx-auto max-w-5xl">
           <Breadcrumbs icon={<Icon type="caret-right" />}>
             <Breadcrumbs.Breadcrumb>
@@ -176,15 +176,16 @@ export function Forum() {
             <Breadcrumbs.Breadcrumb>Forum</Breadcrumbs.Breadcrumb>
           </Breadcrumbs>
           <div className="mt-20 flex flex-col space-y-20">
-            <div className="flex flex-row justify-between">
+            <div className="flex controls-mobile:flex-col flex-row gap-y-3 justify-between">
               <Typography variant="h1" element="h1">
                 Forum
               </Typography>
-              <div className="flex flex-row gap-x-3">
+              <div className="flex controls-mobile:flex-col flex-row gap-y-3 gap-x-3 mt-5 controls-large:mt-0 justify-end">
                 <Button
                   variant="filled"
                   color="primary"
                   onClick={() => setFilterFormOpen((prevState) => !prevState)}
+                  className="controls-mobile:w-full w-fit"
                 >
                   <span className="text-white">Filter</span>
                 </Button>
@@ -193,6 +194,7 @@ export function Forum() {
                     variant="filled"
                     color="primary"
                     onClick={newCategoryModal.onOpen}
+                    className="controls-mobile:w-full w-fit"
                   >
                     <span className="text-white">New category</span>
                   </Button>

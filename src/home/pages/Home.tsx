@@ -103,12 +103,16 @@ export function Home() {
               />
               <StatisticCard
                 statisticName="Top users"
-                statistics={topUsers.map((user) => {
-                  return {
-                    name: user.username,
-                    value: `${user.reputation} reputation`,
-                  };
-                })}
+                statistics={
+                  topUsers
+                    ? topUsers.map((user) => {
+                        return {
+                          name: user.username,
+                          value: `${user.reputation} reputation`,
+                        };
+                      })
+                    : []
+                }
               />
               <StatisticCard
                 statisticName="Forum stats"

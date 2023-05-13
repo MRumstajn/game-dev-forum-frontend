@@ -100,17 +100,18 @@ export function UserProfilePage() {
           </Breadcrumbs>
           <div className="mt-20 flex flex-col gap-y-20">
             <div className="flex flex-col gap-y-5">
-              <div className="flex flex-row justify-between">
+              <div className="flex controls-mobile:flex-col gap-y-3 flex-row justify-between">
                 <Typography variant="h3" element="h3">
-                  User information
+                  Profile
                 </Typography>
-                <div className="flex flex-row gap-x-3">
+                <div className="flex controls-mobile:flex-col gap-y-3 flex-row gap-x-3 mt-5 controls-large:mt-0">
                   {authContext.loggedInUser?.id === user?.id && (
-                    <div className="flex flex-row gap-x-3">
+                    <div className="flex controls-mobile:flex-col gap-y-3 flex-row gap-x-3 w-full">
                       <Button
                         variant="filled"
                         color="primary"
                         onClick={() => navigate("/profile/edit")}
+                        className="controls-mobile:w-full w-fit"
                       >
                         Edit
                       </Button>
@@ -118,6 +119,7 @@ export function UserProfilePage() {
                         variant="filled"
                         color="primary"
                         onClick={changePasswordModal.onOpen}
+                        className="controls-mobile:w-full w-fit"
                       >
                         Change password
                       </Button>
@@ -126,11 +128,12 @@ export function UserProfilePage() {
                   {authContext.loggedInUser &&
                     !isCurrentUserProfile &&
                     !isCurrentUserFollowingUser && (
-                      <div className="flex flex-row gap-x-3">
+                      <div className="flex flex-row justify-end gap-x-3">
                         <Button
                           variant="filled"
                           color="primary"
                           onClick={() => followHandler()}
+                          className="controls-mobile:w-full w-fit"
                         >
                           Follow
                         </Button>
@@ -139,11 +142,12 @@ export function UserProfilePage() {
                   {authContext.loggedInUser &&
                     !isCurrentUserProfile &&
                     isCurrentUserFollowingUser && (
-                      <div className="flex flex-row gap-x-3">
+                      <div className="flex flex-row justify-end gap-x-3">
                         <Button
                           variant="filled"
                           color="primary"
                           onClick={() => unfollowHandler()}
+                          className="controls-mobile:w-full w-fit"
                         >
                           Unfollow
                         </Button>
@@ -155,6 +159,7 @@ export function UserProfilePage() {
                       color="primary"
                       leadingIcon={<Icon type="envelope" />}
                       onClick={() => navigate(`/messaging/new/${user?.id}`)}
+                      className="controls-mobile:w-full w-fit"
                     >
                       Message
                     </Button>
@@ -170,7 +175,7 @@ export function UserProfilePage() {
                         <strong>{user?.username}</strong>
                       </Typography>
                     </div>
-                    <div className="grid grid-cols-4">
+                    <div className="grid sm:grid-cols-4 grid-cols-2 gap-y-5">
                       <div>
                         <Typography variant="title" element="h4">
                           Join date:

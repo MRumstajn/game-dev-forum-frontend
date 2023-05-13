@@ -288,7 +288,7 @@ export function MessagingPage() {
   );
 
   return (
-    <div className="m-10">
+    <div className="m-1 sm:m-10">
       <div className="container mx-auto max-w-5xl">
         <Breadcrumbs icon={<Icon type="caret-right" />}>
           <Breadcrumbs.Breadcrumb>
@@ -297,8 +297,8 @@ export function MessagingPage() {
           <Breadcrumbs.Breadcrumb>Messaging</Breadcrumbs.Breadcrumb>
         </Breadcrumbs>
         <div className="mt-20">
-          <div className="flex flex-row gap-x-3">
-            <div className="w-1/3 h-[570px] flex flex-col border">
+          <div className="flex flex-col gap-y-3 md:gap-y-0 md:flex-row md:gap-x-3">
+            <div className="w-full md:w-1/3 h-[300px] sm:h-[570px] flex flex-col border shrink-0">
               <div className="flex flex-row justify-center bg-slate-300">
                 <Typography variant="title" element="h4">
                   Conversations
@@ -358,7 +358,7 @@ export function MessagingPage() {
               </div>
             </div>
 
-            <div className="flex flex-col h-[570px] flex-grow border">
+            <div className="flex flex-col h-[570px] shrink shrink-0 md:grow border">
               <div
                 style={{
                   height: 490,
