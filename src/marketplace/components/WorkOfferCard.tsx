@@ -4,15 +4,11 @@ import { WorkOfferResponse } from "../api/WorkOfferResponse";
 
 type WorkOfferCardProps = {
   workOffer: WorkOfferResponse;
-  clickCallback: () => void;
 };
 
-export function WorkOfferCard({
-  workOffer,
-  clickCallback,
-}: WorkOfferCardProps) {
+export function WorkOfferCard({ workOffer }: WorkOfferCardProps) {
   return (
-    <div onClick={() => clickCallback()}>
+    <Link to={`/marketplace/${workOffer.workOfferCategoryId}/${workOffer.id}`}>
       <Card className="cursor-pointer">
         <Card.Body>
           <div className="flex flex-row justify-between">
@@ -35,6 +31,6 @@ export function WorkOfferCard({
           </div>
         </Card.Body>
       </Card>
-    </div>
+    </Link>
   );
 }

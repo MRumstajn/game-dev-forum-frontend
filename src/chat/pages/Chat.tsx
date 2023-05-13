@@ -25,6 +25,7 @@ import { OnlineUsersResponsePacket } from "../network/packets/OnlineUsersRespons
 import { Packet, PacketType } from "../network/packets/Packet";
 import { SystemMessagePacket } from "../network/packets/SystemMessagePacket";
 import { UserJoinPacket } from "../network/packets/UserJoinPacket";
+import { UserLeavePacket } from "../network/packets/UserLeavePacket";
 
 type Form = {
   message: string;
@@ -142,10 +143,13 @@ export function Chat() {
 
   function packetToChatLine(packet: Packet) {
     if (packet.type === PacketType.MESSAGE_RESPONSE) {
+      let messagePacket = packet as MessageResponsePacket;
       return (
         <Typography variant="text" element="p">
-          <strong>({(packet as MessageResponsePacket).author.username})</strong>
-          : {(packet as MessageResponsePacket).message}
+          <Link to={`/profile/${messagePacket.author.id}`}>
+            <strong>({messagePacket.author.username})</strong>
+          </Link>
+          : {messagePacket.message}
         </Typography>
       );
     }
@@ -159,6 +163,7 @@ export function Chat() {
     }
 
     if (packet.type === PacketType.USER_JOIN) {
+      let joinPacket = packet as UserJoinPacket;
       return (
         <div className="flex flex-row gap-x-1 items-center pt1">
           <i>
@@ -166,7 +171,10 @@ export function Chat() {
           </i>
           <Typography variant="subtext" element="p">
             <i>
-              {(packet as UserJoinPacket).user.username} has joined the chat
+              <Link to={`/profile/${joinPacket.user.id}`}>
+                <u>{joinPacket.user.username}</u>
+              </Link>{" "}
+              has joined the chat
             </i>
           </Typography>
         </div>
@@ -174,6 +182,7 @@ export function Chat() {
     }
 
     if (packet.type === PacketType.USER_LEAVE) {
+      let leavePacket = packet as UserLeavePacket;
       return (
         <div className="flex flex-row gap-x-1 items-center pt1">
           <Typography variant="subtext" element="p">
@@ -182,7 +191,12 @@ export function Chat() {
             </i>
           </Typography>
           <Typography variant="subtext" element="p">
-            <i>{(packet as UserJoinPacket).user.username} has left the chat</i>
+            <i>
+              <Link to={`/profile/${leavePacket.user.id}`}>
+                <u>{leavePacket.user.username}</u>
+              </Link>{" "}
+              has left the chat
+            </i>
           </Typography>
         </div>
       );

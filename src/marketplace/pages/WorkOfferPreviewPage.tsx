@@ -225,11 +225,13 @@ export function WorkOfferPreviewPage() {
                         Your rating:
                       </Typography>
                       {generateStarIconRow(userRating ? userRating.rating : 0)}
-                      <IconButton
-                        icon={<Icon type="x" className="text-slate-300" />}
-                        label="Clear rating"
-                        onClick={() => clearRatingHandler()}
-                      />
+                      {userRating && (
+                        <IconButton
+                          icon={<Icon type="x" className="text-slate-300" />}
+                          label="Clear rating"
+                          onClick={() => clearRatingHandler()}
+                        />
+                      )}
                     </div>
                   </div>
                 </div>

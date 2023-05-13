@@ -87,14 +87,7 @@ export function WorkOfferCategoryContainer({
             <Card.Body>
               <div className="flex flex-col gap-y-3">
                 {workOffers.map((workOffer) => (
-                  <WorkOfferCard
-                    workOffer={workOffer}
-                    clickCallback={() =>
-                      navigate(
-                        `/marketplace/${workOfferCategory.id}/${workOffer.id}`
-                      )
-                    }
-                  />
+                  <WorkOfferCard workOffer={workOffer} />
                 ))}
                 {workOffers.length === 0 && (
                   <Typography variant="subtext" element="p">

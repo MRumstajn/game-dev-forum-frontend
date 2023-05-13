@@ -98,6 +98,8 @@ export function Home() {
                             )[0].threadCount
                           } threads`
                         : `0 threads`,
+                    clickable: true,
+                    redirectLink: `/forum/${category.id}`,
                   };
                 })}
               />
@@ -109,6 +111,8 @@ export function Home() {
                         return {
                           name: user.username,
                           value: `${user.reputation} reputation`,
+                          clickable: true,
+                          redirectLink: `/profile/${user.id}`,
                         };
                       })
                     : []
@@ -122,24 +126,28 @@ export function Home() {
                     value: overallStatistics?.categoryCount
                       ? overallStatistics.categoryCount.toString()
                       : "0",
+                    clickable: false,
                   },
                   {
                     name: "Total threads",
                     value: overallStatistics?.threadCount
                       ? overallStatistics.threadCount.toString()
                       : "0",
+                    clickable: false,
                   },
                   {
                     name: "Total posts",
                     value: overallStatistics?.postCount
                       ? overallStatistics.postCount.toString()
                       : "0",
+                    clickable: false,
                   },
                   {
                     name: "Total users",
                     value: overallStatistics?.userCount
                       ? overallStatistics.userCount.toString()
                       : "0",
+                    clickable: false,
                   },
                 ]}
               />

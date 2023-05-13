@@ -1,8 +1,10 @@
-import { Card, Typography } from "@tiller-ds/core";
+import { Card, Link, Typography } from "@tiller-ds/core";
 
 export type Statistic = {
   name: string;
   value: string;
+  clickable: boolean;
+  redirectLink?: string;
 };
 
 type StatisticCardProps = {
@@ -25,7 +27,20 @@ export function StatisticCard({
         {statistics.map((stat) => (
           <div className="flex flex-row space-x-20 justify-between border-b mb-3">
             <Typography variant="text" element="p">
-              {stat.name}
+              {stat.clickable ? (
+                <Link
+                  to={stat.redirectLink}
+                  tokens={{
+                    color: {
+                      main: "text-black",
+                    },
+                  }}
+                >
+                  {stat.name}
+                </Link>
+              ) : (
+                stat.name
+              )}
             </Typography>
             <Typography variant="text" element="p">
               <strong>{stat.value}</strong>
