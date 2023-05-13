@@ -20,6 +20,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     undefined
   );
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const localToken = getToken();
     if (localToken !== undefined) {
@@ -29,7 +31,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       });
     }
-    // TODO navigate("/home");
+    navigate("/home");
+    //eslint-disable-next-line
   }, []);
 
   const values = useMemo(

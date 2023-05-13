@@ -233,32 +233,36 @@ export function PostCard({
         </div>
         <Card.Footer className="bg-gray-100">
           <div className="flex flex-row justify-between">
-            <div className="flex flex-row space-x-5">
-              <div className="flex flex-row items-center">
-                <IconButton
-                  icon={<Icon type="arrow-up" />}
-                  title="like"
-                  showTooltip={false}
-                  onClick={() => reactToPost(PostReactionType.LIKE)}
-                  disabled={authContext.loggedInUser === undefined}
-                />
-                <Typography variant="text" element="p">
-                  {likeCount}
-                </Typography>
+            {authContext.loggedInUser?.id !== author.id ? (
+              <div className="flex flex-row space-x-5">
+                <div className="flex flex-row items-center">
+                  <IconButton
+                    icon={<Icon type="arrow-up" />}
+                    title="like"
+                    showTooltip={false}
+                    onClick={() => reactToPost(PostReactionType.LIKE)}
+                    disabled={authContext.loggedInUser === undefined}
+                  />
+                  <Typography variant="text" element="p">
+                    {likeCount}
+                  </Typography>
+                </div>
+                <div className="flex flex-row items-center">
+                  <IconButton
+                    icon={<Icon type="arrow-down" />}
+                    title="dislike"
+                    showTooltip={false}
+                    onClick={() => reactToPost(PostReactionType.DISLIKE)}
+                    disabled={authContext.loggedInUser === undefined}
+                  />
+                  <Typography variant="text" element="p">
+                    {dislikeCount}
+                  </Typography>
+                </div>
               </div>
-              <div className="flex flex-row items-center">
-                <IconButton
-                  icon={<Icon type="arrow-down" />}
-                  title="dislike"
-                  showTooltip={false}
-                  onClick={() => reactToPost(PostReactionType.DISLIKE)}
-                  disabled={authContext.loggedInUser === undefined}
-                />
-                <Typography variant="text" element="p">
-                  {dislikeCount}
-                </Typography>
-              </div>
-            </div>
+            ) : (
+              <div />
+            )}
             <div>
               {editing ? (
                 <div className="flex flex-row space-x-3">

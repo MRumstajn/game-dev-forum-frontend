@@ -221,16 +221,25 @@ export function WorkOfferPreviewPage() {
                     </div>
 
                     <div className="flex flex-row gap-x-1 mt-3">
-                      <Typography variant="text" element="p">
-                        Your rating:
-                      </Typography>
-                      {generateStarIconRow(userRating ? userRating.rating : 0)}
-                      {userRating && (
-                        <IconButton
-                          icon={<Icon type="x" className="text-slate-300" />}
-                          label="Clear rating"
-                          onClick={() => clearRatingHandler()}
-                        />
+                      {authContext.loggedInUser?.id !==
+                        workOffer?.author.id && (
+                        <div className="flex flex-row gap-x-1">
+                          <Typography variant="text" element="p">
+                            Your rating:
+                          </Typography>
+                          {generateStarIconRow(
+                            userRating ? userRating.rating : 0
+                          )}
+                          {userRating && (
+                            <IconButton
+                              icon={
+                                <Icon type="x" className="text-slate-300" />
+                              }
+                              label="Clear rating"
+                              onClick={() => clearRatingHandler()}
+                            />
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
