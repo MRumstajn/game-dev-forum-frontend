@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-import { useNavigate } from "react-router-dom";
-
 import { getToken } from "../../util/jwtTokenUtils";
 import { getCurrentUser } from "../api/getCurrentUser";
 import { UserResponse } from "../api/UserResponse";
@@ -20,8 +18,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     undefined
   );
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     const localToken = getToken();
     if (localToken !== undefined) {
@@ -31,8 +27,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       });
     }
-    navigate("/home");
-    //eslint-disable-next-line
+    if (window.location.pathname === "/") {
+      window.location.href = "/home";
+    }
   }, []);
 
   const values = useMemo(

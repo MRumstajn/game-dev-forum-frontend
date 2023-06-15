@@ -2,7 +2,7 @@ import React from "react";
 
 import { IntlProvider } from "@tiller-ds/intl";
 
-import { Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import { About } from "./about/About";
 import { Chat } from "./chat/pages/Chat";
@@ -29,47 +29,49 @@ import { UserProfilePage } from "./user/pages/UserProfilePage";
 function App() {
   return (
     <>
-      <IntlProvider lang="hr">
-        <AuthProvider>
-          <Navbar />
-          <Routes>
-            <Route path="/home" element={<Home />} />
-            <Route path="/news" element={<News />} />
-            <Route path="/news/:threadId" element={<Thread />} />
-            <Route path="/forum" element={<Forum />} />
-            <Route path="/forum/:categoryId" element={<Category />} />
-            <Route path="/forum/:categoryId/:threadId" element={<Thread />} />
-            <Route path="/rules" element={<Rules />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/404" element={<NotFoundErrorPage />} />
-            <Route path="/403" element={<AccessDeniedErrorPage />} />
-            <Route path="/500" element={<InternalErrorPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/profile/:id" element={<UserProfilePage />} />
-            <Route path="/profile/edit" element={<EditUserProfilePage />} />
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route
-              path="/marketplace/:categoryId/:workOfferId"
-              element={<WorkOfferPreviewPage />}
-            />
-            <Route
-              path="/marketplace/:categoryId/:workOfferId/edit"
-              element={<WorkOfferCreateOrEditPage />}
-            />
-            <Route
-              path="/marketplace/:categoryId/new"
-              element={<WorkOfferCreateOrEditPage />}
-            />
-            <Route path="/messaging" element={<MessagingPage />} />
-            <Route
-              path="/messaging/new/:recipientId"
-              element={<MessagingPage />}
-            />
-          </Routes>
-        </AuthProvider>
-      </IntlProvider>
+      <AuthProvider>
+        <IntlProvider lang="hr">
+          <BrowserRouter>
+            <Navbar />
+            <Routes>
+              <Route path="/home" element={<Home />} />
+              <Route path="/news" element={<News />} />
+              <Route path="/news/:threadId" element={<Thread />} />
+              <Route path="/forum" element={<Forum />} />
+              <Route path="/forum/:categoryId" element={<Category />} />
+              <Route path="/forum/:categoryId/:threadId" element={<Thread />} />
+              <Route path="/rules" element={<Rules />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/404" element={<NotFoundErrorPage />} />
+              <Route path="/403" element={<AccessDeniedErrorPage />} />
+              <Route path="/500" element={<InternalErrorPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/profile/:id" element={<UserProfilePage />} />
+              <Route path="/profile/edit" element={<EditUserProfilePage />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route
+                path="/marketplace/:categoryId/:workOfferId"
+                element={<WorkOfferPreviewPage />}
+              />
+              <Route
+                path="/marketplace/:categoryId/:workOfferId/edit"
+                element={<WorkOfferCreateOrEditPage />}
+              />
+              <Route
+                path="/marketplace/:categoryId/new"
+                element={<WorkOfferCreateOrEditPage />}
+              />
+              <Route path="/messaging" element={<MessagingPage />} />
+              <Route
+                path="/messaging/new/:recipientId"
+                element={<MessagingPage />}
+              />
+            </Routes>
+          </BrowserRouter>
+        </IntlProvider>
+      </AuthProvider>
     </>
   );
 }

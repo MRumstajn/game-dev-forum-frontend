@@ -3,7 +3,6 @@ import React from "react";
 import { ThemeProvider } from "@tiller-ds/theme";
 
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import "./index.css";
@@ -28,9 +27,7 @@ root.render(
       themeConfig={defaultComponentConfig}
       iconConfig={defaultIconConfig}
     >
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <App />
     </ThemeProvider>
   </>
 );
