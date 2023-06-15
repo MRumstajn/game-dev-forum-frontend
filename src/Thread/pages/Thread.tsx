@@ -43,6 +43,7 @@ import { deletePost } from "../api/deletePost";
 import { deleteThread } from "../api/deleteThread";
 import { getCategoryById } from "../api/getCategoryById";
 import { getThreadById } from "../api/getThreadById";
+import { getTopPostInThread } from "../api/getTopPostInThread";
 import { postCreatePostRequest } from "../api/postCreatePostRequest";
 import { postPostSearchRequest } from "../api/postPostSearchRequest";
 import { PostReactionCountResponse } from "../api/PostReactionCountResponse";
@@ -51,12 +52,6 @@ import { postSearchUserPostReactionRequest } from "../api/postSearchUserPostReac
 import { SearchPostsRequest } from "../api/SearchPostsRequest";
 import { UserPostReactionResponse } from "../api/UserPostReactionResponse";
 import { PostCard } from "../components/PostCard";
-
-type PostScore = {
-  post: PostResponse;
-
-  score: number;
-};
 
 type PostForm = {
   content: string;
@@ -92,9 +87,9 @@ export function Thread() {
   const [dislikeFilter, setDislikeFilter] = useState<number>();
   const [parentCategory, setParentCategory] = useState<CategoryResponse>();
   const [thread, setThread] = useState<ThreadResponse>();
-  const [topPost, setTopPost] = useState<PostResponse>();
   const [page, setPage] = useState<number>();
   const [totalPosts, setTotalPosts] = useState<number>();
+  const [topPostId, setTopPostId] = useState<number>();
   const [filterUsed, setFilterUsed] = useState<boolean>(false);
 
   const threadId = Number(params.threadId);
@@ -117,52 +112,6 @@ export function Thread() {
       setTotalPosts(response.data.totalElements);
     });
   }, []);
-
-  const findTopPost = useCallback(() => {
-    if (postReactionsCounts.length > 0 && posts) {
-      // for each post, get score which is likes - dislikes
-      const postScores = posts.map((post) => {
-        const postReactions = postReactionsCounts.filter(
-          (reaction) => reaction.postId === post.id
-        );
-        const postLikes = postReactions
-          .filter(
-            (reaction) => reaction.postReactionType === PostReactionType.LIKE
-          )
-          .reduce((acc, reaction) => acc + reaction.count, 0);
-        const postDislikes = postReactions
-          .filter(
-            (reaction) => reaction.postReactionType === PostReactionType.DISLIKE
-          )
-          .reduce((acc, reaction) => acc + reaction.count, 0);
-
-        return { post: post, score: postLikes - postDislikes } as PostScore;
-      });
-
-      // get post with max score
-      let firstPostScore = postScores.find((score) => score.score > 0);
-      let top = firstPostScore ? [firstPostScore] : [];
-      if (top.length > 0) {
-        postScores.forEach((postScore) => {
-          //  skip comparing first post (initial top post) to itself
-          if (postScore !== firstPostScore) {
-            if (postScore.score > top[0].score) {
-              top = [postScore];
-            } else if (postScore.score === top[0].score) {
-              top.push(postScore);
-            }
-          }
-        });
-      }
-
-      // if two posts have the max score, set uop post to undefined, otherwise set to post with max score
-      if (top.length === 1) {
-        setTopPost(top[0].post);
-      } else {
-        setTopPost(undefined);
-      }
-    }
-  }, [postReactionsCounts, posts]);
 
   const fetchPostReactionCounts = useCallback(() => {
     if (posts === undefined || posts.length === 0) {
@@ -201,8 +150,17 @@ export function Thread() {
     fetchPostReactionCounts();
   }, [fetchPostReactionCounts]);
 
-  // eslint-disable-next-line
-  useEffect(() => findTopPost(), [postReactionsCounts]);
+  useEffect(() => {
+    if (!thread?.id) {
+      return;
+    }
+
+    setTopPostId(undefined);
+
+    getTopPostInThread(thread.id).then((response) =>
+      setTopPostId(response.data.id)
+    );
+  }, [postReactionsCounts, thread]);
 
   useEffect(() => {
     if (authContext.loggedInUser === undefined || posts === undefined) {
@@ -222,8 +180,10 @@ export function Thread() {
     let request = {
       threadId: threadId,
       authorUsername: usernameFilter,
-      likesFromIncluding: likeFilter,
-      dislikesFromIncluding: dislikeFilter,
+      likesFromIncluding:
+        likeFilter !== undefined && likeFilter > 0 ? likeFilter : null,
+      dislikesFromIncluding:
+        dislikeFilter !== undefined && dislikeFilter > 0 ? dislikeFilter : null,
     } as SearchPostsRequest;
 
     if (startDate !== null) {
@@ -364,7 +324,7 @@ export function Thread() {
                   <Typography variant="h1" element="h1">
                     {thread?.title}
                   </Typography>
-                  {topPost && (
+                  {topPostId && (
                     <div
                       className="flex flex-row gap-x-3"
                       onClick={() =>
@@ -500,11 +460,10 @@ export function Thread() {
                         content={post.content}
                         author={post.author}
                         creationDate={post.creationDateTime}
-                        isTopPost={topPost?.id === post.id}
+                        isTopPost={topPostId === post.id}
                         topPostRef={topPostRef}
                         onReactionsChanged={() => {
                           fetchPostReactionCounts();
-                          findTopPost();
                         }}
                         likes={
                           getReactionCountForPost(
