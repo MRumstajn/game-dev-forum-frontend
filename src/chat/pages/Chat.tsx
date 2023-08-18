@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 
 import { Breadcrumbs, Button, Typography } from "@tiller-ds/core";
 import { InputField } from "@tiller-ds/formik-elements";
@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import * as yup from "yup";
 
 import { UserResponse } from "../../common/api/UserResponse";
+import { AuthContext } from "../../common/components/AuthProvider";
 import {
   INPUT_TOO_LONG_MESSAGE,
   INPUT_TOO_SHORT_MESSAGE,
@@ -48,6 +49,8 @@ export function Chat() {
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [clientReady, setClientReady] = useState<boolean>(false);
   const [client, setClient] = useState<Client>();
+
+  const authContext = useContext(AuthContext);
 
   const fetchOnlineUsers = useCallback(() => {
     client?.sendPacket({
@@ -244,12 +247,14 @@ export function Chat() {
                                 master:
                                   "rounded-none rounded-bl-md border-l-0 border-r-0 border-b-0 w-full",
                               }}
+                              disabled={authContext.loggedInUser === undefined}
                             />
                             <Button
                               variant="filled"
                               color="primary"
                               className="rounded-none"
                               type="submit"
+                              disabled={authContext.loggedInUser === undefined}
                             >
                               Send
                             </Button>
