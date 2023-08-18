@@ -1,8 +1,9 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { Modal, UseModal } from "@tiller-ds/alert";
 import { Button, Typography } from "@tiller-ds/core";
 import { PasswordInputField } from "@tiller-ds/formik-elements";
+import { Icon } from "@tiller-ds/icons";
 
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -40,6 +41,9 @@ type ChangePasswordModalProps = {
 };
 
 export function ChangePasswordModal({ modal }: ChangePasswordModalProps) {
+  const [showCredentialsError, setShowCredentialsError] =
+    useState<boolean>(false);
+
   const authContext = useContext(AuthContext);
 
   function formSubmitHandler(form: Form) {
@@ -51,12 +55,23 @@ export function ChangePasswordModal({ modal }: ChangePasswordModalProps) {
       userId: authContext.loggedInUser.id,
       currentPassword: form.currentPassword,
       newPassword: form.newPassword,
-    }).then((response) => {
-      authContext.setLoggedInUser(response.data.user);
-      saveToken(response.data.newAccessToken);
-      modal.onClose();
-    });
+    })
+      .then((response) => {
+        authContext.setLoggedInUser(response.data.user);
+        saveToken(response.data.newAccessToken);
+        setShowCredentialsError(false);
+        modal.onClose();
+      })
+      .catch((err) => {
+        setShowCredentialsError(true);
+      });
   }
+
+  useEffect(() => {
+    if (showCredentialsError) {
+      setTimeout(() => setShowCredentialsError(false), 3000);
+    }
+  }, [showCredentialsError]);
 
   return (
     <Modal {...modal}>
@@ -102,6 +117,16 @@ export function ChangePasswordModal({ modal }: ChangePasswordModalProps) {
             </form>
           )}
         </Formik>
+        {showCredentialsError && (
+          <div className="w-full bg-red-600 p-3 rounded-md mt-5">
+            <Typography variant="text" element="h4">
+              <div className="flex flex-row space-x-3">
+                <Icon type="x-circle" className="text-white" />
+                <p className="text-white">Invalid credentials</p>
+              </div>
+            </Typography>
+          </div>
+        )}
       </Modal.Content>
     </Modal>
   );
