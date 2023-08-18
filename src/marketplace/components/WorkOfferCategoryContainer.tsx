@@ -107,33 +107,35 @@ export function WorkOfferCategoryContainer({
                 <Typography variant="text" element="p">
                   Services: {totalServices}
                 </Typography>
-                <Pagination
-                  pageNumber={page}
-                  onPageChange={(newPage) => {
-                    setPage(newPage);
-                    pageChangeCallback(newPage);
-                  }}
-                  pageSize={5}
-                  totalElements={totalServices}
-                  tokens={{
-                    default: {
-                      backgroundColor: "none",
-                      textColor: "text-slate-600",
-                      borderColor: "none",
-                    },
-                    current: {
-                      backgroundColor: "none hover:bg-navy-100",
-                      textColor: "text-black",
-                      borderColor: "none",
-                    },
-                    pageSummary: {
-                      fontSize: "text-sm",
-                      lineHeight: "leading-5",
-                    },
-                  }}
-                >
-                  {() => null}
-                </Pagination>
+                {workOffers.length > 0 && (
+                  <Pagination
+                    pageNumber={page}
+                    onPageChange={(newPage) => {
+                      setPage(newPage);
+                      pageChangeCallback(newPage);
+                    }}
+                    pageSize={5}
+                    totalElements={totalServices}
+                    tokens={{
+                      default: {
+                        backgroundColor: "none",
+                        textColor: "text-slate-600",
+                        borderColor: "none",
+                      },
+                      current: {
+                        backgroundColor: "none hover:bg-navy-100",
+                        textColor: "text-black",
+                        borderColor: "none",
+                      },
+                      pageSummary: {
+                        fontSize: "text-sm",
+                        lineHeight: "leading-5",
+                      },
+                    }}
+                  >
+                    {() => null}
+                  </Pagination>
+                )}
               </div>
             </Card.Footer>
           </Card>

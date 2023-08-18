@@ -231,17 +231,24 @@ export function Marketplace() {
                   }
                 />
               ))}
+              {workOfferCategories.length == 0 && (
+                <Typography variant="subtext" className="text-center">
+                  <p>No categories yet</p>
+                </Typography>
+              )}
             </div>
-            <div className="mt-10">
-              <Pagination
-                pageNumber={page}
-                pageSize={3}
-                totalElements={totalCategories}
-                onPageChange={setPage}
-              >
-                {() => null}
-              </Pagination>
-            </div>
+            {workOfferCategories.length > 0 && (
+              <div className="mt-10">
+                <Pagination
+                  pageNumber={page}
+                  pageSize={3}
+                  totalElements={totalCategories}
+                  onPageChange={setPage}
+                >
+                  {() => null}
+                </Pagination>
+              </div>
+            )}
           </div>
         </div>
       </div>
