@@ -51,7 +51,7 @@ export function MessageBubble({
       </Card.Body>
       <Card.Footer className="border-none">
         <div className="flex flex-row justify-between">
-          <Typography variant="subtext" element="p">
+          <Typography variant="subtext" element="p" className="pr-3">
             <span className="text-xs">
               {moment(message.creationDateTime).format("DD.MM.yyyy (h:mm)")}
             </span>
