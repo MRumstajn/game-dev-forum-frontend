@@ -49,33 +49,40 @@ export function NotificationPopup({
             }
           />
         ))}
-        <Pagination
-          pageNumber={page}
-          pageSize={3}
-          totalElements={totalNotifications}
-          onPageChange={(page) => {
-            setPage(page);
-            changePageCallback(page);
-          }}
-          tokens={{
-            default: {
-              backgroundColor: "none",
-              textColor: "text-slate-600 hover:text-white",
-              borderColor: "none",
-            },
-            current: {
-              backgroundColor: "none hover:bg-navy-100",
-              textColor: "text-white",
-              borderColor: "border-none",
-            },
-            pageSummary: {
-              fontSize: "text-sm",
-              lineHeight: "leading-5",
-            },
-          }}
-        >
-          {() => <></>}
-        </Pagination>
+        {notifications.length === 0 && (
+          <Typography variant="subtext" className="text-center p-3">
+            <p>No notifications yet</p>
+          </Typography>
+        )}
+        {notifications.length > 0 && (
+          <Pagination
+            pageNumber={page}
+            pageSize={3}
+            totalElements={totalNotifications}
+            onPageChange={(page) => {
+              setPage(page);
+              changePageCallback(page);
+            }}
+            tokens={{
+              default: {
+                backgroundColor: "none",
+                textColor: "text-slate-600 hover:text-white",
+                borderColor: "none",
+              },
+              current: {
+                backgroundColor: "none hover:bg-navy-100",
+                textColor: "text-white",
+                borderColor: "border-none",
+              },
+              pageSummary: {
+                fontSize: "text-sm",
+                lineHeight: "leading-5",
+              },
+            }}
+          >
+            {() => <></>}
+          </Pagination>
+        )}
       </div>
     </div>
   );

@@ -219,7 +219,7 @@ export function PostCard({
               ) : (
                 <div className="overflow-hidden">
                   <Typography variant="text" element="p">
-                    <pre className="whitespace-normal">{postContent}</pre>
+                    <pre>{postContent}</pre>
                   </Typography>
                 </div>
               )}
