@@ -1,10 +1,10 @@
+import { TopPostResponse } from "./TopPostResponse";
 import { BaseResponseWrapper } from "../../common/api/BaseResponseWrapper";
-import { PostResponse } from "../../common/api/PostResponse";
 import { POST_SEARCH_TOP_URL } from "../../common/Routes";
 
 export async function getTopPostInThread(
   threadId: number
-): Promise<BaseResponseWrapper<PostResponse>> {
+): Promise<BaseResponseWrapper<TopPostResponse>> {
   const response = await fetch(`${POST_SEARCH_TOP_URL}/${threadId}`, {
     method: "GET",
   });
@@ -13,5 +13,5 @@ export async function getTopPostInThread(
     ...(await response.json()),
     status: response.status,
     isOk: response.ok,
-  } as BaseResponseWrapper<PostResponse>;
+  } as BaseResponseWrapper<TopPostResponse>;
 }

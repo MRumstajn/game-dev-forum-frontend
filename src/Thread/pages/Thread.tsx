@@ -72,7 +72,15 @@ const postFormValidationSchema = yup.object().shape({
 export function Thread() {
   const params = useParams();
 
+  // filtering state
   const [filterFormOpen, setFilterFormOpen] = useState<boolean>(false);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [usernameFilter, setUsernameFilter] = useState<string>();
+  const [likeFilter, setLikeFilter] = useState<number>();
+  const [dislikeFilter, setDislikeFilter] = useState<number>();
+  const [filterUsed, setFilterUsed] = useState<boolean>(false);
+
   const [posts, setPosts] = useState<PostResponse[]>();
   const [postReactionsCounts, setPostReactionsCounts] = useState<
     PostReactionCountResponse[]
@@ -80,17 +88,15 @@ export function Thread() {
   const [currentUserPostReactions, setCurrentUserPostReactions] = useState<
     UserPostReactionResponse[]
   >([]);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [usernameFilter, setUsernameFilter] = useState<string>();
-  const [likeFilter, setLikeFilter] = useState<number>();
-  const [dislikeFilter, setDislikeFilter] = useState<number>();
   const [parentCategory, setParentCategory] = useState<CategoryResponse>();
   const [thread, setThread] = useState<ThreadResponse>();
   const [page, setPage] = useState<number>();
   const [totalPosts, setTotalPosts] = useState<number>();
   const [topPostId, setTopPostId] = useState<number>();
-  const [filterUsed, setFilterUsed] = useState<boolean>(false);
+  const [topPostPage, setTopPostPage] = useState<number>();
+  const [totalPages, setTotalPages] = useState<number>();
+  const [userCreatedPost, setUserCreatedPost] = useState<boolean>(false);
+  const [goingToTopPost, setGoingToTopPost] = useState<boolean>(false);
 
   const threadId = Number(params.threadId);
   const categoryId = params.categoryId ? Number(params.categoryId) : undefined;
@@ -103,6 +109,7 @@ export function Thread() {
   const confirmDeleteThreadModal = useModal();
   const confirmDeletePostModal = useModal();
   const navigate = useNavigate();
+  const postContainerBottomRef = useRef<HTMLDivElement>(null);
 
   const updatePostList = useCallback((request: SearchPostsRequest) => {
     setPosts([]);
@@ -110,6 +117,7 @@ export function Thread() {
     postPostSearchRequest(request).then((response) => {
       setPosts(response.data.content);
       setTotalPosts(response.data.totalElements);
+      setTotalPages(response.data.totalPages);
     });
   }, []);
 
@@ -157,9 +165,10 @@ export function Thread() {
 
     setTopPostId(undefined);
 
-    getTopPostInThread(thread.id).then((response) =>
-      setTopPostId(response.data.id)
-    );
+    getTopPostInThread(thread.id).then((response) => {
+      setTopPostId(response.data.post.id);
+      setTopPostPage(response.data.pageNumber);
+    });
   }, [postReactionsCounts, thread]);
 
   useEffect(() => {
@@ -229,10 +238,34 @@ export function Thread() {
           return [response.data];
         });
 
-        updatePostList(defaultSearchPostRequest);
+        setUserCreatedPost(true);
+
+        if (totalPages) {
+          updatePostList({
+            ...defaultSearchPostRequest,
+            pageNumber: totalPages - 1,
+          });
+
+          setPage(totalPages - 1);
+        } else {
+          updatePostList(defaultSearchPostRequest);
+        }
       }
     });
   }
+
+  useEffect(() => {
+    if (userCreatedPost && postContainerBottomRef.current) {
+      setTimeout(() => {
+        if (postContainerBottomRef.current) {
+          postContainerBottomRef.current.scrollIntoView({
+            behavior: "smooth",
+          });
+        }
+      }, 800);
+    }
+    setUserCreatedPost(false);
+  }, [posts, userCreatedPost]);
 
   function cardDeleteHandler(postId: number) {
     deletePost(postId).then(() => updatePostList(defaultSearchPostRequest));
@@ -289,6 +322,21 @@ export function Thread() {
     });
   }
 
+  function goToTopPost() {
+    setGoingToTopPost(true);
+    setPage(topPostPage);
+  }
+
+  useEffect(() => {
+    if (goingToTopPost && topPostRef.current) {
+      topPostRef.current.scrollIntoView({
+        behavior: "smooth",
+      });
+
+      setGoingToTopPost(false);
+    }
+  }, [posts]);
+
   return (
     <>
       <div className="m-3 sm:m-10">
@@ -338,12 +386,9 @@ export function Thread() {
                         trailingIcon={
                           <Icon type="arrow-right" variant="fill" />
                         }
-                        onClick={() =>
-                          topPostRef.current &&
-                          topPostRef.current.scrollIntoView({
-                            behavior: "smooth",
-                          })
-                        }
+                        onClick={() => {
+                          goToTopPost();
+                        }}
                       >
                         <Typography variant="subtext" element="p">
                           Go to top post
@@ -499,6 +544,7 @@ export function Thread() {
                     No posts at the moment
                   </Typography>
                 )}
+                <div ref={postContainerBottomRef} />
                 {totalPosts !== undefined && totalPosts > 10 && (
                   <Pagination
                     pageNumber={page ? page : 0}
