@@ -112,7 +112,14 @@ export function MessagingPage() {
   // also fetch last page, and fetch the one before that because sometimes
   // the latest page can have less than 5 elements.
   useEffect(() => {
-    if (!selectedConversation || selectedConversation.id === -1) {
+    if (!selectedConversation) {
+      return;
+    }
+
+    if (selectedConversation.id === -1) {
+      setMessages([]);
+      setTotalMessages(0);
+      setDataLen(0);
       return;
     }
 
@@ -179,6 +186,19 @@ export function MessagingPage() {
           return [...prevState];
         });
         setTotalMessages((prevState) => prevState + 1);
+
+        setConversations((prevState) => {
+          let i = 0;
+          for (let conv of prevState) {
+            if (conv.id === -1) {
+              prevState[i] = response.data.conversation;
+              break;
+            }
+            i += 1;
+          }
+
+          return prevState;
+        });
       });
     }
   }
@@ -306,24 +326,25 @@ export function MessagingPage() {
               </div>
               <div className="flex flex-col justify-between p-3 mt-3 h-full">
                 <div className="flex flex-col gap-y-3">
-                  {conversations.map((conversation) => (
-                    <ConversationCard
-                      user={
-                        authContext.loggedInUser
-                          ? getRecipientFromConversation(
-                              conversation,
-                              authContext.loggedInUser.id
-                            )
-                          : undefined
-                      }
-                      latestPostDate={conversation.latestMessageDateTime}
-                      unreadMessages={conversation.unreadMessages}
-                      clickCallback={() =>
-                        setSelectedConversation(conversation)
-                      }
-                      selected={selectedConversation?.id === conversation.id}
-                    />
-                  ))}
+                  {conversations.length > 0 &&
+                    conversations.map((conversation) => (
+                      <ConversationCard
+                        user={
+                          authContext.loggedInUser
+                            ? getRecipientFromConversation(
+                                conversation,
+                                authContext.loggedInUser.id
+                              )
+                            : undefined
+                        }
+                        latestPostDate={conversation.latestMessageDateTime}
+                        unreadMessages={conversation.unreadMessages}
+                        clickCallback={() =>
+                          setSelectedConversation(conversation)
+                        }
+                        selected={selectedConversation?.id === conversation.id}
+                      />
+                    ))}
                 </div>
 
                 <div className="flex flex-row justify-center">
