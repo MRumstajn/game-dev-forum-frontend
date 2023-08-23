@@ -24,13 +24,13 @@ export function Rules() {
                   Things to do
                 </Typography>
                 <ul>
-                  <li>✔ Be police and respectful</li>
+                  <li>✔ Be polite and respectful</li>
                   <li>✔ Stay on topic</li>
                 </ul>
               </div>
               <div>
                 <Typography variant="title" element="h3">
-                  Things not avoid doing
+                  Things to avoid doing
                 </Typography>
                 <ul>
                   <li>❌ Use profanity</li>
