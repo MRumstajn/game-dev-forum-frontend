@@ -42,7 +42,8 @@ export function Navbar() {
     []
   );
   const [notificationPage, setNotificationPage] = useState<number>(0);
-  const [totalNotifications, setTotalNotifications] = useState<number>(0);
+  const [totalNotificationPages, settotalNotificationPages] =
+    useState<number>(0);
   const [unreadNotificationCount, setUnreadNotificationCount] =
     useState<number>(0);
 
@@ -56,23 +57,34 @@ export function Navbar() {
   function logOut() {
     authContext.setLoggedInUser(undefined);
     clearToken();
+
+    setNotifications([]);
+    settotalNotificationPages(0);
+
     navigate("/login");
   }
 
-  useEffect(() => {
-    if (!authContext.loggedInUser) {
-      return;
-    }
+  const fetchAndAppendNotifications = useCallback(
+    (page: number) => {
+      if (!authContext.loggedInUser) {
+        return;
+      }
 
-    postSearchNotificationRequest({
-      recipientId: authContext.loggedInUser.id,
-      pageNumber: notificationPage,
-      pageSize: 3,
-    }).then((response) => {
-      setNotifications(() => response.data.content);
-      setTotalNotifications(response.data.totalElements);
-    });
-  }, [authContext.loggedInUser, notificationPage]);
+      postSearchNotificationRequest({
+        recipientId: authContext.loggedInUser.id,
+        pageNumber: page,
+        pageSize: 3,
+      }).then((response) => {
+        setNotifications((prevState) => [
+          ...prevState,
+          ...response.data.content,
+        ]);
+        settotalNotificationPages(response.data.totalPages);
+        setNotificationPage(page);
+      });
+    },
+    [authContext.loggedInUser]
+  );
 
   useEffect(() => {
     function handleMouseClick(event: MouseEvent) {
@@ -95,7 +107,7 @@ export function Navbar() {
       }
 
       if ((event.target as HTMLElement).role === "menuItem") {
-        console.log("menu item!");
+        // menu item logic
       }
     }
 
@@ -109,6 +121,10 @@ export function Navbar() {
       setUnreadNotificationCount(response.data.unreadNotifications)
     );
   }, [notifications]);
+
+  useEffect(() => {
+    fetchAndAppendNotifications(0);
+  }, [fetchAndAppendNotifications]);
 
   function markNotificationsAsRead(notificationIds: number[], all: boolean) {
     const request = all
@@ -151,6 +167,16 @@ export function Navbar() {
       setSelectedNavLink(undefined);
     }
   }, []);
+
+  function hasMoreNotificationsToLoad(): boolean {
+    return notificationPage < totalNotificationPages - 1;
+  }
+
+  function loadNextNotificationPage() {
+    if (hasMoreNotificationsToLoad()) {
+      fetchAndAppendNotifications(notificationPage + 1);
+    }
+  }
 
   return (
     <>
@@ -230,8 +256,9 @@ export function Navbar() {
                         markNotificationsAsRead(notifications, false)
                       }
                       notifications={notifications}
-                      changePageCallback={setNotificationPage}
-                      totalNotifications={totalNotifications}
+                      loadNextPageCallback={() => loadNextNotificationPage()}
+                      hasUnreadNotifications={unreadNotificationCount > 0}
+                      hasMoreNotificationsToLoad={hasMoreNotificationsToLoad()}
                     />
                   </div>
                 )}
@@ -295,8 +322,9 @@ export function Navbar() {
                     markNotificationsAsRead(notifications, false)
                   }
                   notifications={notifications}
-                  changePageCallback={setNotificationPage}
-                  totalNotifications={totalNotifications}
+                  loadNextPageCallback={() => loadNextNotificationPage()}
+                  hasUnreadNotifications={unreadNotificationCount > 0}
+                  hasMoreNotificationsToLoad={hasMoreNotificationsToLoad()}
                 />
               </div>
             )}

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
-import { IconButton, Pagination, Typography } from "@tiller-ds/core";
+import { Button, IconButton, Typography } from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
 import { NotificationCard } from "./NotificationCard";
@@ -10,19 +10,19 @@ type NotificationPopupProps = {
   notifications: NotificationResponse[];
   markNotificationsAsReadCallback: (notificationIds: number[]) => void;
   markAllNotificationsAsReadCallback: () => void;
-  changePageCallback: (page: number) => void;
-  totalNotifications: number;
+  loadNextPageCallback: () => void;
+  hasMoreNotificationsToLoad: boolean;
+  hasUnreadNotifications: boolean;
 };
 
 export function NotificationPopup({
   notifications,
   markAllNotificationsAsReadCallback,
   markNotificationsAsReadCallback,
-  changePageCallback,
-  totalNotifications,
+  loadNextPageCallback,
+  hasMoreNotificationsToLoad,
+  hasUnreadNotifications,
 }: NotificationPopupProps) {
-  const [page, setPage] = useState<number>(0);
-
   return (
     <div className="relative w-full nav-break:absolute nav-break:origin-top-right nav-break:right-0 bg-slate-800 border-2 border-slate-700 nav-break:w-80">
       <div className="flex flex-row justify-between bg-slate-700 p-1">
@@ -33,10 +33,7 @@ export function NotificationPopup({
           icon={<Icon type="checks" />}
           onClick={() => markAllNotificationsAsReadCallback()}
           label="Mark all as read"
-          disabled={
-            notifications.find((notification) => !notification.isRead) ===
-            undefined
-          }
+          disabled={!hasUnreadNotifications}
         />
       </div>
 
@@ -55,33 +52,13 @@ export function NotificationPopup({
           </Typography>
         )}
         {notifications.length > 0 && (
-          <Pagination
-            pageNumber={page}
-            pageSize={3}
-            totalElements={totalNotifications}
-            onPageChange={(page) => {
-              setPage(page);
-              changePageCallback(page);
-            }}
-            tokens={{
-              default: {
-                backgroundColor: "none",
-                textColor: "text-slate-600 hover:text-white",
-                borderColor: "none",
-              },
-              current: {
-                backgroundColor: "none hover:bg-navy-100",
-                textColor: "text-white",
-                borderColor: "border-none",
-              },
-              pageSummary: {
-                fontSize: "text-sm",
-                lineHeight: "leading-5",
-              },
-            }}
+          <Button
+            variant="outlined"
+            onClick={() => loadNextPageCallback()}
+            disabled={!hasMoreNotificationsToLoad}
           >
-            {() => <></>}
-          </Pagination>
+            Load more
+          </Button>
         )}
       </div>
     </div>
