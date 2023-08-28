@@ -8,6 +8,7 @@ import { Formik } from "formik";
 import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 
+import { ErrorCode } from "../../common/api/ErrorCode";
 import { AuthContext } from "../../common/components/AuthProvider";
 import {
   BIO_TOO_LONG_MESSAGE,
@@ -35,6 +36,8 @@ export function EditUserProfilePage() {
   const [initialValuesState, setInitialValuesState] =
     useState<Form>(initialFormValues);
   const [reInitFormik, setReInitFormik] = useState<boolean>(false);
+  const [showUsernameTakenError, setShowUsernameTakenError] =
+    useState<boolean>(false);
 
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
@@ -60,12 +63,25 @@ export function EditUserProfilePage() {
             : undefined
           : undefined,
       }).then((response) => {
-        authContext.setLoggedInUser(response.data.user);
-        saveToken(response.data.newAccessToken);
-        navigateBack();
+        if (response.errorCode !== ErrorCode.DUPLICATE_RESOURCE) {
+          authContext.setLoggedInUser(response.data.user);
+          saveToken(response.data.newAccessToken);
+          navigateBack();
+        } else {
+          setShowUsernameTakenError(true);
+        }
       });
     }
   }
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setShowUsernameTakenError(false), 3000);
+
+    // cleanup
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [showUsernameTakenError]);
 
   function navigateBack() {
     navigate(`/profile/${authContext.loggedInUser?.id}`);
@@ -138,6 +154,22 @@ export function EditUserProfilePage() {
                               className="w-full sm:w-fit"
                             />
                           </div>
+
+                          {showUsernameTakenError && (
+                            <div className="col-span-2 bg-red-600 p-3 rounded-md my-3">
+                              <Typography variant="text" element="h4">
+                                <div className="flex flex-row space-x-3">
+                                  <Icon
+                                    type="x-circle"
+                                    className="text-white"
+                                  />
+                                  <p className="text-white">
+                                    Username is already taken
+                                  </p>
+                                </div>
+                              </Typography>
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex controls-mobile:flex-col-reverse flex-row gap-x-3 gap-y-3 justify-end mt-5">
