@@ -383,7 +383,7 @@ export function MessagingPage() {
               <div
                 style={{
                   height: 490,
-                  overflow: "scroll",
+                  overflow: "auto",
                   display: "flex",
                   flexDirection: "column-reverse",
                 }}
@@ -395,7 +395,7 @@ export function MessagingPage() {
                     style={{
                       display: "flex",
                       flexDirection: "column-reverse",
-                      overflow: "hidden",
+                      overflowY: "hidden",
                     }}
                     inverse={true}
                     scrollableTarget={messageContainerRef.current}
@@ -473,7 +473,7 @@ export function MessagingPage() {
                         <div className="flex flex-col gap-x-3">
                           <TextareaField
                             name="content"
-                            className="flex-grow h-[60px] border-x-0 border-b-0"
+                            className="flex-grow mb-1 border-x-0 border-b-0"
                             tokens={{
                               borderRadius: "rounded-none",
                             }}
