@@ -11,6 +11,7 @@ import * as yup from "yup";
 import { AuthContext } from "../../common/components/AuthProvider";
 import {
   INPUT_REQUIRED_MESSAGE,
+  PASSWORD_DOES_NOT_MATCH_MESSAGE,
   SAME_PASSWORD_MESSAGE,
 } from "../../common/constants";
 import { saveToken } from "../../util/jwtTokenUtils";
@@ -20,19 +21,29 @@ type Form = {
   currentPassword: string;
 
   newPassword: string;
+
+  confirmNewPassword: string;
 };
 
 const initialFormValues = {
   currentPassword: "",
 
   newPassword: "",
+
+  confirmNewPassword: "",
 } as Form;
 
 const validationSchema = yup.object().shape({
   currentPassword: yup.string().required(INPUT_REQUIRED_MESSAGE),
   newPassword: yup
     .string()
+    .nullable()
     .notOneOf([yup.ref("currentPassword")], SAME_PASSWORD_MESSAGE)
+    .required(INPUT_REQUIRED_MESSAGE),
+  confirmNewPassword: yup
+    .string()
+    .nullable()
+    .oneOf([yup.ref("newPassword")], PASSWORD_DOES_NOT_MATCH_MESSAGE)
     .required(INPUT_REQUIRED_MESSAGE),
 });
 
@@ -99,6 +110,14 @@ export function ChangePasswordModal({ modal }: ChangePasswordModalProps) {
                     </Typography>
                   </div>
                   <PasswordInputField name="newPassword" />
+                </div>
+                <div className="flex flex-col sm:flex-row gap-y-1 gap-x-3 justify-between">
+                  <div className="flex flex-row justify-start">
+                    <Typography variant="text" element="p">
+                      Confirm new password:
+                    </Typography>
+                  </div>
+                  <PasswordInputField name="confirmNewPassword" />
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row gap-y-3 gap-x-3 justify-end mt-5">
                   <Button
