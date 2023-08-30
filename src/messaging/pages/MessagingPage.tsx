@@ -56,6 +56,8 @@ export function MessagingPage() {
   const [messagePage, setMessagePage] = useState<number>(0);
   const [dataLen, setDataLen] = useState<number>(5);
   const [render, setRender] = useState<boolean>(false);
+  const [doneFetchingConversations, setDoneFetchingConversations] =
+    useState<boolean>(false);
 
   const messageContainerRef = useRef(null);
   const authContext = useContext(AuthContext);
@@ -65,12 +67,24 @@ export function MessagingPage() {
 
   // load conversations
   useEffect(() => {
+    setDoneFetchingConversations(false);
     postSearchConversationsRequestPageable({
       pageNumber: conversationPage,
       pageSize: 5,
     }).then((response) => {
       setConversations(response.data.content);
+      /*
+      * setConversations(
+        response.data.content.filter(
+          (remoteConv) =>
+            conversations.find(
+              (localConv) => localConv.id === remoteConv.id
+            ) !== undefined
+        )
+      );
+      * */
       setTotalConversations(response.data.totalElements);
+      setDoneFetchingConversations(true);
     });
   }, [conversationPage]);
 
@@ -93,6 +107,10 @@ export function MessagingPage() {
     if (conversationMatch) {
       setSelectedConversation(conversationMatch);
     } else {
+      if (!doneFetchingConversations) {
+        return;
+      }
+
       getUserById(recipientId).then((response) => {
         if (response.isOk) {
           // mock conversation so the first message can be sent, after which a real conversation will be created
@@ -100,13 +118,13 @@ export function MessagingPage() {
             currentUser,
             response.data
           );
-          setSelectedConversation(mockedConversation);
           setConversations((prevState) => [...prevState, mockedConversation]);
+          setSelectedConversation(mockedConversation);
         }
       });
     }
     //eslint-disable-next-line
-  }, [totalConversations]);
+  }, [totalConversations, doneFetchingConversations]);
 
   // get info about how many pages there are.
   // also fetch last page, and fetch the one before that because sometimes
@@ -192,6 +210,7 @@ export function MessagingPage() {
           for (let conv of prevState) {
             if (conv.id === -1) {
               prevState[i] = response.data.conversation;
+              prevState[i].latestMessageDateTime = new Date();
               break;
             }
             i += 1;
