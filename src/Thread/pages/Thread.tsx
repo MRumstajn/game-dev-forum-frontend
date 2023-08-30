@@ -323,6 +323,8 @@ export function Thread() {
   }
 
   function goToTopPost() {
+    resetFilter();
+
     setGoingToTopPost(true);
     setPage(topPostPage);
   }
