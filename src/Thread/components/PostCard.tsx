@@ -217,14 +217,16 @@ export function PostCard({
                   onChange={(event) => setEditedContent(event.target.value)}
                 />
               ) : (
-                <div className="overflow-hidden">
+                <div>
                   <Typography variant="text" element="p">
-                    <pre>{postContent}</pre>
+                    <pre className="whitespace-pre-wrap overflow-wrap-break-word">
+                      {postContent}
+                    </pre>
                   </Typography>
                 </div>
               )}
             </div>
-            <div className="p-3">
+            <div className="p-3 overflow-ellipsis">
               <Typography variant="subtext" element="p">
                 <pre>{author.bio ? author.bio : "No bio yet"}</pre>
               </Typography>
