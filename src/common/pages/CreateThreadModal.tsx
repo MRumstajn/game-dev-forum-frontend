@@ -10,6 +10,7 @@ import * as yup from "yup";
 import { postCreateThreadRequest } from "../api/postCreateThreadRequest";
 import { ThreadResponse } from "../api/ThreadResponse";
 import { AuthContext } from "../components/AuthProvider";
+import { INPUT_TOO_LONG_MESSAGE } from "../constants";
 
 type Form = {
   title: string;
@@ -22,7 +23,12 @@ const initialFormValues = {
 } as Form;
 
 const formValidationSchema = yup.object().shape({
-  title: yup.string().required().min(3).nullable(),
+  title: yup
+    .string()
+    .required()
+    .min(3)
+    .max(30, INPUT_TOO_LONG_MESSAGE)
+    .nullable(),
   firstPostContent: yup.string().required().min(3).nullable(),
 });
 
