@@ -148,14 +148,14 @@ export function WorkOfferPreviewPage() {
           </Breadcrumbs>
           <div className="mt-20">
             <div className="flex flex-col space-y-20">
-              <div className="flex controls-mobile:flex-col flex-row justify-between">
+              <div className="flex flex-col sm:flex-row sm:justify-between">
                 <Typography variant="h1" element="h1">
                   {workOffer?.title}
                 </Typography>
                 {authContext.loggedInUser &&
                   (authContext.loggedInUser.id === workOffer?.author.id ||
                     authContext.loggedInUser.role === UserRole.ADMIN) && (
-                    <div className="flex controls-mobile:flex-col gap-y-3 sm:flex-row gap-x-3 mt-5 controls-large:mt-0">
+                    <div className="flex flex-col gap-y-3 sm:flex-row gap-x-3 mt-5 sm:mt-0">
                       <Button
                         variant="filled"
                         color="primary"
@@ -184,7 +184,9 @@ export function WorkOfferPreviewPage() {
                     <strong>Description:</strong>
                   </Typography>
                   <Typography variant="text" element="p">
-                    <pre>{workOffer?.description}</pre>
+                    <pre className="whitespace-pre-wrap">
+                      {workOffer?.description}
+                    </pre>
                   </Typography>
                 </div>
                 <div className="flex flex-col gap-y-5 sm:flex-row justify-between">

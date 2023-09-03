@@ -4,28 +4,32 @@ import { useParams } from "react-router-dom";
 
 import { UserResponse } from "../../common/api/UserResponse";
 import { formatDate } from "../../util/dateUtil";
+import { isScreenBelowMdBreakpoint } from "../../util/screenUtil";
 
 type ThreadCardProps = {
   threadId: number;
+
+  creationDate: Date;
 
   title: string;
 
   author: UserResponse;
 
-  postCount?: number;
-
   latestPostDate?: Date;
 
   latestPostAuthor?: UserResponse;
+
+  showLatestPostLabel: boolean;
 };
 
 export function ThreadCard({
   threadId,
+  creationDate,
   title,
   author,
-  postCount,
   latestPostDate,
   latestPostAuthor,
+  showLatestPostLabel,
 }: ThreadCardProps) {
   const params = useParams();
 
@@ -40,12 +44,9 @@ export function ThreadCard({
     >
       <Card>
         <Card.Body>
-          <div className="grid grid-cols-4">
+          <div className="grid grid-cols-3 md:grid-cols-4">
             <Typography variant="text" element="p">
               {title}
-            </Typography>
-            <Typography variant="text" element="p">
-              {postCount}
             </Typography>
 
             <Link to={`/profile/${author.id}`} className="w-1/3">
@@ -54,7 +55,11 @@ export function ThreadCard({
               </Typography>
             </Link>
 
-            {latestPostDate && latestPostAuthor && (
+            <Typography variant="text" element="p">
+              {formatDate(creationDate)}
+            </Typography>
+
+            {showLatestPostLabel && latestPostDate && latestPostAuthor && (
               <div className="flex flex-row space-x-1">
                 <Typography variant="subtext" element="p">
                   by

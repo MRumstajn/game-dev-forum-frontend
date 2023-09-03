@@ -27,6 +27,7 @@ import { EditTitleModal } from "../../common/pages/EditTitleModal";
 import { postSearchThreadRequest } from "../../news/api/postSearchThreadRequest";
 import { SearchThreadRequest } from "../../news/api/SearchThreadRequest";
 import { getCategoryById } from "../../Thread/api/getCategoryById";
+import { isScreenBelowMdBreakpoint } from "../../util/screenUtil";
 import { deleteCategory } from "../api/deleteCategory";
 import { putEditCategoryRequest } from "../api/postEditCategoryRequest";
 import { postThreadStatisticsRequest } from "../api/postThreadStatisticsRequest";
@@ -46,6 +47,7 @@ export function Category() {
   const [page, setPage] = useState<number>(0);
   const [totalThreads, setTotalThreads] = useState<number>();
   const [filterUsed, setFilterUsed] = useState<boolean>(false);
+  const [mobileViewMode, setMobileViewMode] = useState<boolean>(false);
 
   const params = useParams();
   const authContext = useContext(AuthContext);
@@ -180,9 +182,21 @@ export function Category() {
     }).then((response) => setThreadStatistics(response.data));
   }, [threads]);
 
+  const checkScreenSize = useCallback(() => {
+    setMobileViewMode(isScreenBelowMdBreakpoint());
+  }, []);
+
+  useEffect(() => {
+    checkScreenSize();
+
+    window.addEventListener("resize", () => checkScreenSize());
+
+    return window.removeEventListener("resize", checkScreenSize);
+  }, [checkScreenSize]);
+
   return (
     <>
-      <div className="mt-10">
+      <div className="m-1 sm:m-10">
         <div className="container mx-auto max-w-5xl">
           <Breadcrumbs icon={<Icon type="caret-right" />}>
             <Breadcrumbs.Breadcrumb>
@@ -194,11 +208,11 @@ export function Category() {
             <Breadcrumbs.Breadcrumb>{category?.title}</Breadcrumbs.Breadcrumb>
           </Breadcrumbs>
           <div className="mt-20 flex flex-col space-y-20">
-            <div className="flex flex-row justify-between">
+            <div className="flex flex-col sm:flex-row gap-y-3 justify-between">
               <Typography variant="h1" element="h1">
                 {category?.title}
               </Typography>
-              <div className="flex flex-row gap-x-3 justify-end">
+              <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-0 sm:gap-x-3 justify-center mt-5 sm:mt-0 sm:justify-end">
                 <Button
                   variant="filled"
                   color="primary"
@@ -212,6 +226,7 @@ export function Category() {
                     variant="filled"
                     color="primary"
                     onClick={newThreadModal.onOpen}
+                    className="w-full sm:w-fit"
                   >
                     New thread
                   </Button>
@@ -252,7 +267,7 @@ export function Category() {
                           value={startDate}
                           maxDate={endDate === null ? new Date() : endDate}
                           onReset={() => setStartDate(null)}
-                          label="Start date"
+                          label="Creation date from"
                           className="mt-5 sm:mt-0"
                         />
                       </div>
@@ -263,7 +278,7 @@ export function Category() {
                           value={endDate}
                           minDate={startDate === null ? new Date() : startDate}
                           onReset={() => setEndDate(null)}
-                          label="End date"
+                          label="Creation date to"
                           className="mt-5 md:mt-0"
                         />
                       </div>
@@ -293,28 +308,30 @@ export function Category() {
             <div className="flex flex-col space-y-3 pb-10">
               {threads.length > 0 && (
                 <div>
-                  <div className="grid grid-cols-4 mb-3">
+                  <div className="grid grid-cols-3 md:grid-cols-4 mb-3">
                     <Typography variant="text" element="p">
                       Threads
-                    </Typography>
-                    <Typography variant="text" element="p">
-                      Posts
                     </Typography>
                     <Typography variant="text" element="p">
                       Author
                     </Typography>
                     <Typography variant="text" element="p">
-                      Latest post
+                      Created on
                     </Typography>
+                    {!mobileViewMode && (
+                      <Typography variant="text" element="p">
+                        Latest post
+                      </Typography>
+                    )}
                   </div>
                   <div className="border-b-2 mb-3" />
                   <div className="flex flex-col gap-y-3">
                     {threads.map((thread) => (
                       <ThreadCard
                         threadId={thread.id}
+                        creationDate={thread.creationDateTime}
                         title={thread.title}
                         author={thread.author}
-                        postCount={getStatisticForThread(thread.id)?.postCount}
                         latestPostDate={
                           getLatestPost(thread.id)
                             ? getLatestPost(thread.id)?.creationDateTime
@@ -325,6 +342,7 @@ export function Category() {
                             ? getLatestPost(thread.id)?.author
                             : undefined
                         }
+                        showLatestPostLabel={!mobileViewMode}
                       />
                     ))}
                   </div>

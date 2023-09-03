@@ -66,3 +66,4 @@ export const WORK_OFFER_MIN_PRICE_MESSAGE = "Price has to be 0 or greater";
 // screen sizes
 
 export const NAVBAR_BREAKPOINT_PX = 870;
+export const MD_BREAKPOINT_PX = 768;
