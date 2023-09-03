@@ -1,4 +1,4 @@
-import { FormEvent, useContext, useEffect, useState } from "react";
+import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 
 import { useModal } from "@tiller-ds/alert";
 import {
@@ -10,7 +10,6 @@ import {
 } from "@tiller-ds/core";
 import { Input, NumberInput } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
-import { DropdownMenu } from "@tiller-ds/menu";
 
 import { Link } from "react-router-dom";
 
@@ -48,6 +47,7 @@ export function Marketplace() {
 
   const authContext = useContext(AuthContext);
   const createWorkOfferCategoryModal = useModal();
+  const filterFormRef = useRef<any>();
 
   function searchWorkOffers(
     request: SearchWorkOffersRequestPageable,
@@ -156,6 +156,14 @@ export function Marketplace() {
     setFilterUsed(true);
   }
 
+  useEffect(() => {
+    if (filterFormOpen) {
+      filterFormRef.current.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+  }, [filterFormOpen]);
+
   return (
     <>
       <div className="m-1 sm:m-10">
@@ -187,11 +195,11 @@ export function Marketplace() {
             {filterFormOpen && (
               <Card className="flex flex-col space-y-10 mt-5">
                 <Card.Body className="bg-gray-200">
-                  <form onSubmit={filterFormSubmitHandler}>
+                  <form onSubmit={filterFormSubmitHandler} ref={filterFormRef}>
                     <Typography variant="title">
                       Filtering category "{filteringWhichCategory?.title}"
                     </Typography>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-5 mt-3">
                       <div>
                         <Input
                           name="author"
