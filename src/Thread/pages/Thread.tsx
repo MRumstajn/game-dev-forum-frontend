@@ -197,12 +197,14 @@ export function Thread() {
 
     if (startDate !== null) {
       request.creationDateTimeFromIncluding = moment(startDate)
-        .add(1, "day")
+        .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        .utc(true)
         .toDate();
     }
     if (endDate !== null) {
       request.creationDateTimeToIncluding = moment(endDate)
-        .add(1, "day")
+        .set({ hour: 23, minute: 59, second: 59, millisecond: 0 })
+        .utc(true)
         .toDate();
     }
 
@@ -212,6 +214,12 @@ export function Thread() {
   }
 
   function resetFilter() {
+    setLikeFilter(0);
+    setDislikeFilter(0);
+    setUsernameFilter(undefined);
+    setStartDate(null);
+    setEndDate(null);
+
     if (filterUsed) {
       updatePostList({
         threadId: threadId,
@@ -401,7 +409,9 @@ export function Thread() {
                 </div>
                 <DropdownMenu title="Actions" color="primary">
                   <DropdownMenu.Item
-                    onSelect={() => setFilterFormOpen(!filterFormOpen)}
+                    onSelect={() =>
+                      filterFormOpen ? resetFilter() : setFilterFormOpen(true)
+                    }
                   >
                     Filter
                   </DropdownMenu.Item>

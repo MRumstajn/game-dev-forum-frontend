@@ -149,6 +149,8 @@ export function Forum() {
   }
 
   function resetFilter() {
+    setTitleFilter(undefined);
+
     if (section === undefined) {
       return;
     }
@@ -184,7 +186,9 @@ export function Forum() {
                 <Button
                   variant="filled"
                   color="primary"
-                  onClick={() => setFilterFormOpen((prevState) => !prevState)}
+                  onClick={() =>
+                    filterFormOpen ? resetFilter() : setFilterFormOpen(true)
+                  }
                   className="controls-mobile:w-full w-fit"
                 >
                   <span className="text-white">Filter</span>

@@ -98,12 +98,14 @@ export function Category() {
 
     if (startDate !== null) {
       request.creationDateTimeFromIncluding = moment(startDate)
-        .add(1, "day")
+        .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        .utc(true)
         .toDate();
     }
     if (endDate !== null) {
       request.creationDateTimeToIncluding = moment(endDate)
-        .add(1, "day")
+        .set({ hour: 23, minute: 59, second: 59, millisecond: 0 })
+        .utc(true)
         .toDate();
     }
 
@@ -113,6 +115,10 @@ export function Category() {
   }
 
   function resetFilter() {
+    setUsernameFilter(undefined);
+    setStartDate(null);
+    setEndDate(null);
+
     if (filterUsed) {
       updateThreadList({
         categoryId: category?.id,
@@ -216,7 +222,9 @@ export function Category() {
                 <Button
                   variant="filled"
                   color="primary"
-                  onClick={() => setFilterFormOpen((prevState) => !prevState)}
+                  onClick={() =>
+                    filterFormOpen ? resetFilter() : setFilterFormOpen(true)
+                  }
                 >
                   <span className="text-white">Filter</span>
                 </Button>

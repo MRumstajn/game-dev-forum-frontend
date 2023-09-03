@@ -1,7 +1,13 @@
 import { useContext, useState } from "react";
 
 import { useModal } from "@tiller-ds/alert";
-import { Card, IconButton, Pagination, Typography } from "@tiller-ds/core";
+import {
+  Button,
+  Card,
+  IconButton,
+  Pagination,
+  Typography,
+} from "@tiller-ds/core";
 import { Icon } from "@tiller-ds/icons";
 
 import { useNavigate } from "react-router-dom";
@@ -22,6 +28,7 @@ type WorkOfferCategoryContainerProps = {
   totalServices: number;
   pageChangeCallback: (page: number) => void;
   deleteCallback: () => void;
+  filterCallback: (categoryId: number) => void;
 };
 
 export function WorkOfferCategoryContainer({
@@ -30,6 +37,7 @@ export function WorkOfferCategoryContainer({
   totalServices,
   pageChangeCallback,
   deleteCallback,
+  filterCallback,
 }: WorkOfferCategoryContainerProps) {
   const [page, setPage] = useState<number>(0);
   //eslint-disable-next-line
@@ -55,23 +63,31 @@ export function WorkOfferCategoryContainer({
                   <Typography variant="title" element="h3">
                     {workOfferCategory.title}
                   </Typography>
-                  {authContext.loggedInUser &&
-                    authContext.loggedInUser.role === UserRole.ADMIN && (
-                      <div className="flex flex-row gap-x-3">
-                        <IconButton
-                          icon={<Icon type="pencil" />}
-                          onClick={editCategoryModal.onOpen}
-                          label="Edit"
-                          className="text-gray-600"
-                        />
-                        <IconButton
-                          icon={<Icon type="trash" />}
-                          onClick={confirmDeleteModal.onOpen}
-                          label="Delete"
-                          className="text-gray-600"
-                        />
-                      </div>
-                    )}
+                  <div className="flex flex-row space-x-3 justify-center items-center">
+                    <Button
+                      variant="outlined"
+                      onClick={() => filterCallback(workOfferCategory.id)}
+                    >
+                      Filter
+                    </Button>
+                    {authContext.loggedInUser &&
+                      authContext.loggedInUser.role === UserRole.ADMIN && (
+                        <div className="flex flex-row gap-x-3">
+                          <IconButton
+                            icon={<Icon type="pencil" />}
+                            onClick={editCategoryModal.onOpen}
+                            label="Edit"
+                            className="text-gray-600"
+                          />
+                          <IconButton
+                            icon={<Icon type="trash" />}
+                            onClick={confirmDeleteModal.onOpen}
+                            label="Delete"
+                            className="text-gray-600"
+                          />
+                        </div>
+                      )}
+                  </div>
                 </div>
                 {workOfferCategory.description ? (
                   <Typography variant="text" element="p">

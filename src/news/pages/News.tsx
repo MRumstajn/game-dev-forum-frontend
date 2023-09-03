@@ -80,12 +80,14 @@ export function News() {
 
     if (startDate !== null) {
       request.creationDateTimeFromIncluding = moment(startDate)
-        .add(1, "day")
+        .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        .utc(true)
         .toDate();
     }
     if (endDate !== null) {
       request.creationDateTimeToIncluding = moment(endDate)
-        .add(1, "day")
+        .set({ hour: 23, minute: 59, second: 59, millisecond: 0 })
+        .utc(true)
         .toDate();
     }
 
@@ -127,7 +129,9 @@ export function News() {
                   <Button
                     variant="filled"
                     color="primary"
-                    onClick={() => setFilterFormOpen((prevState) => !prevState)}
+                    onClick={() =>
+                      filterFormOpen ? resetFilter() : setFilterFormOpen(true)
+                    }
                     className="controls-mobile:w-full w-fit"
                   >
                     <span className="text-white">Filter</span>
