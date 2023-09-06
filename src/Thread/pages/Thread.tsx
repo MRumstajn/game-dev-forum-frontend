@@ -97,6 +97,7 @@ export function Thread() {
   const [totalPages, setTotalPages] = useState<number>();
   const [userCreatedPost, setUserCreatedPost] = useState<boolean>(false);
   const [goingToTopPost, setGoingToTopPost] = useState<boolean>(false);
+  const [filterRequest, setFilterRequest] = useState<SearchPostsRequest>({});
 
   const threadId = Number(params.threadId);
   const categoryId = params.categoryId ? Number(params.categoryId) : undefined;
@@ -134,11 +135,21 @@ export function Thread() {
   }, [posts]);
 
   useEffect(() => {
-    updatePostList({
-      ...defaultSearchPostRequest,
-      pageNumber: page,
-      pageSize: 10,
-    });
+    if (!filterRequest) {
+      updatePostList({
+        ...defaultSearchPostRequest,
+        pageNumber: page,
+        pageSize: 10,
+      });
+    } else {
+      updatePostList({
+        ...defaultSearchPostRequest,
+        ...filterRequest,
+        pageNumber: page,
+        pageSize: 10,
+      });
+    }
+
     // eslint-disable-next-line
   }, [updatePostList, page]);
 
@@ -186,13 +197,17 @@ export function Thread() {
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    setPage(0);
+
     let request = {
-      threadId: threadId,
-      authorUsername: usernameFilter,
-      likesFromIncluding:
-        likeFilter !== undefined && likeFilter > 0 ? likeFilter : null,
+      threadId: threadId ? threadId : undefined,
+      authorUsername:
+        usernameFilter && usernameFilter.length > 0
+          ? usernameFilter
+          : undefined,
+      likesFromIncluding: likeFilter && likeFilter > 0 ? likeFilter : undefined,
       dislikesFromIncluding:
-        dislikeFilter !== undefined && dislikeFilter > 0 ? dislikeFilter : null,
+        dislikeFilter && dislikeFilter > 0 ? dislikeFilter : undefined,
     } as SearchPostsRequest;
 
     if (startDate !== null) {
@@ -211,6 +226,8 @@ export function Thread() {
     updatePostList(request);
 
     setFilterUsed(true);
+
+    setFilterRequest(request);
   }
 
   function resetFilter() {
@@ -230,6 +247,8 @@ export function Thread() {
     }
 
     setFilterFormOpen(false);
+
+    setFilterRequest({});
   }
 
   function postInputFormSubmitHandler(form: PostForm) {
