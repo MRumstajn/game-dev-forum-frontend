@@ -11,7 +11,7 @@ import {
 import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { CategoryStatisticsResponse } from "../../common/api/CategoryStatisticsResponse";
@@ -21,7 +21,6 @@ import { UserRole } from "../../common/api/UserRole";
 import { AuthContext } from "../../common/components/AuthProvider";
 import { CreateCategoryModal } from "../../common/pages/CreateCategoryModal";
 import { SearchCategoryRequest } from "../../news/api/SearchCategoryRequest";
-import { SearchPostsRequest } from "../../Thread/api/SearchPostsRequest";
 import { postSearchCategoryRequest } from "../api/postSearchCategoryRequest";
 import { postSearchSectionRequest } from "../api/postSearchSectionRequest";
 import { postThreadStatisticsRequest } from "../api/postThreadStatisticsRequest";
@@ -56,20 +55,14 @@ export function Forum() {
   useEffect(() => {
     postSearchSectionRequest({
       title: "Forum",
-    }).then((response) => setSection(response.data[0]));
-  }, []);
-
-  // get categories
-  /*useEffect(() => {
-    if (section === undefined) {
-      return;
-    }
-
-    postSearchCategoryRequest(defaultSearchRequest).then((response) => {
-      setCategories(response.data.content);
-      setTotalCategories(response.data.totalElements);
+    }).then((response) => {
+      setSection(response.data[0]);
+      setDefaultSearchRequest((prevState) => ({
+        ...prevState,
+        sectionId: response.data[0].id,
+      }));
     });
-  }, [section, page]);*/
+  }, []);
 
   // get details about each category
   useEffect(() => {
@@ -178,6 +171,10 @@ export function Forum() {
   }
 
   useEffect(() => {
+    if (section === undefined) {
+      return;
+    }
+
     if (!filterRequest) {
       updateCategoryList(defaultSearchRequest);
     } else {
@@ -187,7 +184,7 @@ export function Forum() {
         pageNumber: page,
       });
     }
-  }, [filterRequest, page]);
+  }, [defaultSearchRequest, filterRequest, page, section]);
 
   return (
     <>
