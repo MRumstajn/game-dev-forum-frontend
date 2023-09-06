@@ -11,7 +11,7 @@ import {
 import { Input } from "@tiller-ds/form-elements";
 import { Icon } from "@tiller-ds/icons";
 
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { CategoryResponse } from "../../common/api/CategoryResponse";
 import { CategoryStatisticsResponse } from "../../common/api/CategoryStatisticsResponse";
@@ -21,6 +21,7 @@ import { UserRole } from "../../common/api/UserRole";
 import { AuthContext } from "../../common/components/AuthProvider";
 import { CreateCategoryModal } from "../../common/pages/CreateCategoryModal";
 import { SearchCategoryRequest } from "../../news/api/SearchCategoryRequest";
+import { SearchPostsRequest } from "../../Thread/api/SearchPostsRequest";
 import { postSearchCategoryRequest } from "../api/postSearchCategoryRequest";
 import { postSearchSectionRequest } from "../api/postSearchSectionRequest";
 import { postThreadStatisticsRequest } from "../api/postThreadStatisticsRequest";
@@ -41,7 +42,13 @@ export function Forum() {
   const [page, setPage] = useState<number>(0);
   const [totalCategories, setTotalCategories] = useState<number>();
   const [filterUsed, setFilterUsed] = useState<boolean>(false);
-
+  const [filterRequest, setFilterRequest] = useState<SearchCategoryRequest>();
+  const [defaultSearchRequest, setDefaultSearchRequest] =
+    useState<SearchCategoryRequest>({
+      sectionId: section ? section.id : undefined,
+      pageNumber: page,
+      pageSize: 10,
+    });
   const authContext = useContext(AuthContext);
   const newCategoryModal = useModal();
 
@@ -53,20 +60,16 @@ export function Forum() {
   }, []);
 
   // get categories
-  useEffect(() => {
+  /*useEffect(() => {
     if (section === undefined) {
       return;
     }
 
-    postSearchCategoryRequest({
-      sectionId: section.id,
-      pageSize: 10,
-      pageNumber: page,
-    }).then((response) => {
+    postSearchCategoryRequest(defaultSearchRequest).then((response) => {
       setCategories(response.data.content);
       setTotalCategories(response.data.totalElements);
     });
-  }, [section, page]);
+  }, [section, page]);*/
 
   // get details about each category
   useEffect(() => {
@@ -128,6 +131,8 @@ export function Forum() {
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    setPage(0);
+
     if (section === undefined) {
       return;
     }
@@ -140,12 +145,15 @@ export function Forum() {
     updateCategoryList(request);
 
     setFilterUsed(true);
+
+    setFilterRequest(request);
   }
 
   function updateCategoryList(request: SearchCategoryRequest) {
-    postSearchCategoryRequest(request).then((response) =>
-      setCategories(response.data.content)
-    );
+    postSearchCategoryRequest(request).then((response) => {
+      setCategories(response.data.content);
+      setTotalCategories(response.data.totalElements);
+    });
   }
 
   function resetFilter() {
@@ -165,7 +173,21 @@ export function Forum() {
     }
 
     setFilterFormOpen(false);
+
+    setFilterRequest({});
   }
+
+  useEffect(() => {
+    if (!filterRequest) {
+      updateCategoryList(defaultSearchRequest);
+    } else {
+      updateCategoryList({
+        ...defaultSearchRequest,
+        ...filterRequest,
+        pageNumber: page,
+      });
+    }
+  }, [filterRequest, page]);
 
   return (
     <>

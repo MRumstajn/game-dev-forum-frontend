@@ -48,6 +48,7 @@ export function Category() {
   const [totalThreads, setTotalThreads] = useState<number>();
   const [filterUsed, setFilterUsed] = useState<boolean>(false);
   const [mobileViewMode, setMobileViewMode] = useState<boolean>(false);
+  const [filterRequest, setFilterRequest] = useState<SearchThreadRequest>();
 
   const params = useParams();
   const authContext = useContext(AuthContext);
@@ -91,6 +92,8 @@ export function Category() {
   function filterFormSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    setPage(0);
+
     let request = {
       categoryId: category?.id,
       authorUsername: usernameFilter,
@@ -112,6 +115,8 @@ export function Category() {
     updateThreadList(request);
 
     setFilterUsed(true);
+
+    setFilterRequest(request);
   }
 
   function resetFilter() {
@@ -129,6 +134,8 @@ export function Category() {
     }
 
     setFilterFormOpen(false);
+
+    setFilterRequest({});
   }
 
   function deleteThisCategory() {
@@ -165,15 +172,21 @@ export function Category() {
   }, [params.categoryId]);
 
   // get threads
-  useEffect(
-    () =>
+  useEffect(() => {
+    if (!filterRequest) {
       updateThreadList({
         categoryId: category?.id,
         pageSize: 10,
         pageNumber: page,
-      }),
-    [category, updateThreadList, page]
-  );
+      });
+    } else {
+      updateThreadList({
+        ...filterRequest,
+        pageNumber: page,
+        pageSize: 10,
+      });
+    }
+  }, [category, updateThreadList, page]);
 
   // get details for all threads
   useEffect(() => {
