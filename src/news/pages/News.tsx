@@ -56,7 +56,7 @@ export function News() {
 
     updateThreadList({
       categoryId: newsCategoryId,
-      authorUsername: titleFilter,
+      title: titleFilter,
       pageSize: 10,
       pageNumber: page,
     });
