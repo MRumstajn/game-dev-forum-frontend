@@ -184,7 +184,14 @@ export function Forum() {
         pageNumber: page,
       });
     }
-  }, [defaultSearchRequest, filterRequest, page, section]);
+  }, [defaultSearchRequest, filterRequest, section]);
+
+  useEffect(() => {
+    setDefaultSearchRequest((prevState) => ({
+      ...prevState,
+      pageNumber: page,
+    }));
+  }, [page]);
 
   return (
     <>
