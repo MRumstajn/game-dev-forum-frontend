@@ -30,7 +30,7 @@ export function News() {
   const [filterFormOpen, setFilterFormOpen] = useState<boolean>(false);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [usernameFilter, setUsernameFilter] = useState<string>();
+  const [titleFilter, setTitleFilter] = useState<string>();
   const [page, setPage] = useState<number>(0);
   const [totalThreads, setTotalThreads] = useState<number>();
   const [filterUsed, setFilterUsed] = useState<boolean>(false);
@@ -56,7 +56,7 @@ export function News() {
 
     updateThreadList({
       categoryId: newsCategoryId,
-      authorUsername: usernameFilter,
+      authorUsername: titleFilter,
       pageSize: 10,
       pageNumber: page,
     });
@@ -75,7 +75,7 @@ export function News() {
 
     let request = {
       categoryId: newsCategoryId,
-      authorUsername: usernameFilter,
+      title: titleFilter,
     } as SearchThreadRequest;
 
     if (startDate !== null) {
@@ -155,12 +155,12 @@ export function News() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-5">
                         <div>
                           <Input
-                            name="author"
-                            placeholder="Author"
+                            name="title"
+                            placeholder="Title"
                             onChange={(event) =>
-                              setUsernameFilter(event.target.value)
+                              setTitleFilter(event.target.value)
                             }
-                            label="Author"
+                            label="Title"
                           />
                         </div>
                         <div>
