@@ -34,6 +34,8 @@ export const POST_REACTION_SEARCH_URL = "/api/post-reactions/search";
 
 export const USER_URL = "/api/users";
 
+export const GET_MANY_USERS_URL = "/api/users/get-many";
+
 export const TOP_USERS_URL = "/api/users/top-reputation";
 
 export const USER_CHANGE_PASSWORD_URL = "/api/auth/change-password";

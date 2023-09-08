@@ -42,6 +42,7 @@ import { EditTitleModal } from "../../common/pages/EditTitleModal";
 import { deletePost } from "../api/deletePost";
 import { deleteThread } from "../api/deleteThread";
 import { getCategoryById } from "../api/getCategoryById";
+import { getManyUsers } from "../api/getManyUsers";
 import { getThreadById } from "../api/getThreadById";
 import { getTopPostInThread } from "../api/getTopPostInThread";
 import { postCreatePostRequest } from "../api/postCreatePostRequest";
@@ -278,6 +279,43 @@ export function Thread() {
           updatePostList(defaultSearchPostRequest);
         }
       }
+    });
+  }
+
+  function updateUsersReputation() {
+    if (!posts) {
+      return;
+    }
+    getManyUsers({
+      userIds: posts.map((post) => post.author.id),
+    }).then((response) => {
+      setPosts((prevState) => {
+        if (!prevState) {
+          return prevState; // Return the unchanged state if it's falsy
+        }
+
+        // Create a shallow copy of the prevState array
+        const updatedPosts = [...prevState];
+
+        for (let i = 0; i < updatedPosts.length; i++) {
+          let post = updatedPosts[i];
+          let fetchedAuthor = response.data.find(
+            (user) => user.id === post.author.id
+          );
+          if (fetchedAuthor?.reputation) {
+            // Update the reputation in the copied post
+            updatedPosts[i] = {
+              ...post,
+              author: {
+                ...post.author,
+                reputation: fetchedAuthor.reputation,
+              },
+            };
+          }
+        }
+
+        return updatedPosts;
+      });
     });
   }
 
@@ -540,6 +578,7 @@ export function Thread() {
                         topPostRef={topPostRef}
                         onReactionsChanged={() => {
                           fetchPostReactionCounts();
+                          updateUsersReputation();
                         }}
                         likes={
                           getReactionCountForPost(
