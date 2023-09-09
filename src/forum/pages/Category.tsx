@@ -283,10 +283,10 @@ export function Category() {
                       </div>
                       <div>
                         <DateInput
-                          name="startDate"
+                          name="creationDateFrom"
                           onChange={setStartDate}
                           value={startDate}
-                          maxDate={endDate === null ? new Date() : endDate}
+                          maxDate={endDate === null ? undefined : endDate}
                           onReset={() => setStartDate(null)}
                           label="Creation date from"
                           className="mt-5 sm:mt-0"
@@ -294,10 +294,10 @@ export function Category() {
                       </div>
                       <div>
                         <DateInput
-                          name="endDate"
+                          name="creationDateTo"
                           onChange={setEndDate}
                           value={endDate}
-                          minDate={startDate === null ? new Date() : startDate}
+                          minDate={startDate === null ? undefined : startDate}
                           onReset={() => setEndDate(null)}
                           label="Creation date to"
                           className="mt-5 md:mt-0"

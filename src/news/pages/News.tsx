@@ -170,7 +170,7 @@ export function News() {
                             value={creationDateFrom}
                             maxDate={
                               creationDateTo === null
-                                ? new Date()
+                                ? undefined
                                 : creationDateTo
                             }
                             onReset={() => setCreationDateFrom(null)}
@@ -185,7 +185,7 @@ export function News() {
                             value={creationDateTo}
                             minDate={
                               creationDateFrom === null
-                                ? new Date()
+                                ? undefined
                                 : creationDateFrom
                             }
                             onReset={() => setCreationDateTo(null)}

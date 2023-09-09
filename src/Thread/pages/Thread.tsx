@@ -513,12 +513,12 @@ export function Thread() {
                         </div>
                         <div>
                           <DateInput
-                            name="startDate"
+                            name="creatioDateFrom"
                             onChange={setStartDate}
                             value={startDate}
-                            maxDate={endDate === null ? new Date() : endDate}
+                            maxDate={endDate === null ? undefined : endDate}
                             onReset={() => setStartDate(null)}
-                            label="Start date"
+                            label="Creation date from"
                             className="mt-5 sm:mt-0"
                           />
                           <NumberInput
@@ -531,14 +531,12 @@ export function Thread() {
                         </div>
                         <div>
                           <DateInput
-                            name="endDate"
+                            name="creationDateTo"
                             onChange={setEndDate}
                             value={endDate}
-                            minDate={
-                              startDate === null ? new Date() : startDate
-                            }
+                            minDate={startDate === null ? undefined : startDate}
                             onReset={() => setEndDate(null)}
-                            label="End date"
+                            label="Creation date to"
                             className="mt-5 md:mt-0"
                           />
                         </div>
