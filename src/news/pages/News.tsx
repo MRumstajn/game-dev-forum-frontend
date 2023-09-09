@@ -28,8 +28,8 @@ export function News() {
   const [newsCategoryId, setNewsCategoryId] = useState<number>();
   const [newsThreads, setNewsThreads] = useState<ThreadResponse[]>();
   const [filterFormOpen, setFilterFormOpen] = useState<boolean>(false);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [creationDateFrom, setCreationDateFrom] = useState<Date | null>(null);
+  const [creationDateTo, setCreationDateTo] = useState<Date | null>(null);
   const [titleFilter, setTitleFilter] = useState<string>();
   const [page, setPage] = useState<number>(0);
   const [totalThreads, setTotalThreads] = useState<number>();
@@ -78,14 +78,14 @@ export function News() {
       title: titleFilter,
     } as SearchThreadRequest;
 
-    if (startDate !== null) {
-      request.creationDateTimeFromIncluding = moment(startDate)
+    if (creationDateFrom !== null) {
+      request.creationDateTimeFromIncluding = moment(creationDateFrom)
         .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
         .utc(true)
         .toDate();
     }
-    if (endDate !== null) {
-      request.creationDateTimeToIncluding = moment(endDate)
+    if (creationDateTo !== null) {
+      request.creationDateTimeToIncluding = moment(creationDateTo)
         .set({ hour: 23, minute: 59, second: 59, millisecond: 0 })
         .utc(true)
         .toDate();
@@ -165,25 +165,31 @@ export function News() {
                         </div>
                         <div>
                           <DateInput
-                            name="startDate"
-                            onChange={setStartDate}
-                            value={startDate}
-                            maxDate={endDate === null ? new Date() : endDate}
-                            onReset={() => setStartDate(null)}
-                            label="Start date"
+                            name="creationDateFrom"
+                            onChange={setCreationDateFrom}
+                            value={creationDateFrom}
+                            maxDate={
+                              creationDateTo === null
+                                ? new Date()
+                                : creationDateTo
+                            }
+                            onReset={() => setCreationDateFrom(null)}
+                            label="Creation date from"
                             className="mt-5 sm:mt-0"
                           />
                         </div>
                         <div>
                           <DateInput
-                            name="endDate"
-                            onChange={setEndDate}
-                            value={endDate}
+                            name="creationDateTo"
+                            onChange={setCreationDateTo}
+                            value={creationDateTo}
                             minDate={
-                              startDate === null ? new Date() : startDate
+                              creationDateFrom === null
+                                ? new Date()
+                                : creationDateFrom
                             }
-                            onReset={() => setEndDate(null)}
-                            label="End date"
+                            onReset={() => setCreationDateTo(null)}
+                            label="Creation date to"
                             className="mt-5 md:mt-0"
                           />
                         </div>
