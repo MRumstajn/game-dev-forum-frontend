@@ -45,6 +45,7 @@ import { getCategoryById } from "../api/getCategoryById";
 import { getManyUsers } from "../api/getManyUsers";
 import { getThreadById } from "../api/getThreadById";
 import { getTopPostInThread } from "../api/getTopPostInThread";
+import { getTotalPosts } from "../api/getTotalPosts";
 import { postCreatePostRequest } from "../api/postCreatePostRequest";
 import { postPostSearchRequest } from "../api/postPostSearchRequest";
 import { PostReactionCountResponse } from "../api/PostReactionCountResponse";
@@ -252,32 +253,36 @@ export function Thread() {
     setFilterRequest({});
   }
 
+  useEffect(() => {
+    if (totalPages && !userCreatedPost) {
+      setPage(totalPages - 1);
+      setTimeout(() => {
+        if (postContainerBottomRef.current) {
+          postContainerBottomRef.current.scrollIntoView({
+            behavior: "smooth",
+          });
+        }
+      }, 800);
+    }
+  }, [totalPages]);
+
   function postInputFormSubmitHandler(form: PostForm) {
     postCreatePostRequest({
       threadId: threadId,
       content: form.content,
     }).then((response) => {
-      if (posts !== undefined) {
-        setPosts((prevState) => {
-          if (prevState) {
-            prevState.push(response.data);
-            return prevState;
-          }
-          return [response.data];
-        });
+      resetFilter();
 
+      if (posts !== undefined) {
         setUserCreatedPost(true);
 
-        if (totalPages) {
+        getTotalPosts(threadId).then((resposne) => {
+          setPage(resposne.data.totalPages - 1);
           updatePostList({
             ...defaultSearchPostRequest,
-            pageNumber: totalPages - 1,
+            pageNumber: resposne.data.totalPages - 1,
           });
-
-          setPage(totalPages - 1);
-        } else {
-          updatePostList(defaultSearchPostRequest);
-        }
+        });
       }
     });
   }

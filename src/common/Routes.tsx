@@ -20,6 +20,8 @@ export const POST_SEARCH_URL = "/api/posts/search";
 
 export const POST_SEARCH_TOP_URL = "/api/posts/search/top";
 
+export const TOTAL_POSTS_INFO_URL = "/api/posts/total-posts";
+
 export const LOGIN_URL = "/api/auth/login";
 
 export const SECTION_SEARCH_URL = "/api/sections/search";
