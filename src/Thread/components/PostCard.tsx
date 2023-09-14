@@ -235,7 +235,7 @@ export function PostCard({
         </div>
         <Card.Footer className="bg-gray-100">
           <div className="flex flex-row justify-between">
-            {authContext.loggedInUser?.id ? (
+            {
               <div className="flex flex-row space-x-5">
                 <div className="flex flex-row items-center">
                   <IconButton
@@ -243,7 +243,11 @@ export function PostCard({
                     title="like"
                     showTooltip={false}
                     onClick={() => reactToPost(PostReactionType.LIKE)}
-                    disabled={authContext.loggedInUser.id === author.id}
+                    disabled={
+                      (authContext.loggedInUser &&
+                        authContext.loggedInUser.id === author.id) ||
+                      !authContext.loggedInUser
+                    }
                   />
                   <Typography variant="text" element="p">
                     {likeCount}
@@ -255,16 +259,18 @@ export function PostCard({
                     title="dislike"
                     showTooltip={false}
                     onClick={() => reactToPost(PostReactionType.DISLIKE)}
-                    disabled={authContext.loggedInUser.id === author.id}
+                    disabled={
+                      (authContext.loggedInUser &&
+                        authContext.loggedInUser.id === author.id) ||
+                      !authContext.loggedInUser
+                    }
                   />
                   <Typography variant="text" element="p">
                     {dislikeCount}
                   </Typography>
                 </div>
               </div>
-            ) : (
-              <div />
-            )}
+            }
             <div>
               {editing ? (
                 <div className="flex flex-row space-x-3">
